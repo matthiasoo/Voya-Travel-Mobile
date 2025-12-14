@@ -20,7 +20,7 @@ module.exports = {
         // Void Theme additions
         void: {
           DEFAULT: '#05050A',
-          surface: '#12121B',
+          surface: '#060514ff',
           highlight: '#1E1E2A',
         },
         text: {

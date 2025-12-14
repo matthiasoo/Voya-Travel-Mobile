@@ -1,8 +1,11 @@
-import { Text, View, TextInput, Button, ActivityIndicator } from "react-native";
+import { Text, View, ActivityIndicator } from "react-native";
+import { GradientBackground } from "../../components/GradientBackground";
 import { useState } from "react";
 import auth from "@react-native-firebase/auth";
 import { FirebaseError } from "@firebase/util";
 import { useRouter } from "expo-router";
+import { GradientButton } from "../../components/GradientButton";
+import { GradientInput } from "../../components/GradientInput";
 
 export default function Register() {
     const [email, setEmail] = useState("");
@@ -14,38 +17,36 @@ export default function Register() {
         setLoading(true);
         try {
             await auth().createUserWithEmailAndPassword(email, password);
-            router.replace('/(auth)/choose-role'); // Navigate to role selection after signup
+            router.replace('/(auth)/baseuser-setup');
         } catch (e: any) {
             const err = e as FirebaseError;
-            alert('Register failed: ' + err.message);
+            alert('Registration failed: ' + err.message);
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <View className="flex-1 gap-2 items-center justify-center bg-background">
-            <Text className="p-2 text-3xl text-primary font-bold">Register</Text>
-            <TextInput
-                className="border w-[20rem] p-3 rounded-lg border-secondary text-foreground bg-slate-900/50"
-                value={email}
-                onChangeText={setEmail}
-                placeholder="E-mail"
-                placeholderTextColor="#94a3b8"
-            />
-            <TextInput
-                className="border w-[20rem] p-3 rounded-lg border-secondary text-foreground bg-slate-900/50"
-                value={password}
-                onChangeText={setPassword}
-                placeholder="Password"
-                placeholderTextColor="#94a3b8"
-                secureTextEntry
-            />
+        <GradientBackground>
+            <Text className="text-3xl text-primary font-bold text-center">Register</Text>
+            <View className="gap-4 w-full max-w-md">
+                <GradientInput
+                    value={email}
+                    onChangeText={setEmail}
+                    placeholder="E-mail"
+                />
+                <GradientInput
+                    value={password}
+                    onChangeText={setPassword}
+                    placeholder="Password"
+                    secureTextEntry
+                />
+            </View>
             {loading ? (
                 <ActivityIndicator size="small" />
             ) : (
-                <Button onPress={signUp} title="Register" />
+                <GradientButton onPress={signUp} title="Register" />
             )}
-        </View>
+        </GradientBackground>
     );
 }
