@@ -1,4 +1,4 @@
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity } from "react-native";
+import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Alert } from "react-native";
 import { useState, useEffect } from "react";
 import firestore from "@react-native-firebase/firestore";
 import { GradientBackground } from "../../components/GradientBackground";
@@ -28,6 +28,30 @@ export default function AdminApprovals() {
         return () => unsubscribe();
     }, []);
 
+    const handleApprove = async (uid: string) => {
+        try {
+            await firestore().collection('users').doc(uid).update({
+                verificationStatus: 'VERIFIED'
+            });
+            // No need to manually update state, onSnapshot will handle it
+        } catch (error) {
+            console.error("Error approving provider:", error);
+            Alert.alert("Error", "Failed to approve provider.");
+        }
+    };
+
+    const handleReject = async (uid: string) => {
+        try {
+            await firestore().collection('users').doc(uid).update({
+                verificationStatus: 'REJECTED'
+            });
+            // No need to manually update state, onSnapshot will handle it
+        } catch (error) {
+            console.error("Error rejecting provider:", error);
+            Alert.alert("Error", "Failed to reject provider.");
+        }
+    };
+
     const renderProviderItem = ({ item }: { item: ProviderUser }) => (
         <View className="bg-slate-800/80 p-4 rounded-xl border border-slate-700 mb-3">
             <View className="flex-row justify-between items-start mb-2">
@@ -44,10 +68,16 @@ export default function AdminApprovals() {
             <Text className="text-gray-300 mb-3">Email: {item.email}</Text>
 
             <View className="flex-row gap-2 mt-2">
-                <TouchableOpacity className="flex-1 bg-green-500/20 border border-green-500 p-3 rounded-lg items-center">
+                <TouchableOpacity
+                    onPress={() => handleApprove(item.uid)}
+                    className="flex-1 bg-green-500/20 border border-green-500 p-3 rounded-lg items-center active:bg-green-500/30"
+                >
                     <Text className="text-green-400 font-bold">Approve</Text>
                 </TouchableOpacity>
-                <TouchableOpacity className="flex-1 bg-red-500/20 border border-red-500 p-3 rounded-lg items-center">
+                <TouchableOpacity
+                    onPress={() => handleReject(item.uid)}
+                    className="flex-1 bg-red-500/20 border border-red-500 p-3 rounded-lg items-center active:bg-red-500/30"
+                >
                     <Text className="text-red-400 font-bold">Reject</Text>
                 </TouchableOpacity>
             </View>

@@ -1,13 +1,17 @@
-import { Stack } from "expo-router";
-import { View, Text, Button } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import auth from "@react-native-firebase/auth";
+import { GradientBackground } from "../../components/GradientBackground";
 
 const Page = () => {
     return (
-        <View className="flex-1 gap-2 items-center justify-center bg-background">
-            <Text className="p-2 text-5xl text-primary font-bold">Voya Travel</Text>
-            <Button title="Log out" onPress={() => auth().signOut()} />
-        </View>
+        <GradientBackground>
+            <View className="flex-1 items-center justify-center gap-6">
+                <Text className="text-5xl font-extrabold text-neon-primary mb-2">Voya Travel</Text>
+                <TouchableOpacity onPress={() => auth().signOut()} className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                    <Text className="text-white font-bold">Log Out</Text>
+                </TouchableOpacity>
+            </View>
+        </GradientBackground>
     );
 };
 
