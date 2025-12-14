@@ -52,7 +52,7 @@ export default function BaseUserSetup() {
                 firstName,
                 lastName,
                 role: 'TOURIST',
-                avatarUrl,
+                avatarUrl: avatarUrl ?? "",
                 createdAt: Date.now(),
             });
 
@@ -78,6 +78,16 @@ export default function BaseUserSetup() {
             params: { firstName, lastName, imageUri }
         });
         console.log('Navigated to provider setup');
+    };
+
+    const handleCancel = async () => {
+        try {
+            await auth().currentUser?.delete();
+            router.replace('/(auth)/login');
+        } catch (error) {
+            console.error(error);
+            alert('Failed to cancel registration');
+        }
     };
 
     return (
@@ -114,7 +124,11 @@ export default function BaseUserSetup() {
                 <ActivityIndicator size="large" color="#00D4FF" />
             ) : (
                 <View className="gap-4">
-                    <GradientButton onPress={handleRegisterAsTourist} title="Register" />
+                    <GradientButton onPress={handleRegisterAsTourist} title="Complete Setup" />
+
+                    <TouchableOpacity onPress={handleCancel} className="p-2 items-center">
+                        <Text className="text-red-400 font-bold">Cancel Registration</Text>
+                    </TouchableOpacity>
 
                     <TouchableOpacity
                         onPress={handleProviderSetup}

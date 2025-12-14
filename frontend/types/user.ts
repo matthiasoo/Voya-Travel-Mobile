@@ -39,4 +39,8 @@ export interface ProviderUser extends BaseUser {
     reviewsCount: number;
 }
 
-export type AppUser = TouristUser | ProviderUser;
+export interface AdminUser extends BaseUser {
+    role: 'ADMIN';
+}
+
+export type AppUser = TouristUser | ProviderUser | AdminUser;

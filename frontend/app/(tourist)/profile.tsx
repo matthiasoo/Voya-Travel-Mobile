@@ -112,7 +112,7 @@ export default function ProfileScreen() {
             <View className="items-center gap-6 w-full">
                 {/* Avatar Section */}
                 <View className="items-center relative">
-                    <View className="w-32 h-32 rounded-full overflow-hidden border-4 border-neon-primary bg-slate-800 items-center justify-center shadow-neon-primary">
+                    <View className="w-32 h-32 rounded-full overflow-hidden border-4 border-neon-secondary bg-slate-800 items-center justify-center shadow-neon-primary">
                         {newImageUri ? (
                             <Image
                                 source={{ uri: newImageUri }}
@@ -162,7 +162,7 @@ export default function ProfileScreen() {
                             {user?.firstName} {user?.lastName}
                         </Text>
                         <Text className="text-text-muted text-lg">{user?.email}</Text>
-                        <View className="px-3 py-1 bg-slate-800/50 rounded-full border border-slate-700 mt-2">
+                        <View className="px-3 py-1 bg-neon-secondary/20 rounded-full border border-neon-secondary mt-2">
                             <Text className="text-neon-secondary text-sm font-bold uppercase tracking-wider">
                                 {user?.role}
                             </Text>

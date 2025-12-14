@@ -170,11 +170,14 @@ export default function ProviderProfileScreen() {
 
                     {/* Basic Info & Status */}
                     {!isEditing && (
-                        <View className="items-center gap-4">
+                        <View className="items-center gap-2">
                             <Text className="text-3xl font-bold text-white text-center">
                                 {user?.companyName}
                             </Text>
-                            <View className="px-3 py-1 bg-slate-800/50 rounded-full border border-slate-700 mt-2">
+                            <Text className="text-lg text-gray-300 font-medium text-center">
+                                {user?.firstName} {user?.lastName}
+                            </Text>
+                            <View className="px-3 py-1 bg-neon-primary/20 rounded-full border border-neon-primary mt-2">
                                 <Text className="text-neon-primary text-sm font-bold uppercase tracking-wider">
                                     {user?.category}
                                 </Text>

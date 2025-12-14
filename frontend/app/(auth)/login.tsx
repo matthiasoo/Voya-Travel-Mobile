@@ -1,5 +1,5 @@
 import { Text, View, TouchableOpacity, ActivityIndicator } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
 import { FirebaseError } from "@firebase/util";
@@ -21,8 +21,15 @@ export default function Login() {
 
             // Check role
             const userDoc = await firestore().collection('users').doc(user.uid).get();
-            if (userDoc.exists && userDoc.data()?.role === 'PROVIDER') {
-                router.replace('/(provider)/profile');
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                if (userData?.role === 'PROVIDER') {
+                    router.replace('/(provider)/profile');
+                } else if (userData?.role === 'ADMIN') {
+                    router.replace('/(admin)/approvals');
+                } else {
+                    router.replace('/(tourist)');
+                }
             } else {
                 router.replace('/(tourist)');
             }

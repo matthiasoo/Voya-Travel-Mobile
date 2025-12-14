@@ -21,6 +21,8 @@ export default function Index() {
                         const userData = userDoc.data();
                         if (userData?.role === 'PROVIDER') {
                             router.replace('/(provider)/profile');
+                        } else if (userData?.role === 'ADMIN') {
+                            router.replace('/(admin)/approvals');
                         } else {
                             router.replace('/(tourist)');
                         }

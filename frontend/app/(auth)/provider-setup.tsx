@@ -1,6 +1,6 @@
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Modal, StyleSheet } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import { GradientBackground } from "../../components/GradientBackground";
@@ -28,6 +28,16 @@ export default function ProviderSetup() {
     const [loading, setLoading] = useState(false);
 
     const categories: ProviderCategory[] = ['ACCOMODATION', 'TOURS', 'ATTRACIONS', 'GUIDE'];
+
+    const handleCancel = async () => {
+        try {
+            await auth().currentUser?.delete();
+            router.replace('/(auth)/login');
+        } catch (error) {
+            console.error(error);
+            alert('Failed to cancel registration');
+        }
+    };
 
     const handleCompleteSetup = async () => {
         if (!companyName || !phoneNumber || !street || !city || !zipCode || !country) {
@@ -65,7 +75,7 @@ export default function ProviderSetup() {
                 avatarUrl,
                 rating: 0,
                 reviewsCount: 0,
-                createdAt: Date.now(),
+                createdAt: Date.now()
             });
 
             router.replace('/(provider)/profile');
@@ -103,7 +113,9 @@ export default function ProviderSetup() {
                             ))}
                         </View>
 
-                        <Text className="text-white text-lg font-bold ml-1 mt-2">Address</Text>
+                        <View className="flex-row items-center justify-between mt-2">
+                            <Text className="text-white text-lg font-bold ml-1">Address</Text>
+                        </View>
                         <GradientInput value={street} onChangeText={setStreet} placeholder="Street" />
                         <View className="flex-row gap-2">
                             <View className="flex-1">
@@ -130,8 +142,14 @@ export default function ProviderSetup() {
                     ) : (
                         <GradientButton onPress={handleCompleteSetup} title="Submit Application" />
                     )}
+
+                    {!loading && (
+                        <TouchableOpacity onPress={handleCancel} className="p-2 items-center">
+                            <Text className="text-red-400 font-bold">Cancel Registration</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </ScrollView>
-        </GradientBackground>
+        </GradientBackground >
     );
 }
