@@ -1,49 +1,33 @@
-import { Text, View, TextInput, Button, ActivityIndicator } from "react-native";
-import { useState } from "react";
+import { View, ActivityIndicator } from "react-native";
+import { useEffect } from "react";
+import { useRouter } from "expo-router";
 import auth from "@react-native-firebase/auth";
-import { FirebaseError } from "@firebase/util";
 
 export default function Index() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
-    const signUp = async () => {
-        setLoading(true);
-        try {
-            await auth().createUserWithEmailAndPassword(email, password);
-        } catch (e: any) {
-            const err = e as FirebaseError;
-            alert('Błąd rejestracji: ' + err.message);
-        } finally {
-            setLoading(false);
-        }
-    }
+    useEffect(() => {
+        const checkUser = async () => {
+            const user = auth().currentUser;
+            if (!user) {
+                // Not logged in -> Go to Auth/Login
+                router.replace('/(auth)/login');
+            } else {
+                // Logged in logic
+                // TODO: Fetch user role from database (Firestore)
+                // For now, default to (tourist) or let them choose if not set.
+                // Assuming we redirect to tourist for now:
+                router.replace('/(tourist)');
+            }
+        };
 
-    const signIn = () => {
-
-    }
+        // Small delay or check ensuring nav is ready
+        setTimeout(checkUser, 100);
+    }, []);
 
     return (
-        <View className="flex-1 gap-10 items-center justify-center">
-            <Text className="p-2 text-5xl">Voya Travel</Text>
-            <TextInput
-                className="border w-[20rem]"
-                value={email}
-                onChangeText={setEmail}
-                placeholder="E-mail"
-            />
-            <TextInput
-                className="border w-[20rem]"
-                value={password}
-                onChangeText={setPassword}
-                placeholder="Hasło"
-            />
-            {loading ? (
-                <ActivityIndicator size="small" />
-            ) : (
-                <Button onPress={signUp} title="Sign Up" />
-            )}
+        <View className="flex-1 items-center justify-center bg-background">
+            <ActivityIndicator size="large" color="#3B82F6" />
         </View>
     );
 }
