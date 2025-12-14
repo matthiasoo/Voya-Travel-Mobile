@@ -1,12 +1,276 @@
-import { View, Text, Button } from "react-native";
+import { View, Text, ActivityIndicator, TouchableOpacity, ScrollView } from "react-native";
+import { useState, useEffect } from "react";
 import auth from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
+import { Image } from "expo-image";
+import { GradientBackground } from "../../components/GradientBackground";
+import { GradientButton } from "../../components/GradientButton";
+import { GradientInput } from "../../components/GradientInput";
+import { ProviderUser } from "../../types/user";
+import * as ImagePicker from 'expo-image-picker';
+import { uploadUserAvatar } from "../../utils/storage";
+import { Ionicons } from '@expo/vector-icons';
 
-export default function ProfileScreen() {
+export default function ProviderProfileScreen() {
+    const [user, setUser] = useState<ProviderUser | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [isEditing, setIsEditing] = useState(false);
+    const [saving, setSaving] = useState(false);
+
+    // Edit State
+    const [editCompanyName, setEditCompanyName] = useState('');
+    const [editPhoneNumber, setEditPhoneNumber] = useState('');
+    const [editBio, setEditBio] = useState('');
+    const [editStreet, setEditStreet] = useState('');
+    const [editCity, setEditCity] = useState('');
+    const [editZipCode, setEditZipCode] = useState('');
+    const [editCountry, setEditCountry] = useState('');
+    const [newImageUri, setNewImageUri] = useState<string | null>(null);
+
+    useEffect(() => {
+        const currentUser = auth().currentUser;
+        if (!currentUser) return;
+
+        const unsubscribe = firestore()
+            .collection('users')
+            .doc(currentUser.uid)
+            .onSnapshot((documentSnapshot) => {
+                if (documentSnapshot.exists) {
+                    setUser(documentSnapshot.data() as ProviderUser);
+                }
+                setLoading(false);
+            }, (error) => {
+                console.error("Error fetching user data: ", error);
+                setLoading(false);
+            });
+
+        return () => unsubscribe();
+    }, []);
+
+    useEffect(() => {
+        if (user) {
+            setEditCompanyName(user.companyName);
+            setEditPhoneNumber(user.phoneNumber);
+            setEditBio(user.bio || '');
+            setEditStreet(user.address?.street || '');
+            setEditCity(user.address?.city || '');
+            setEditZipCode(user.address?.zipCode || '');
+            setEditCountry(user.address?.country || '');
+        }
+    }, [user, isEditing]);
+
+    const pickImage = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.5,
+        });
+
+        if (!result.canceled) {
+            setNewImageUri(result.assets[0].uri);
+        }
+    };
+
+    const handleSave = async () => {
+        if (!user) return;
+        setSaving(true);
+        try {
+            let avatarUrl = user.avatarUrl;
+
+            if (newImageUri) {
+                avatarUrl = await uploadUserAvatar(user.uid, newImageUri);
+            }
+
+            await firestore().collection('users').doc(user.uid).update({
+                companyName: editCompanyName,
+                phoneNumber: editPhoneNumber,
+                bio: editBio,
+                address: {
+                    street: editStreet,
+                    city: editCity,
+                    zipCode: editZipCode,
+                    country: editCountry
+                },
+                avatarUrl
+            });
+
+            setIsEditing(false);
+            setNewImageUri(null);
+        } catch (error: any) {
+            alert('Error updating profile: ' + error.message);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleSignOut = async () => {
+        try {
+            await auth().signOut();
+        } catch (error) {
+            console.error("Error signing out: ", error);
+        }
+    };
+
+    const getInitials = (name: string) => {
+        return name ? name.substring(0, 2).toUpperCase() : "CO";
+    };
+
+    if (loading) {
+        return (
+            <GradientBackground variant="full">
+                <View className="flex-1 items-center justify-center">
+                    <ActivityIndicator size="large" color="#00D4FF" />
+                </View>
+            </GradientBackground>
+        );
+    }
+
+    const verificationColor =
+        user?.verificationStatus === 'VERIFIED' ? 'bg-green-500/20 border-green-500 text-green-400' :
+            user?.verificationStatus === 'REJECTED' ? 'bg-red-500/20 border-red-500 text-red-400' :
+                'bg-yellow-500/20 border-yellow-500 text-yellow-400';
+
     return (
-        <View className="flex-1 gap-2 items-center justify-center bg-background">
-            <Text className="text-2xl text-primary font-bold">Company Profile</Text>
-            <Text className="text-foreground">Company details.</Text>
-            <Button title="Log out" onPress={() => auth().signOut()} />
-        </View>
+        <GradientBackground variant="full">
+            <ScrollView className="w-full flex-1" showsVerticalScrollIndicator={false}>
+                <View className="items-center gap-6 w-full pb-8 pt-4">
+
+                    {/* Header / Avatar */}
+                    <View className="items-center relative">
+                        <View className="w-32 h-32 rounded-full overflow-hidden border-4 border-neon-primary bg-slate-800 items-center justify-center shadow-neon-primary">
+                            {newImageUri ? (
+                                <Image
+                                    source={{ uri: newImageUri }}
+                                    style={{ width: '100%', height: '100%' }}
+                                    contentFit="cover"
+                                />
+                            ) : user?.avatarUrl ? (
+                                <Image
+                                    source={{ uri: user.avatarUrl }}
+                                    style={{ width: '100%', height: '100%' }}
+                                    contentFit="cover"
+                                    transition={500}
+                                />
+                            ) : (
+                                <Text className="text-4xl font-bold text-text-muted">
+                                    {user ? getInitials(user.companyName) : "?"}
+                                </Text>
+                            )}
+                        </View>
+                        {isEditing && (
+                            <TouchableOpacity
+                                onPress={pickImage}
+                                className="absolute bottom-0 right-0 bg-neon-secondary p-2 rounded-full border-2 border-slate-900"
+                            >
+                                <Ionicons name="camera" size={20} color="white" />
+                            </TouchableOpacity>
+                        )}
+                    </View>
+
+                    {/* Basic Info & Status */}
+                    {!isEditing && (
+                        <View className="items-center gap-4">
+                            <Text className="text-3xl font-bold text-white text-center">
+                                {user?.companyName}
+                            </Text>
+                            <View className="px-3 py-1 bg-slate-800/50 rounded-full border border-slate-700 mt-2">
+                                <Text className="text-neon-primary text-sm font-bold uppercase tracking-wider">
+                                    {user?.category}
+                                </Text>
+                            </View>
+                            <Text className={`text-sm font-bold uppercase tracking-wider ${verificationColor.split(' ')[2]}`}>
+                                • {user?.verificationStatus}
+                            </Text>
+                        </View>
+                    )}
+
+                    {/* Details / Edit Form */}
+                    {isEditing ? (
+                        <View className="w-full gap-4">
+                            <Text className="text-white text-lg font-bold ml-1">Company Info</Text>
+                            <GradientInput value={editCompanyName} onChangeText={setEditCompanyName} placeholder="Company Name" />
+                            <GradientInput value={editPhoneNumber} onChangeText={setEditPhoneNumber} placeholder="Phone Number" keyboardType="phone-pad" />
+
+                            <Text className="text-white text-lg font-bold ml-1 mt-2">Address</Text>
+                            <GradientInput value={editStreet} onChangeText={setEditStreet} placeholder="Street" />
+                            <View className="flex-row gap-2">
+                                <View className="flex-1">
+                                    <GradientInput value={editCity} onChangeText={setEditCity} placeholder="City" />
+                                </View>
+                                <View className="flex-1">
+                                    <GradientInput value={editZipCode} onChangeText={setEditZipCode} placeholder="Zip Code" />
+                                </View>
+                            </View>
+                            <GradientInput value={editCountry} onChangeText={setEditCountry} placeholder="Country" />
+
+                            <Text className="text-white text-lg font-bold ml-1 mt-2">Bio</Text>
+                            <GradientInput
+                                value={editBio}
+                                onChangeText={setEditBio}
+                                placeholder="Bio"
+                                multiline
+                                numberOfLines={4}
+                            />
+                        </View>
+                    ) : (
+                        <View className="w-full gap-4 bg-slate-800/40 p-4 rounded-xl border border-slate-700">
+                            <View>
+                                <Text className="text-text-muted text-xs uppercase font-bold">Bio</Text>
+                                <Text className="text-white text-base leading-6">{user?.bio || 'No bio provided.'}</Text>
+                            </View>
+                            <View className="h-[1px] bg-slate-700/50" />
+                            <View>
+                                <Text className="text-text-muted text-xs uppercase font-bold">Contact</Text>
+                                <Text className="text-white text-base">{user?.phoneNumber}</Text>
+                                <Text className="text-white text-base">{user?.email}</Text>
+                            </View>
+                            <View className="h-[1px] bg-slate-700/50" />
+                            <View>
+                                <Text className="text-text-muted text-xs uppercase font-bold">Address</Text>
+                                <Text className="text-white text-base">
+                                    {user?.address?.street}, {user?.address?.city}
+                                </Text>
+                                <Text className="text-white text-base">
+                                    {user?.address?.zipCode}, {user?.address?.country}
+                                </Text>
+                            </View>
+                        </View>
+                    )}
+
+                    {/* Actions */}
+                    <View className="w-full mt-4 gap-4">
+                        {isEditing ? (
+                            <View className="gap-3">
+                                {saving ? (
+                                    <ActivityIndicator color="#00D4FF" />
+                                ) : (
+                                    <>
+                                        <GradientButton onPress={handleSave} title="Save Changes" />
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                setIsEditing(false);
+                                                setNewImageUri(null);
+                                            }}
+                                            className="items-center p-2"
+                                        >
+                                            <Text className="text-text-muted">Cancel</Text>
+                                        </TouchableOpacity>
+                                    </>
+                                )}
+                            </View>
+                        ) : (
+                            <>
+                                <GradientButton onPress={() => setIsEditing(true)} title="Edit Profile" />
+                                <TouchableOpacity onPress={handleSignOut} className="items-center p-2">
+                                    <Text className="text-red-400 font-bold">Log Out</Text>
+                                </TouchableOpacity>
+                            </>
+                        )}
+                    </View>
+
+                </View>
+            </ScrollView>
+        </GradientBackground>
     );
 }

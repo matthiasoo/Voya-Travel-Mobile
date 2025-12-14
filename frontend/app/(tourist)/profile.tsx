@@ -163,8 +163,8 @@ export default function ProfileScreen() {
                         </Text>
                         <Text className="text-text-muted text-lg">{user?.email}</Text>
                         <View className="px-3 py-1 bg-slate-800/50 rounded-full border border-slate-700 mt-2">
-                            <Text className="text-neon-secondary text-xs font-bold uppercase tracking-wider">
-                                {user?.role || 'TOURIST'}
+                            <Text className="text-neon-secondary text-sm font-bold uppercase tracking-wider">
+                                {user?.role}
                             </Text>
                         </View>
                     </View>

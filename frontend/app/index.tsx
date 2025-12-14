@@ -2,6 +2,7 @@ import { View, ActivityIndicator } from "react-native";
 import { useEffect } from "react";
 import { useRouter } from "expo-router";
 import auth from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
 
 export default function Index() {
     const router = useRouter();
@@ -13,11 +14,25 @@ export default function Index() {
                 // Not logged in -> Go to Auth/Login
                 router.replace('/(auth)/login');
             } else {
-                // Logged in logic
-                // TODO: Fetch user role from database (Firestore)
-                // For now, default to (tourist) or let them choose if not set.
-                // Assuming we redirect to tourist for now:
-                router.replace('/(tourist)');
+                // Logged in logic -> Check Role
+                try {
+                    const userDoc = await firestore().collection('users').doc(user.uid).get();
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        if (userData?.role === 'PROVIDER') {
+                            router.replace('/(provider)/profile');
+                        } else {
+                            router.replace('/(tourist)');
+                        }
+                    } else {
+                        // User exists in Auth but not in Firestore? Setup needed.
+                        router.replace('/(auth)/baseuser-setup');
+                    }
+                } catch (error) {
+                    console.error("Error checking user role:", error);
+                    // Fallback or stay on splash?
+                    // router.replace('/(auth)/login');
+                }
             }
         };
 

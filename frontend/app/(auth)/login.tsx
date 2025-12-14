@@ -1,6 +1,7 @@
 import { Text, View, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useState } from "react";
 import auth from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
 import { FirebaseError } from "@firebase/util";
 import { useRouter } from "expo-router";
 import { GradientBackground } from "../../components/GradientBackground";
@@ -16,8 +17,15 @@ export default function Login() {
     const signIn = async () => {
         setLoading(true);
         try {
-            await auth().signInWithEmailAndPassword(email, password);
-            router.replace('/(tourist)');
+            const { user } = await auth().signInWithEmailAndPassword(email, password);
+
+            // Check role
+            const userDoc = await firestore().collection('users').doc(user.uid).get();
+            if (userDoc.exists && userDoc.data()?.role === 'PROVIDER') {
+                router.replace('/(provider)/profile');
+            } else {
+                router.replace('/(tourist)');
+            }
         } catch (e: any) {
             const err = e as FirebaseError;
             alert('Login failed: ' + err.message);

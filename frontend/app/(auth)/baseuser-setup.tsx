@@ -70,12 +70,14 @@ export default function BaseUserSetup() {
             alert('Please fill in your name first');
             return;
         }
+        console.log('Navigating to provider setup');
 
-        // Navigate to provider setup, passing names as params
+        // Navigate to provider setup, passing names and imageUri as params
         router.push({
             pathname: '/(auth)/provider-setup',
-            params: { firstName, lastName }
+            params: { firstName, lastName, imageUri }
         });
+        console.log('Navigated to provider setup');
     };
 
     return (
