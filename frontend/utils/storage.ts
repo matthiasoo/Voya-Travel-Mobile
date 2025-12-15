@@ -22,3 +22,21 @@ export const uploadUserAvatar = async (userId: string, uri: string): Promise<str
         throw error;
     }
 };
+
+/**
+ * Uploads an image to a specified path in Firebase Storage.
+ * @param path The storage path (folder structure).
+ * @param uri The local file URI of the image to upload.
+ * @returns The download URL of the uploaded image.
+ */
+export const uploadImage = async (path: string, uri: string): Promise<string> => {
+    try {
+        const filename = uri.substring(uri.lastIndexOf('/') + 1);
+        const reference = storage().ref(`${path}/${Date.now()}_${filename}`);
+        await reference.putFile(uri);
+        return await reference.getDownloadURL();
+    } catch (error) {
+        console.error("Error uploading image: ", error);
+        throw error;
+    }
+};

@@ -27,7 +27,7 @@ export default function ProviderSetup() {
 
     const [loading, setLoading] = useState(false);
 
-    const categories: ProviderCategory[] = ['ACCOMODATION', 'TOURS', 'ATTRACIONS', 'GUIDE'];
+    const categories: ProviderCategory[] = ['ACCOMODATION', 'TOURS'];
 
     const handleCancel = async () => {
         try {

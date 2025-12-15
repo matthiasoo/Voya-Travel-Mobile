@@ -16,7 +16,7 @@ export interface TouristUser extends BaseUser {
 
 export type VerificationStatus = 'UNVERIFIED' | 'VERIFIED' | 'REJECTED';
 
-export type ProviderCategory = 'ACCOMODATION' | 'TOURS' | 'ATTRACIONS' | 'GUIDE';
+export type ProviderCategory = 'ACCOMODATION' | 'TOURS';
 
 export interface ProviderUser extends BaseUser {
     role: 'PROVIDER';
