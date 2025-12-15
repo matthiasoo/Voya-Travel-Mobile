@@ -116,7 +116,7 @@ export default function OfferDetailsScreen() {
                         <View>
                             <Text className="text-2xl font-bold text-white mb-2">{offer.title}</Text>
                             <Text className="text-neon-primary text-xl font-bold">
-                                from {offer.currency} {offer.price} <Text className="text-slate-400 text-sm font-normal">/ night</Text>
+                                <Text className="text-slate-400 text-sm font-normal">from</Text> {offer.currency} {offer.price} <Text className="text-slate-400 text-sm font-normal">/ night</Text>
                             </Text>
 
                             <View className="flex-row items-center gap-1 mt-2">

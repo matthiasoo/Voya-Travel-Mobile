@@ -84,7 +84,7 @@ export default function MyOffersScreen() {
                         {item.title}
                     </Text>
                     <Text className="text-neon-primary font-bold text-lg">
-                        from{item.currency} {item.price}
+                        from {item.currency} {item.price}
                     </Text>
                 </View>
 
