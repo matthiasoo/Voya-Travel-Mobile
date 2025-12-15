@@ -1,97 +1,63 @@
-// 1. Enumy dla Kategorii (używane też w Userze)
 export type ProviderCategory = 'ACCOMMODATION' | 'TOURS' | 'ATTRACTIONS' | 'GUIDE';
+export type VerificationStatus = 'UNVERIFIED' | 'VERIFIED' | 'REJECTED';
 
-// 2. Wspólny mianownik (BaseOffer)
-// To są pola, które ma KAŻDA oferta, niezależnie czy to hotel czy wycieczka.
 export interface BaseOffer {
     id: string;
-    providerId: string; // Kto dodał
+    verificationStatus: VerificationStatus;
+    providerId: string;
     createdAt: number;
     updatedAt: number;
-    isActive: boolean;  // Czy oferta jest widoczna
+    isActive: boolean;
 
     title: string;
     description: string;
-    price: number;
-    currency: string;   // np. 'PLN'
 
-    images: string[];   // Tablica URL-i do Storage
+    price: number;
+
+    images: string[];
     location: {
         latitude: number;
         longitude: number;
-        address: string;
+        street: string;
+        zipCode: string;
         city: string;
+        country: string;
     };
 
-    rating: number;     // Średnia ocen
+    rating: number;
     reviewsCount: number;
 }
 
-// ==========================================================
-// 3. Szczegółowe Typy Ofert (Rozszerzenia)
-// ==========================================================
+export interface AccommodationUnit {
+    id: string;
+    name: string;
+    type: 'ROOM' | 'ENTIRE_APARTMENT' | 'BED_IN_DORM';
 
-// 🏨 Noclegi (ACCOMMODATION)
-// Potrzebujemy: ilości osób, łóżek, udogodnień hotelowych
+    pricePerNight: number;
+    capacity: {
+        adults: number;
+        children: number;
+    };
+
+    bedConfig: string;
+    sqMeters?: number;
+    amenities: string[];
+    images: string[];
+
+    quantity: number;
+}
+
 export interface AccommodationOffer extends BaseOffer {
-    type: 'ACCOMMODATION'; // Dyskryminator
+    type: 'ACCOMMODATION';
     details: {
-        standard: 'HOTEL' | 'APARTMENT' | 'HOSTEL' | 'RESORT'; // Podtyp
-        maxGuests: number;
-        bedroomCount: number;
-        bedCount: number;
-        bathrooms: number;
-        amenities: string[]; // np. ['wifi', 'ac', 'parking', 'pool']
-        checkInTime: string; // np. "14:00"
-        checkOutTime: string; // np. "11:00"
-        sqMeters?: number;   // Metraż
+        propertyType: 'HOTEL' | 'APARTMENT' | 'HOSTEL';
+        generalAmenities: string[];
+
+        checkInTime: string;
+        checkOutTime: string;
+
+        units: AccommodationUnit[];
     };
 }
 
-// 🎒 Wycieczki (TOURS)
-// Potrzebujemy: czasu trwania, poziomu trudności, co zawiera cena
-export interface TourOffer extends BaseOffer {
-    type: 'TOURS';
-    details: {
-        tourType: 'SIGHTSEEING' | 'HIKING' | 'WATER' | 'ADVENTURE';
-        durationHours: number; // np. 4.5
-        difficulty: 'EASY' | 'MODERATE' | 'HARD' | 'EXTREME';
-        maxParticipants: number; // Limit grupy
-        included: string[];      // np. ['lunch', 'transport', 'tickets']
-        requirements: string[];  // np. ['comfortable shoes', 'id card']
-        startPoint: string;      // Miejsce zbiórki (tekstowo)
-    };
-}
-
-// 🎡 Atrakcje (ATTRACTIONS)
-// Potrzebujemy: godzin otwarcia, ograniczeń wiekowych
-export interface AttractionOffer extends BaseOffer {
-    type: 'ATTRACTIONS';
-    details: {
-        attractionType: 'MUSEUM' | 'NATURE' | 'ENTERTAINMENT';
-        openingHours: {
-            open: string; // "09:00"
-            close: string; // "18:00"
-        };
-        isTicketRequired: boolean;
-        ageRestriction?: number; // np. 18+ (opcjonalne)
-        accessibility: boolean;  // Czy dla niepełnosprawnych
-    };
-}
-
-// 🧢 Przewodnicy (GUIDE)
-// Potrzebujemy: języków, specjalizacji
-export interface GuideOffer extends BaseOffer {
-    type: 'GUIDE';
-    details: {
-        specialization: 'HISTORY' | 'NATURE' | 'FOOD' | 'PHOTOGRAPHY';
-        languages: string[]; // np. ['pl', 'en', 'de']
-        licenseNumber?: string; // Opcjonalny numer licencji
-        pricingType: 'PER_HOUR' | 'PER_GROUP' | 'PER_PERSON';
-        services: string[]; // np. ['transport', 'translation']
-    };
-}
-
-// 4. Główny typ - Unia (Discriminated Union)
-// Tego typu będziesz używać w propsach komponentów
-export type Offer = AccommodationOffer | TourOffer | AttractionOffer | GuideOffer;
+export type Offer = AccommodationOffer;
