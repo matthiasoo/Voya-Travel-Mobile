@@ -44,9 +44,43 @@ export default function DashboardScreen() {
             <View className="flex-1 items-center pt-12 px-4 gap-6">
                 <Text className="text-3xl font-bold text-white mb-2">Dashboard</Text>
 
-                {/* Stats Card Placeholder */}
-                <View className="bg-slate-800/50 p-6 rounded-xl border border-slate-700 w-full items-center mb-4">
-                    <Text className="text-text-muted">Statistics and quick actions coming soon.</Text>
+                {/* Quick Stats (Dummy Data) */}
+                <View className="flex-row flex-wrap justify-between w-full gap-4 mb-2">
+                    <View className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 w-full gap-1">
+                        <View className="flex-row justify-between items-start">
+                            <Ionicons name="calendar-outline" size={24} color="#00D4FF" />
+                            <Text className="text-neon-primary text-xs font-bold">+12%</Text>
+                        </View>
+                        <Text className="text-slate-400 text-xs mt-1">Total Bookings</Text>
+                        <Text className="text-white text-2xl font-bold">128</Text>
+                    </View>
+
+                    <View className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 w-full gap-1">
+                        <View className="flex-row justify-between items-start">
+                            <Ionicons name="cash-outline" size={24} color="#22C55E" />
+                            <Text className="text-neon-primary text-xs font-bold">+8%</Text>
+                        </View>
+                        <Text className="text-slate-400 text-xs mt-1">Total Revenue</Text>
+                        <Text className="text-white text-2xl font-bold">$12,450</Text>
+                    </View>
+
+                    <View className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 w-full gap-1">
+                        <View className="flex-row justify-between items-start">
+                            <Ionicons name="eye-outline" size={24} color="#F59E0B" />
+                            <Text className="text-neon-primary text-xs font-bold">+24%</Text>
+                        </View>
+                        <Text className="text-slate-400 text-xs mt-1">Profile Views</Text>
+                        <Text className="text-white text-2xl font-bold">3.2k</Text>
+                    </View>
+
+                    <View className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 w-full gap-1">
+                        <View className="flex-row justify-between items-start">
+                            <Ionicons name="star-outline" size={24} color="#FBBF24" />
+                            <Text className="text-neon-primary text-xs font-bold">4.9</Text>
+                        </View>
+                        <Text className="text-slate-400 text-xs mt-1">Average Rating</Text>
+                        <Text className="text-white text-2xl font-bold">4.8</Text>
+                    </View>
                 </View>
 
                 {/* Actions Grid */}
