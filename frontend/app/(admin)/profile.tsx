@@ -1,11 +1,11 @@
 import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
-import { Image } from "expo-image";
 import { useState, useEffect } from "react";
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
 import { GradientBackground } from "../../components/GradientBackground";
 import { GradientButton } from "../../components/GradientButton";
 import { AdminUser } from "../../types/user";
+import { Ionicons } from '@expo/vector-icons';
 
 export default function AdminProfile() {
     const [user, setUser] = useState<AdminUser | null>(null);
@@ -52,18 +52,7 @@ export default function AdminProfile() {
                 {/* Avatar Section */}
                 <View className="items-center relative">
                     <View className="w-32 h-32 rounded-full overflow-hidden border-4 border-neon-accent bg-slate-800 items-center justify-center shadow-neon-accent shadow-lg">
-                        {user?.avatarUrl ? (
-                            <Image
-                                source={{ uri: user.avatarUrl }}
-                                style={{ width: '100%', height: '100%' }}
-                                contentFit="cover"
-                                transition={500}
-                            />
-                        ) : (
-                            <Text className="text-4xl font-bold text-gray-500">
-                                {user?.firstName?.[0]}{user?.lastName?.[0]}
-                            </Text>
-                        )}
+                        <Ionicons name="shield-checkmark" size={64} color="#FF00FF" />
                     </View>
                 </View>
 

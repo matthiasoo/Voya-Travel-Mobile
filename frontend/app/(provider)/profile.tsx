@@ -2,13 +2,10 @@ import { View, Text, ActivityIndicator, TouchableOpacity, ScrollView } from "rea
 import { useState, useEffect } from "react";
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
-import { Image } from "expo-image";
 import { GradientBackground } from "../../components/GradientBackground";
 import { GradientButton } from "../../components/GradientButton";
 import { GradientInput } from "../../components/GradientInput";
 import { ProviderUser } from "../../types/user";
-import * as ImagePicker from 'expo-image-picker';
-import { uploadUserAvatar } from "../../utils/storage";
 import { Ionicons } from '@expo/vector-icons';
 
 export default function ProviderProfileScreen() {
@@ -25,7 +22,6 @@ export default function ProviderProfileScreen() {
     const [editCity, setEditCity] = useState('');
     const [editZipCode, setEditZipCode] = useState('');
     const [editCountry, setEditCountry] = useState('');
-    const [newImageUri, setNewImageUri] = useState<string | null>(null);
 
     useEffect(() => {
         const currentUser = auth().currentUser;
@@ -59,28 +55,12 @@ export default function ProviderProfileScreen() {
         }
     }, [user, isEditing]);
 
-    const pickImage = async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.5,
-        });
-
-        if (!result.canceled) {
-            setNewImageUri(result.assets[0].uri);
-        }
-    };
 
     const handleSave = async () => {
         if (!user) return;
         setSaving(true);
         try {
-            let avatarUrl = user.avatarUrl;
 
-            if (newImageUri) {
-                avatarUrl = await uploadUserAvatar(user.uid, newImageUri);
-            }
 
             await firestore().collection('users').doc(user.uid).update({
                 companyName: editCompanyName,
@@ -92,11 +72,9 @@ export default function ProviderProfileScreen() {
                     zipCode: editZipCode,
                     country: editCountry
                 },
-                avatarUrl
             });
 
             setIsEditing(false);
-            setNewImageUri(null);
         } catch (error: any) {
             alert('Error updating profile: ' + error.message);
         } finally {
@@ -139,33 +117,8 @@ export default function ProviderProfileScreen() {
                     {/* Header / Avatar */}
                     <View className="items-center relative">
                         <View className="w-32 h-32 rounded-full overflow-hidden border-4 border-neon-primary bg-slate-800 items-center justify-center shadow-neon-primary">
-                            {newImageUri ? (
-                                <Image
-                                    source={{ uri: newImageUri }}
-                                    style={{ width: '100%', height: '100%' }}
-                                    contentFit="cover"
-                                />
-                            ) : user?.avatarUrl ? (
-                                <Image
-                                    source={{ uri: user.avatarUrl }}
-                                    style={{ width: '100%', height: '100%' }}
-                                    contentFit="cover"
-                                    transition={500}
-                                />
-                            ) : (
-                                <Text className="text-4xl font-bold text-text-muted">
-                                    {user ? getInitials(user.companyName) : "?"}
-                                </Text>
-                            )}
+                            <Ionicons name="business" size={64} color="#00D4FF" />
                         </View>
-                        {isEditing && (
-                            <TouchableOpacity
-                                onPress={pickImage}
-                                className="absolute bottom-0 right-0 bg-neon-secondary p-2 rounded-full border-2 border-slate-900"
-                            >
-                                <Ionicons name="camera" size={20} color="white" />
-                            </TouchableOpacity>
-                        )}
                     </View>
 
                     {/* Basic Info & Status */}
@@ -253,7 +206,6 @@ export default function ProviderProfileScreen() {
                                         <TouchableOpacity
                                             onPress={() => {
                                                 setIsEditing(false);
-                                                setNewImageUri(null);
                                             }}
                                             className="items-center p-2"
                                         >
@@ -274,6 +226,6 @@ export default function ProviderProfileScreen() {
 
                 </View>
             </ScrollView>
-        </GradientBackground>
+        </GradientBackground >
     );
 }

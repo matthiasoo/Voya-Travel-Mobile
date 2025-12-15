@@ -12,7 +12,7 @@ import { ProviderCategory } from "../../types/user";
 export default function ProviderSetup() {
     const router = useRouter();
     const params = useLocalSearchParams();
-    const { firstName, lastName, imageUri } = params;
+    const { firstName, lastName } = params;
 
     const [companyName, setCompanyName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -51,9 +51,7 @@ export default function ProviderSetup() {
             if (!user) throw new Error('No user found');
 
             let avatarUrl = undefined;
-            if (imageUri && typeof imageUri === 'string') {
-                avatarUrl = await uploadUserAvatar(user.uid, imageUri);
-            }
+
 
             await firestore().collection('users').doc(user.uid).set({
                 uid: user.uid,
@@ -72,7 +70,7 @@ export default function ProviderSetup() {
                     zipCode,
                     country
                 },
-                avatarUrl,
+
                 rating: 0,
                 reviewsCount: 0,
                 createdAt: Date.now()

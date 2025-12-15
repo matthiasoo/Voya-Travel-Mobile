@@ -6,14 +6,14 @@ import { Image } from "expo-image";
 import { GradientBackground } from "../../components/GradientBackground";
 import { GradientButton } from "../../components/GradientButton";
 import { GradientInput } from "../../components/GradientInput";
-import { BaseUser } from "../../types/user";
+import { TouristUser } from "../../types/user";
 import * as ImagePicker from 'expo-image-picker';
 import { uploadUserAvatar } from "../../utils/storage";
 import { TouchableOpacity } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 
 export default function ProfileScreen() {
-    const [user, setUser] = useState<BaseUser | null>(null);
+    const [user, setUser] = useState<TouristUser | null>(null);
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [editFirstName, setEditFirstName] = useState('');
@@ -30,7 +30,7 @@ export default function ProfileScreen() {
             .doc(currentUser.uid)
             .onSnapshot((documentSnapshot) => {
                 if (documentSnapshot.exists) {
-                    setUser(documentSnapshot.data() as BaseUser);
+                    setUser(documentSnapshot.data() as TouristUser);
                 }
                 setLoading(false);
             }, (error) => {

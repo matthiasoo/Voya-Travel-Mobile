@@ -6,12 +6,12 @@ export interface BaseUser {
     role: UserRole;
     firstName: string;
     lastName: string;
-    avatarUrl?: string;
     createdAt: number;
 }
 
 export interface TouristUser extends BaseUser {
     role: 'TOURIST';
+    avatarUrl?: string;
 }
 
 export type VerificationStatus = 'UNVERIFIED' | 'VERIFIED' | 'REJECTED';

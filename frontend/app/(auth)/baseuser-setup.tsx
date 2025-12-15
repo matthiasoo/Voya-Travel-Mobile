@@ -72,10 +72,10 @@ export default function BaseUserSetup() {
         }
         console.log('Navigating to provider setup');
 
-        // Navigate to provider setup, passing names and imageUri as params
+        // Navigate to provider setup, passing names
         router.push({
             pathname: '/(auth)/provider-setup',
-            params: { firstName, lastName, imageUri }
+            params: { firstName, lastName }
         });
         console.log('Navigated to provider setup');
     };
