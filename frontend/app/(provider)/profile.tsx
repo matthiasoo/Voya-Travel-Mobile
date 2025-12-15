@@ -117,7 +117,7 @@ export default function ProviderProfileScreen() {
                     {/* Header / Avatar */}
                     <View className="items-center relative">
                         <View className="w-32 h-32 rounded-full overflow-hidden border-4 border-neon-primary bg-slate-800 items-center justify-center shadow-neon-primary">
-                            <Ionicons name="business" size={64} color="#00D4FF" />
+                            <Ionicons name="business" size={64} color="#7F00FF" />
                         </View>
                     </View>
 

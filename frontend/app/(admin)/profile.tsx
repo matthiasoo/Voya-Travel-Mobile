@@ -52,7 +52,7 @@ export default function AdminProfile() {
                 {/* Avatar Section */}
                 <View className="items-center relative">
                     <View className="w-32 h-32 rounded-full overflow-hidden border-4 border-neon-accent bg-slate-800 items-center justify-center shadow-neon-accent shadow-lg">
-                        <Ionicons name="shield-checkmark" size={64} color="#FF00FF" />
+                        <Ionicons name="shield-checkmark" size={64} color="#FF0055" />
                     </View>
                 </View>
 
