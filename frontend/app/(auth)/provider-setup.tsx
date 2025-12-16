@@ -16,7 +16,7 @@ export default function ProviderSetup() {
 
     const [companyName, setCompanyName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [category, setCategory] = useState<ProviderCategory>('ACCOMODATION');
+    const [category, setCategory] = useState<ProviderCategory>('ACCOMMODATION');
     const [bio, setBio] = useState('');
 
     // Address
@@ -27,7 +27,7 @@ export default function ProviderSetup() {
 
     const [loading, setLoading] = useState(false);
 
-    const categories: ProviderCategory[] = ['ACCOMODATION', 'TOURS'];
+    const categories: ProviderCategory[] = ['ACCOMMODATION', 'TOURS'];
 
     const handleCancel = async () => {
         try {

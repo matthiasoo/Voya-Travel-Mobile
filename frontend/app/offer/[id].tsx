@@ -2,6 +2,7 @@ import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, useWindowD
 import { useState, useEffect } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import firestore from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
@@ -13,6 +14,7 @@ export default function OfferDetailsScreen() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
     const { width } = useWindowDimensions();
+    const currentUser = auth().currentUser;
 
     const [offer, setOffer] = useState<Offer | null>(null);
     const [loading, setLoading] = useState(true);
@@ -76,18 +78,20 @@ export default function OfferDetailsScreen() {
                         <Ionicons name="arrow-back" size={24} color="white" />
                     </TouchableOpacity>
 
-                    {/* Status Badge in Header */}
-                    <View className={`px-3 py-1 rounded-full border bg-black/30 backdrop-blur-md ${offer.verificationStatus === 'VERIFIED' ? 'border-green-500 text-green-400' :
-                        offer.verificationStatus === 'REJECTED' ? 'border-red-500 text-red-400' :
-                            'border-yellow-500 text-yellow-400'
-                        }`}>
-                        <Text className={`text-xs font-bold ${offer.verificationStatus === 'VERIFIED' ? 'text-green-400' :
-                            offer.verificationStatus === 'REJECTED' ? 'text-red-400' :
-                                'text-yellow-400'
+                    {/* Status Badge in Header - Only visible to Provider */}
+                    {currentUser?.uid === offer.providerId && (
+                        <View className={`px-3 py-1 rounded-full border bg-black/30 backdrop-blur-md ${offer.verificationStatus === 'VERIFIED' ? 'border-green-500 text-green-400' :
+                            offer.verificationStatus === 'REJECTED' ? 'border-red-500 text-red-400' :
+                                'border-yellow-500 text-yellow-400'
                             }`}>
-                            {offer.verificationStatus}
-                        </Text>
-                    </View>
+                            <Text className={`text-xs font-bold ${offer.verificationStatus === 'VERIFIED' ? 'text-green-400' :
+                                offer.verificationStatus === 'REJECTED' ? 'text-red-400' :
+                                    'text-yellow-400'
+                                }`}>
+                                {offer.verificationStatus}
+                            </Text>
+                        </View>
+                    )}
                 </View>
 
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
@@ -134,24 +138,28 @@ export default function OfferDetailsScreen() {
                         </View>
 
                         {/* Property Details */}
-                        <TouchableOpacity
-                            onPress={() => router.push({ pathname: '/chat/[id]', params: { id: 'demo' } })}
-                            className="bg-neon-primary p-3 rounded-xl flex-row items-center justify-center -mb-2 z-10"
-                        >
-                            <Ionicons name="chatbubbles" size={20} color="white" />
-                            <Text className="text-white font-bold ml-2">Chat with Provider</Text>
-                        </TouchableOpacity>
+                        {currentUser?.uid !== offer.providerId && (
+                            <TouchableOpacity
+                                onPress={() => router.push({ pathname: '/chat/[id]', params: { id: 'demo' } })}
+                                className="bg-neon-primary p-3 rounded-xl flex-row items-center justify-center -mb-2 z-10"
+                            >
+                                <Ionicons name="chatbubbles" size={20} color="white" />
+                                <Text className="text-white font-bold ml-2">Chat with Provider</Text>
+                            </TouchableOpacity>
+                        )}
 
                         <View className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 gap-4">
                             <View className="flex-row justify-between items-center">
                                 <Text className="text-lg font-bold text-white">Details</Text>
-                                <TouchableOpacity
-                                    onPress={() => router.push(`/offer/create-unit?offerId=${id}`)}
-                                    className="flex-row items-center bg-neon-primary/20 px-3 py-1 rounded-full border border-neon-primary/50"
-                                >
-                                    <Ionicons name="add" size={16} color="#7F00FF" />
-                                    <Text className="text-neon-primary font-bold text-xs ml-1">Add Unit</Text>
-                                </TouchableOpacity>
+                                {currentUser?.uid === offer.providerId && (
+                                    <TouchableOpacity
+                                        onPress={() => router.push(`/offer/create-unit?offerId=${id}`)}
+                                        className="flex-row items-center bg-neon-primary/20 px-3 py-1 rounded-full border border-neon-primary/50"
+                                    >
+                                        <Ionicons name="add" size={16} color="#7F00FF" />
+                                        <Text className="text-neon-primary font-bold text-xs ml-1">Add Unit</Text>
+                                    </TouchableOpacity>
+                                )}
                             </View>
 
 
