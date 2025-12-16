@@ -24,7 +24,9 @@ export default function OfferDetailsScreen() {
             .collection('offers')
             .doc(id as string)
             .onSnapshot((doc) => {
-                if (doc.exists) {
+                // Handle both property and function cases for compatibility
+                const exists = typeof doc.exists === 'function' ? doc.exists() : doc.exists;
+                if (exists) {
                     setOffer({ id: doc.id, ...doc.data() } as Offer);
                 } else {
                     console.log("No such document!");
@@ -132,6 +134,14 @@ export default function OfferDetailsScreen() {
                         </View>
 
                         {/* Property Details */}
+                        <TouchableOpacity
+                            onPress={() => router.push({ pathname: '/chat/[id]', params: { id: 'demo' } })}
+                            className="bg-neon-primary p-3 rounded-xl flex-row items-center justify-center -mb-2 z-10"
+                        >
+                            <Ionicons name="chatbubbles" size={20} color="white" />
+                            <Text className="text-white font-bold ml-2">Chat with Provider</Text>
+                        </TouchableOpacity>
+
                         <View className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 gap-4">
                             <View className="flex-row justify-between items-center">
                                 <Text className="text-lg font-bold text-white">Details</Text>
@@ -143,6 +153,8 @@ export default function OfferDetailsScreen() {
                                     <Text className="text-neon-primary font-bold text-xs ml-1">Add Unit</Text>
                                 </TouchableOpacity>
                             </View>
+
+
 
                             <View className="flex-row flex-wrap gap-4">
                                 <View className="bg-slate-900 px-3 py-2 rounded-lg">
