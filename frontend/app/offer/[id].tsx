@@ -9,6 +9,7 @@ import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
 import { GradientBackground } from "../../components/GradientBackground";
 import { Offer } from "../../types/offer";
+import { createChat } from "../../services/chat";
 
 export default function OfferDetailsScreen() {
     const { id } = useLocalSearchParams();
@@ -140,7 +141,40 @@ export default function OfferDetailsScreen() {
                         {/* Property Details */}
                         {currentUser?.uid !== offer.providerId && (
                             <TouchableOpacity
-                                onPress={() => router.push({ pathname: '/chat/[id]', params: { id: 'demo' } })}
+                                onPress={async () => {
+                                    try {
+                                        setLoading(true);
+                                        // Fetch provider name explicitly as requested
+                                        let providerName = "Host";
+                                        try {
+                                            const providerDoc = await firestore().collection('users').doc(offer.providerId).get();
+                                            if (providerDoc.exists) { // Checking if property access works or needs function call. Linter said function.
+                                                // Actually, checking standard RNFirebase docs: it is property in v6, function in modular v9.
+                                                // Linter in this env seems to suggest v9 compat or newer types.
+                                                // I'll check property vs function.
+                                                const exists = typeof providerDoc.exists === 'function' ? providerDoc.exists() : providerDoc.exists;
+                                                if (exists) {
+                                                    const potentialName = providerDoc.data()?.fullName;
+                                                    if (potentialName) providerName = potentialName;
+                                                }
+                                            }
+                                        } catch (err) {
+                                            console.warn("Could not fetch provider name:", err);
+                                        }
+
+                                        const chatId = await createChat(
+                                            offer.id,
+                                            offer.title,
+                                            offer.providerId,
+                                            providerName
+                                        );
+                                        setLoading(false);
+                                        router.push({ pathname: '/chat/[id]', params: { id: chatId } });
+                                    } catch (e) {
+                                        console.error("Error starting chat:", e);
+                                        setLoading(false);
+                                    }
+                                }}
                                 className="bg-neon-primary p-3 rounded-xl flex-row items-center justify-center -mb-2 z-10"
                             >
                                 <Ionicons name="chatbubbles" size={20} color="white" />

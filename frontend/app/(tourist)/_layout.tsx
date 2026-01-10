@@ -33,6 +33,13 @@ export default function Layout() {
                 }}
             />
             <Tabs.Screen
+                name="chats"
+                options={{
+                    title: 'Messages',
+                    tabBarIcon: ({ color }) => <Ionicons name="chatbubbles" size={24} color={color} />,
+                }}
+            />
+            <Tabs.Screen
                 name="profile"
                 options={{
                     title: 'Profile',
