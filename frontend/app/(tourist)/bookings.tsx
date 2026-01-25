@@ -7,6 +7,8 @@ import firestore from "@react-native-firebase/firestore";
 import auth from "@react-native-firebase/auth";
 import { Image } from "expo-image";
 import { Reservation, ReservationStatus } from "../../types/reservation";
+import { ReviewModal } from "../../components/ReviewModal";
+import { Review } from "../../types/review";
 
 type FilterTab = 'ALL' | 'PENDING' | 'ACCEPTED' | 'CANCELLED';
 
@@ -17,6 +19,10 @@ export default function TouristBookingsScreen() {
     const [bookings, setBookings] = useState<Reservation[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedTab, setSelectedTab] = useState<FilterTab>('ALL');
+
+    // Review State
+    const [reviewModalVisible, setReviewModalVisible] = useState(false);
+    const [selectedBookingForReview, setSelectedBookingForReview] = useState<Reservation | null>(null);
 
     const fetchBookings = async () => {
         if (!currentUser) return;
@@ -69,6 +75,60 @@ export default function TouristBookingsScreen() {
         );
     };
 
+    const handleRatePress = (booking: Reservation) => {
+        setSelectedBookingForReview(booking);
+        setReviewModalVisible(true);
+    };
+
+    const handleSubmitReview = async (rating: number, comment: string) => {
+        if (!selectedBookingForReview || !currentUser) return;
+
+        const offerRef = firestore().collection('offers').doc(selectedBookingForReview.offerId);
+        const bookingRef = firestore().collection('bookings').doc(selectedBookingForReview.id);
+        const reviewRef = firestore().collection('reviews').doc();
+
+        try {
+            await firestore().runTransaction(async (transaction) => {
+                const offerDoc = await transaction.get(offerRef);
+                if (!offerDoc.exists) {
+                    throw "Offer does not exist!";
+                }
+
+                const offerData = offerDoc.data();
+                const currentRating = offerData?.rating || 0;
+                const currentCount = offerData?.reviewsCount || 0;
+
+                const newCount = currentCount + 1;
+                const newRating = ((currentRating * currentCount) + rating) / newCount;
+
+                const reviewData: Review = {
+                    id: reviewRef.id,
+                    offerId: selectedBookingForReview.offerId,
+                    userId: currentUser.uid,
+                    userName: currentUser.displayName || "Anonymous",
+                    userAvatar: currentUser.photoURL || undefined,
+                    rating,
+                    comment,
+                    createdAt: Date.now(),
+                };
+
+                transaction.set(reviewRef, reviewData);
+                transaction.update(bookingRef, { hasReviewed: true });
+                transaction.update(offerRef, {
+                    rating: Number(newRating.toFixed(1)), // Keep it to 1 decimal place
+                    reviewsCount: newCount
+                });
+            });
+
+            Alert.alert("Success", "Thank you for your review!");
+            setReviewModalVisible(false);
+            fetchBookings(); // Refresh to update UI
+        } catch (error) {
+            console.error("Error submitting review:", error);
+            Alert.alert("Error", "Failed to submit review.");
+        }
+    };
+
     const filteredBookings = bookings.filter(b => {
         if (selectedTab === 'ALL') return true;
         if (selectedTab === 'CANCELLED') return b.status === 'CANCELLED' || b.status === 'REJECTED';
@@ -87,6 +147,8 @@ export default function TouristBookingsScreen() {
 
     const renderItem = ({ item }: { item: Reservation }) => {
         const canCancel = item.status === 'PENDING' || item.status === 'ACCEPTED';
+        const isCompleted = item.status === 'ACCEPTED' && item.endDate < Date.now();
+        const canReview = isCompleted && !item.hasReviewed;
         const dateRange = `${new Date(item.startDate).toLocaleDateString()} - ${new Date(item.endDate).toLocaleDateString()}`;
 
         return (
@@ -121,16 +183,33 @@ export default function TouristBookingsScreen() {
                 </View>
 
                 {/* Actions */}
-                {canCancel && (
-                    <View className="border-t border-slate-700 p-2 flex-row justify-end bg-slate-800">
+                <View className="flex-row justify-end bg-slate-800 border-t border-slate-700">
+                    {canCancel && !isCompleted && (
                         <TouchableOpacity
                             onPress={() => handleCancel(item.id)}
-                            className="bg-red-500/10 px-4 py-2 rounded-lg border border-red-500/30"
+                            className="p-3 mr-auto"
                         >
-                            <Text className="text-red-400 font-bold text-xs">Cancel Booking</Text>
+                            <Text className="text-red-400 font-bold text-xs">Cancel</Text>
                         </TouchableOpacity>
-                    </View>
-                )}
+                    )}
+
+                    {canReview && (
+                        <TouchableOpacity
+                            onPress={() => handleRatePress(item)}
+                            className="bg-neon-primary px-6 py-3 flex-row items-center"
+                        >
+                            <Ionicons name="star" size={16} color="white" />
+                            <Text className="text-white font-bold text-xs ml-2">Rate Stay</Text>
+                        </TouchableOpacity>
+                    )}
+
+                    {item.hasReviewed && (
+                        <View className="p-3 flex-row items-center">
+                            <Ionicons name="checkmark-circle" size={16} color="#4ade80" />
+                            <Text className="text-green-400 font-bold text-xs ml-2">Reviewed</Text>
+                        </View>
+                    )}
+                </View>
             </TouchableOpacity>
         );
     };
@@ -173,6 +252,12 @@ export default function TouristBookingsScreen() {
                         }
                     />
                 )}
+
+                <ReviewModal
+                    visible={reviewModalVisible}
+                    onClose={() => setReviewModalVisible(false)}
+                    onSubmit={handleSubmitReview}
+                />
             </View>
         </GradientBackground>
     );

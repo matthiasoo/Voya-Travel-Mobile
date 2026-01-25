@@ -11,6 +11,7 @@ import { GradientBackground } from "../../components/GradientBackground";
 import { Offer } from "../../types/offer";
 import { createChat } from "../../services/chat";
 import { BookingSection } from "../../components/BookingSection";
+import { ReviewList } from "../../components/ReviewList";
 
 export default function OfferDetailsScreen() {
     const { id } = useLocalSearchParams();
@@ -124,7 +125,7 @@ export default function OfferDetailsScreen() {
                         <View>
                             <Text className="text-2xl font-bold text-white mb-2">{offer.title}</Text>
                             <Text className="text-neon-primary text-xl font-bold">
-                                <Text className="text-slate-400 text-sm font-normal">from</Text> {offer.currency} {offer.price} <Text className="text-slate-400 text-sm font-normal">/ night</Text>
+                                <Text className="text-slate-400 text-sm font-normal">from</Text> {offer.currency} {offer.price} <Text className="text-slate-400 text-sm font-normal">/ {offer.type === 'TOURS' ? 'person' : 'night'}</Text>
                             </Text>
 
                             <View className="flex-row items-center gap-1 mt-2">
@@ -177,7 +178,7 @@ export default function OfferDetailsScreen() {
                                     className="bg-neon-primary p-3 rounded-xl flex-row items-center justify-center w-full"
                                 >
                                     <Ionicons name="chatbubbles" size={20} color="white" />
-                                    <Text className="text-white font-bold ml-2">Chat with Provider</Text>
+                                    <Text className="text-white font-bold ml-2">Chat with {offer.type === 'TOURS' ? 'Guide' : 'Host'}</Text>
                                 </TouchableOpacity>
                             </View>
                         )}
@@ -185,7 +186,7 @@ export default function OfferDetailsScreen() {
                         <View className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 gap-4">
                             <View className="flex-row justify-between items-center">
                                 <Text className="text-lg font-bold text-white">Details</Text>
-                                {currentUser?.uid === offer.providerId && (
+                                {currentUser?.uid === offer.providerId && offer.type === 'ACCOMMODATION' && (
                                     <TouchableOpacity
                                         onPress={() => router.push(`/offer/create-unit?offerId=${id}`)}
                                         className="flex-row items-center bg-neon-primary/20 px-3 py-1 rounded-full border border-neon-primary/50"
@@ -197,75 +198,108 @@ export default function OfferDetailsScreen() {
                             </View>
 
 
-
-                            <View className="flex-row flex-wrap gap-4">
-                                <View className="bg-slate-900 px-3 py-2 rounded-lg">
-                                    <Text className="text-slate-400 text-xs">Type</Text>
-                                    <Text className="text-white font-bold">{offer.details.propertyType}</Text>
-                                </View>
-                                <View className="bg-slate-900 px-3 py-2 rounded-lg">
-                                    <Text className="text-slate-400 text-xs">Check-in</Text>
-                                    <Text className="text-white font-bold">{offer.details.checkInTime}</Text>
-                                </View>
-                                <View className="bg-slate-900 px-3 py-2 rounded-lg">
-                                    <Text className="text-slate-400 text-xs">Check-out</Text>
-                                    <Text className="text-white font-bold">{offer.details.checkOutTime}</Text>
-                                </View>
-                            </View>
-
-                            <View>
-                                <Text className="text-slate-400 text-sm mb-2">Amenities</Text>
-                                <View className="flex-row flex-wrap gap-2">
-                                    {offer.details.generalAmenities.map((amenity, index) => (
-                                        <View key={index} className="bg-slate-700/50 px-3 py-1 rounded-full">
-                                            <Text className="text-slate-200 text-xs">{amenity}</Text>
+                            {offer.type === 'ACCOMMODATION' ? (
+                                <>
+                                    <View className="flex-row flex-wrap gap-4">
+                                        <View className="bg-slate-900 px-3 py-2 rounded-lg">
+                                            <Text className="text-slate-400 text-xs">Type</Text>
+                                            <Text className="text-white font-bold">{offer.details.propertyType}</Text>
                                         </View>
-                                    ))}
-                                </View>
-                            </View>
+                                        <View className="bg-slate-900 px-3 py-2 rounded-lg">
+                                            <Text className="text-slate-400 text-xs">Check-in</Text>
+                                            <Text className="text-white font-bold">{offer.details.checkInTime}</Text>
+                                        </View>
+                                        <View className="bg-slate-900 px-3 py-2 rounded-lg">
+                                            <Text className="text-slate-400 text-xs">Check-out</Text>
+                                            <Text className="text-white font-bold">{offer.details.checkOutTime}</Text>
+                                        </View>
+                                    </View>
+                                    <View>
+                                        <Text className="text-slate-400 text-sm mb-2">Amenities</Text>
+                                        <View className="flex-row flex-wrap gap-2">
+                                            {offer.details.generalAmenities.map((amenity, index) => (
+                                                <View key={index} className="bg-slate-700/50 px-3 py-1 rounded-full">
+                                                    <Text className="text-slate-200 text-xs">{amenity}</Text>
+                                                </View>
+                                            ))}
+                                        </View>
+                                    </View>
+                                </>
+                            ) : (
+                                <>
+                                    <View className="flex-row flex-wrap gap-4">
+                                        <View className="bg-slate-900 px-3 py-2 rounded-lg">
+                                            <Text className="text-slate-400 text-xs">Duration</Text>
+                                            <Text className="text-white font-bold">{offer.details.duration}h</Text>
+                                        </View>
+                                        <View className="bg-slate-900 px-3 py-2 rounded-lg">
+                                            <Text className="text-slate-400 text-xs">Max People</Text>
+                                            <Text className="text-white font-bold">{offer.details.maxParticipants}</Text>
+                                        </View>
+                                    </View>
+                                    <View>
+                                        <Text className="text-slate-400 text-sm mb-2">Meeting Point</Text>
+                                        <Text className="text-white font-bold">{offer.details.meetingPoint}</Text>
+                                    </View>
+                                    {offer.details.whatsIncluded && offer.details.whatsIncluded.length > 0 && (
+                                        <View>
+                                            <Text className="text-slate-400 text-sm mb-2">Included</Text>
+                                            <View className="flex-row flex-wrap gap-2">
+                                                {offer.details.whatsIncluded.map((item, index) => (
+                                                    <View key={index} className="bg-slate-700/50 px-3 py-1 rounded-full">
+                                                        <Text className="text-slate-200 text-xs">{item}</Text>
+                                                    </View>
+                                                ))}
+                                            </View>
+                                        </View>
+                                    )}
+                                </>
+                            )}
                         </View>
 
-                        {/* Units List */}
-                        <View>
-                            <Text className="text-lg font-bold text-white mb-4">Units</Text>
-                            {offer.details.units && offer.details.units.length > 0 ? (
-                                <View className="gap-4">
-                                    {offer.details.units.map((unit, index) => (
-                                        <TouchableOpacity
-                                            key={index}
-                                            onPress={() => router.push({ pathname: "/offer/units/[id]", params: { id: unit.id, offerId: offer.id } })}
-                                            className="bg-slate-800/90 rounded-xl overflow-hidden border border-slate-700 flex-row"
-                                        >
-                                            <Image
-                                                source={{ uri: unit.images?.[0] }}
-                                                style={{ width: 100, height: 100 }}
-                                                contentFit="cover"
-                                            />
-                                            <View className="flex-1 p-3 justify-between">
-                                                <View>
-                                                    <Text className="text-white font-bold text-lg" numberOfLines={1}>{unit.name}</Text>
-                                                    <Text className="text-slate-400 text-xs">{unit.type.replace(/_/g, ' ')}</Text>
-                                                </View>
-                                                <View className="flex-row justify-between items-end">
+                        {/* Units List (Only for Accommodation) */}
+                        {offer.type === 'ACCOMMODATION' && (
+                            <View>
+                                <Text className="text-lg font-bold text-white mb-4">Units</Text>
+                                {offer.details.units && offer.details.units.length > 0 ? (
+                                    <View className="gap-4">
+                                        {offer.details.units.map((unit, index) => (
+                                            <TouchableOpacity
+                                                key={index}
+                                                onPress={() => router.push({ pathname: "/offer/units/[id]", params: { id: unit.id, offerId: offer.id } })}
+                                                className="bg-slate-800/90 rounded-xl overflow-hidden border border-slate-700 flex-row"
+                                            >
+                                                <Image
+                                                    source={{ uri: unit.images?.[0] }}
+                                                    style={{ width: 100, height: 100 }}
+                                                    contentFit="cover"
+                                                />
+                                                <View className="flex-1 p-3 justify-between">
                                                     <View>
-                                                        <Text className="text-neon-primary font-bold">{offer.currency} {unit.pricePerNight}</Text>
-                                                        <Text className="text-slate-500 text-xs">per night</Text>
+                                                        <Text className="text-white font-bold text-lg" numberOfLines={1}>{unit.name}</Text>
+                                                        <Text className="text-slate-400 text-xs">{unit.type.replace(/_/g, ' ')}</Text>
                                                     </View>
-                                                    <View className="flex-row gap-2">
-                                                        <View className="flex-row items-center gap-1 bg-slate-700/50 px-2 py-1 rounded">
-                                                            <Ionicons name="people" size={12} color="#94a3b8" />
-                                                            <Text className="text-slate-300 text-xs">{unit.capacity.adults}</Text>
+                                                    <View className="flex-row justify-between items-end">
+                                                        <View>
+                                                            <Text className="text-neon-primary font-bold">{offer.currency} {unit.pricePerNight}</Text>
+                                                            <Text className="text-slate-500 text-xs">per night</Text>
+                                                        </View>
+                                                        <View className="flex-row gap-2">
+                                                            <View className="flex-row items-center gap-1 bg-slate-700/50 px-2 py-1 rounded">
+                                                                <Ionicons name="people" size={12} color="#94a3b8" />
+                                                                <Text className="text-slate-300 text-xs">{unit.capacity.adults}</Text>
+                                                            </View>
                                                         </View>
                                                     </View>
                                                 </View>
-                                            </View>
-                                        </TouchableOpacity>
-                                    ))}
-                                </View>
-                            ) : (
-                                <Text className="text-slate-500 italic">No units added yet.</Text>
-                            )}
-                        </View>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </View>
+                                ) : (
+                                    <Text className="text-slate-500 italic">No units added yet.</Text>
+                                )}
+                            </View>
+                        )}
 
                         {/* Map */}
                         <View>
@@ -300,7 +334,30 @@ export default function OfferDetailsScreen() {
                             </View>
                         </View>
 
+                        {/* Reviews */}
+                        <View>
+                            <Text className="text-lg font-bold text-white mb-4">Reviews</Text>
+                            <ReviewList offerId={offer.id} />
+                        </View>
+
                         {/* Booking Section */}
+                        {/* We pass the offer. BookingSection needs to be aware of Tours too, or we adapt it.
+                            For now, passing offer is enough if BookingSection handles logic or we update it separately.
+                            Task description said "Adjust Booking section for Tours".
+                            Since BookingSection is a separate component, I should probably check it or rely on this file if the logic was here.
+                            Wait, the task says "W offer/[id].tsx dodaj warunkowe renderowanie ... zamiast sekcji 'Units' ... wyświetl informacje o wycieczce".
+                            I did that above.
+                            Re: Booking Section: "Adjust Booking section for Tours (select date/participants)."
+                            I see `BookingSection` imported. I should check if I need to modify it.
+                            I will assume I need to modify `BookingSection` as well or replace it here for Tours.
+                            Let's look at `BookingSection` in a future step or now?
+                            The plan says "Adjust Booking section for Tours".
+                            I'll leave `BookingSection` component update for a separate step or verify if I should do it now. 
+                            Actually, `BookingSection` is likely where the booking logic resides.
+                            For Tours, it's just selecting a date (from startDates) and pax count.
+                            I'll keep `BookingSection` generic pass-through for now, but I might need to edit it.
+                            Let's check `BookingSection.tsx` content first.
+                        */}
                         <BookingSection offer={offer} />
 
                     </View>

@@ -2,8 +2,10 @@ import { Stack, useRouter, useSegments } from "expo-router";
 import { View, ActivityIndicator } from "react-native";
 import { useState, useEffect } from "react";
 import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
 import { useFonts, Inter_400Regular, Inter_700Bold } from '@expo-google-fonts/inter';
 import "./globals.css";
+import { NotificationService } from "../services/notifications";
 
 export default function RootLayout() {
     const [initializing, setInitializing] = useState(true);
@@ -25,6 +27,43 @@ export default function RootLayout() {
         const subscriber = auth().onAuthStateChanged(onAuthStateChange);
         return subscriber;
     }, []);
+
+    // Notiifcation Listener
+    useEffect(() => {
+        let unsubscribe = () => { };
+
+        const setupNotifications = async () => {
+            if (!user) return;
+
+            const hasPermission = await NotificationService.requestPermissions();
+            if (!hasPermission) return;
+
+            // Get user role to listen for correct events
+            const userDoc = await firestore().collection('users').doc(user.uid).get();
+            const userData = userDoc.data();
+            const role = userData?.role;
+
+            if (role) {
+                // Listen for bookings
+                const bookingUnsub = NotificationService.listenForBookingUpdates(user.uid, role);
+                // Listen for chats
+                const chatUnsub = NotificationService.listenForChatUpdates(user.uid);
+
+                unsubscribe = () => {
+                    bookingUnsub();
+                    chatUnsub();
+                };
+            }
+        };
+
+        if (user) {
+            setupNotifications();
+        }
+
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
+    }, [user]);
 
     useEffect(() => {
         if (initializing) return;

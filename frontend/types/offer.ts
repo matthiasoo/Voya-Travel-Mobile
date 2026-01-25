@@ -58,4 +58,16 @@ export interface AccommodationOffer extends BaseOffer {
     };
 }
 
-export type Offer = AccommodationOffer;
+// Tour Offer
+export interface TourOffer extends BaseOffer {
+    type: 'TOURS';
+    details: {
+        duration: number; // hours
+        meetingPoint: string;
+        maxParticipants: number;
+        startDates: string[]; // Array of ISO date strings or available days
+        whatsIncluded?: string[];
+    };
+}
+
+export type Offer = AccommodationOffer | TourOffer;

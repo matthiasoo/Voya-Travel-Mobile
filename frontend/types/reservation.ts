@@ -33,4 +33,7 @@ export interface Reservation {
 
     // Contact Info
     contactDetails: UserAddress;
+
+    // Status
+    hasReviewed?: boolean;
 }
