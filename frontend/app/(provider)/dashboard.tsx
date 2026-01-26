@@ -96,6 +96,17 @@ export default function DashboardScreen() {
                             <Text className="text-white font-bold text-center">Add Property</Text>
                         </TouchableOpacity>
                     )}
+                    {user?.category === 'TOURS' && (
+                        <TouchableOpacity
+                            onPress={() => router.push('/offer/create-property')}
+                            className="bg-slate-800/80 p-4 rounded-xl border border-neon-primary/50 w-full items-center gap-2 active:bg-slate-800"
+                        >
+                            <View className="w-12 h-12 rounded-full bg-neon-primary/20 items-center justify-center">
+                                <Ionicons name="compass" size={24} color="#7F00FF" />
+                            </View>
+                            <Text className="text-white font-bold text-center">Add Tour</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
         </GradientBackground>

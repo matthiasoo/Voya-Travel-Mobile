@@ -11,7 +11,7 @@ import { GradientBackground } from "../../components/GradientBackground";
 import { Offer } from "../../types/offer";
 import { createChat } from "../../services/chat";
 import { BookingSection } from "../../components/BookingSection";
-import { ReviewList } from "../../components/ReviewList";
+import { ReviewsList } from "../../components/ReviewsList";
 
 export default function OfferDetailsScreen() {
     const { id } = useLocalSearchParams();
@@ -227,6 +227,7 @@ export default function OfferDetailsScreen() {
                                 </>
                             ) : (
                                 <>
+                                    {/* Tour Basic Info */}
                                     <View className="flex-row flex-wrap gap-4">
                                         <View className="bg-slate-900 px-3 py-2 rounded-lg">
                                             <Text className="text-slate-400 text-xs">Duration</Text>
@@ -236,18 +237,97 @@ export default function OfferDetailsScreen() {
                                             <Text className="text-slate-400 text-xs">Max People</Text>
                                             <Text className="text-white font-bold">{offer.details.maxParticipants}</Text>
                                         </View>
+                                        {offer.details.difficulty && (
+                                            <View className="bg-slate-900 px-3 py-2 rounded-lg">
+                                                <Text className="text-slate-400 text-xs">Difficulty</Text>
+                                                <Text className="text-white font-bold">{offer.details.difficulty}</Text>
+                                            </View>
+                                        )}
+                                        {offer.details.minimumAge && (
+                                            <View className="bg-slate-900 px-3 py-2 rounded-lg">
+                                                <Text className="text-slate-400 text-xs">Min. Age</Text>
+                                                <Text className="text-white font-bold">{offer.details.minimumAge}+</Text>
+                                            </View>
+                                        )}
                                     </View>
-                                    <View>
-                                        <Text className="text-slate-400 text-sm mb-2">Meeting Point</Text>
-                                        <Text className="text-white font-bold">{offer.details.meetingPoint}</Text>
-                                    </View>
+
+                                    {/* Meeting Point */}
+                                    {offer.details.meetingPoint && (
+                                        <View>
+                                            <Text className="text-slate-400 text-sm mb-2">Meeting Point</Text>
+                                            <View className="flex-row items-center gap-2">
+                                                <Ionicons name="location" size={16} color="#00D4FF" />
+                                                <Text className="text-white font-bold">{offer.details.meetingPoint}</Text>
+                                            </View>
+                                        </View>
+                                    )}
+
+                                    {/* Pickup */}
+                                    {offer.details.pickupIncluded && (
+                                        <View className="flex-row items-center gap-2 bg-green-500/20 px-3 py-2 rounded-lg">
+                                            <Ionicons name="car" size={16} color="#4ade80" />
+                                            <Text className="text-green-400 font-bold text-sm">Hotel pickup included</Text>
+                                        </View>
+                                    )}
+
+                                    {/* Transportation */}
+                                    {offer.details.transportation && (
+                                        <View>
+                                            <Text className="text-slate-400 text-sm mb-2">Transportation</Text>
+                                            <Text className="text-white">{offer.details.transportation}</Text>
+                                        </View>
+                                    )}
+
+                                    {/* Languages */}
+                                    {offer.details.languages && offer.details.languages.length > 0 && (
+                                        <View>
+                                            <Text className="text-slate-400 text-sm mb-2">Languages</Text>
+                                            <View className="flex-row flex-wrap gap-2">
+                                                {offer.details.languages.map((lang, index) => (
+                                                    <View key={index} className="bg-blue-500/20 px-3 py-1 rounded-full border border-blue-500/50">
+                                                        <Text className="text-blue-400 text-xs font-bold">{lang}</Text>
+                                                    </View>
+                                                ))}
+                                            </View>
+                                        </View>
+                                    )}
+
+                                    {/* Highlights */}
+                                    {offer.details.highlights && offer.details.highlights.length > 0 && (
+                                        <View>
+                                            <Text className="text-slate-400 text-sm mb-2">Highlights</Text>
+                                            <View className="flex-row flex-wrap gap-2">
+                                                {offer.details.highlights.map((item, index) => (
+                                                    <View key={index} className="bg-neon-primary/20 px-3 py-1 rounded-full border border-neon-primary/50">
+                                                        <Text className="text-neon-primary text-xs font-bold">{item}</Text>
+                                                    </View>
+                                                ))}
+                                            </View>
+                                        </View>
+                                    )}
+
+                                    {/* What's Included */}
                                     {offer.details.whatsIncluded && offer.details.whatsIncluded.length > 0 && (
                                         <View>
-                                            <Text className="text-slate-400 text-sm mb-2">Included</Text>
+                                            <Text className="text-slate-400 text-sm mb-2">What's Included</Text>
                                             <View className="flex-row flex-wrap gap-2">
                                                 {offer.details.whatsIncluded.map((item, index) => (
-                                                    <View key={index} className="bg-slate-700/50 px-3 py-1 rounded-full">
-                                                        <Text className="text-slate-200 text-xs">{item}</Text>
+                                                    <View key={index} className="bg-green-500/20 px-3 py-1 rounded-full border border-green-500/50">
+                                                        <Text className="text-green-400 text-xs">{item}</Text>
+                                                    </View>
+                                                ))}
+                                            </View>
+                                        </View>
+                                    )}
+
+                                    {/* What to Bring */}
+                                    {offer.details.whatToBring && offer.details.whatToBring.length > 0 && (
+                                        <View>
+                                            <Text className="text-slate-400 text-sm mb-2">What to Bring</Text>
+                                            <View className="flex-row flex-wrap gap-2">
+                                                {offer.details.whatToBring.map((item, index) => (
+                                                    <View key={index} className="bg-yellow-500/20 px-3 py-1 rounded-full border border-yellow-500/50">
+                                                        <Text className="text-yellow-400 text-xs">{item}</Text>
                                                     </View>
                                                 ))}
                                             </View>
@@ -337,7 +417,7 @@ export default function OfferDetailsScreen() {
                         {/* Reviews */}
                         <View>
                             <Text className="text-lg font-bold text-white mb-4">Reviews</Text>
-                            <ReviewList offerId={offer.id} />
+                            <ReviewsList offerId={offer.id} />
                         </View>
 
                         {/* Booking Section */}

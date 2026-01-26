@@ -1,5 +1,5 @@
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter, useFocusEffect } from "expo-router";
 import { GradientBackground } from "../../components/GradientBackground";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,7 +10,7 @@ import { Reservation, ReservationStatus } from "../../types/reservation";
 import { ReviewModal } from "../../components/ReviewModal";
 import { Review } from "../../types/review";
 
-type FilterTab = 'ALL' | 'PENDING' | 'ACCEPTED' | 'CANCELLED';
+type FilterTab = 'ALL' | 'PENDING' | 'ACCEPTED' | 'COMPLETED' | 'CANCELLED';
 
 export default function TouristBookingsScreen() {
     const router = useRouter();
@@ -43,6 +43,34 @@ export default function TouristBookingsScreen() {
             setLoading(false);
         }
     };
+
+    // Auto-update ACCEPTED bookings to COMPLETED when end date passes
+    useEffect(() => {
+        const updateCompletedBookings = async () => {
+            const now = Date.now();
+            const toUpdate = bookings.filter(b =>
+                b.status === 'ACCEPTED' && b.endDate < now
+            );
+
+            if (toUpdate.length > 0) {
+                try {
+                    const batch = firestore().batch();
+                    toUpdate.forEach(booking => {
+                        const ref = firestore().collection('bookings').doc(booking.id);
+                        batch.update(ref, { status: 'COMPLETED', updatedAt: Date.now() });
+                    });
+                    await batch.commit();
+                    fetchBookings(); // Refresh to show updated statuses
+                } catch (error) {
+                    console.error("Error updating completed bookings:", error);
+                }
+            }
+        };
+
+        if (bookings.length > 0) {
+            updateCompletedBookings();
+        }
+    }, [bookings]);
 
     useFocusEffect(
         useCallback(() => {
@@ -80,64 +108,22 @@ export default function TouristBookingsScreen() {
         setReviewModalVisible(true);
     };
 
-    const handleSubmitReview = async (rating: number, comment: string) => {
-        if (!selectedBookingForReview || !currentUser) return;
-
-        const offerRef = firestore().collection('offers').doc(selectedBookingForReview.offerId);
-        const bookingRef = firestore().collection('bookings').doc(selectedBookingForReview.id);
-        const reviewRef = firestore().collection('reviews').doc();
-
-        try {
-            await firestore().runTransaction(async (transaction) => {
-                const offerDoc = await transaction.get(offerRef);
-                if (!offerDoc.exists) {
-                    throw "Offer does not exist!";
-                }
-
-                const offerData = offerDoc.data();
-                const currentRating = offerData?.rating || 0;
-                const currentCount = offerData?.reviewsCount || 0;
-
-                const newCount = currentCount + 1;
-                const newRating = ((currentRating * currentCount) + rating) / newCount;
-
-                const reviewData: Review = {
-                    id: reviewRef.id,
-                    offerId: selectedBookingForReview.offerId,
-                    userId: currentUser.uid,
-                    userName: currentUser.displayName || "Anonymous",
-                    userAvatar: currentUser.photoURL || undefined,
-                    rating,
-                    comment,
-                    createdAt: Date.now(),
-                };
-
-                transaction.set(reviewRef, reviewData);
-                transaction.update(bookingRef, { hasReviewed: true });
-                transaction.update(offerRef, {
-                    rating: Number(newRating.toFixed(1)), // Keep it to 1 decimal place
-                    reviewsCount: newCount
-                });
-            });
-
-            Alert.alert("Success", "Thank you for your review!");
-            setReviewModalVisible(false);
-            fetchBookings(); // Refresh to update UI
-        } catch (error) {
-            console.error("Error submitting review:", error);
-            Alert.alert("Error", "Failed to submit review.");
-        }
+    const handleReviewSuccess = () => {
+        Alert.alert("Success", "Thank you for your review!");
+        fetchBookings();
     };
 
     const filteredBookings = bookings.filter(b => {
         if (selectedTab === 'ALL') return true;
         if (selectedTab === 'CANCELLED') return b.status === 'CANCELLED' || b.status === 'REJECTED';
+        if (selectedTab === 'COMPLETED') return b.status === 'COMPLETED';
         return b.status === selectedTab;
     });
 
     const getStatusColor = (status: ReservationStatus) => {
         switch (status) {
             case 'ACCEPTED': return 'bg-green-500/20 text-green-400 border-green-500/50';
+            case 'COMPLETED': return 'bg-blue-500/20 text-blue-400 border-blue-500/50';
             case 'PENDING': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50';
             case 'REJECTED': return 'bg-red-500/20 text-red-400 border-red-500/50';
             case 'CANCELLED': return 'bg-slate-500/20 text-slate-400 border-slate-500/50';
@@ -147,8 +133,9 @@ export default function TouristBookingsScreen() {
 
     const renderItem = ({ item }: { item: Reservation }) => {
         const canCancel = item.status === 'PENDING' || item.status === 'ACCEPTED';
-        const isCompleted = item.status === 'ACCEPTED' && item.endDate < Date.now();
-        const canReview = isCompleted && !item.hasReviewed;
+
+        // Only allow review for COMPLETED bookings
+        const canReview = item.status === 'COMPLETED' && !item.hasReviewed;
         const dateRange = `${new Date(item.startDate).toLocaleDateString()} - ${new Date(item.endDate).toLocaleDateString()}`;
 
         return (
@@ -184,7 +171,7 @@ export default function TouristBookingsScreen() {
 
                 {/* Actions */}
                 <View className="flex-row justify-end bg-slate-800 border-t border-slate-700">
-                    {canCancel && !isCompleted && (
+                    {canCancel && item.status !== 'COMPLETED' && (
                         <TouchableOpacity
                             onPress={() => handleCancel(item.id)}
                             className="p-3 mr-auto"
@@ -221,7 +208,7 @@ export default function TouristBookingsScreen() {
 
                 {/* Filters */}
                 <View className="flex-row mb-6 bg-slate-900/50 p-1 rounded-lg">
-                    {(['ALL', 'PENDING', 'ACCEPTED', 'CANCELLED'] as FilterTab[]).map(tab => (
+                    {(['ALL', 'PENDING', 'ACCEPTED', 'COMPLETED', 'CANCELLED'] as FilterTab[]).map(tab => (
                         <TouchableOpacity
                             key={tab}
                             onPress={() => setSelectedTab(tab)}
@@ -253,11 +240,15 @@ export default function TouristBookingsScreen() {
                     />
                 )}
 
-                <ReviewModal
-                    visible={reviewModalVisible}
-                    onClose={() => setReviewModalVisible(false)}
-                    onSubmit={handleSubmitReview}
-                />
+                {selectedBookingForReview && (
+                    <ReviewModal
+                        visible={reviewModalVisible}
+                        onClose={() => setReviewModalVisible(false)}
+                        offerId={selectedBookingForReview.offerId}
+                        reservationId={selectedBookingForReview.id}
+                        onSuccess={handleReviewSuccess}
+                    />
+                )}
             </View>
         </GradientBackground>
     );

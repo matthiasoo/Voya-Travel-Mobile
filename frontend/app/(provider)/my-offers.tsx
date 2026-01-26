@@ -7,6 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Image as ExpoImage } from "expo-image";
 
 import { GradientBackground } from "../../components/GradientBackground";
+import { OfferCard } from "../../components/OfferCard";
 import { Offer, VerificationStatus } from "../../types/offer";
 
 type FilterType = 'ALL' | VerificationStatus;
@@ -56,68 +57,7 @@ export default function MyOffersScreen() {
     };
 
     const renderOfferItem = ({ item }: { item: Offer }) => (
-        <TouchableOpacity
-            onPress={() => router.push(`/offer/${item.id}`)}
-            className="bg-slate-800/90 mb-4 rounded-xl overflow-hidden border border-slate-700"
-        >
-            {/* Image Section */}
-            <View className="h-40 w-full relative bg-slate-900">
-                {item.images && item.images.length > 0 ? (
-                    <ExpoImage
-                        source={{ uri: item.images[0] }}
-                        style={{ width: '100%', height: '100%' }}
-                        contentFit="cover"
-                        transition={500}
-                    />
-                ) : (
-                    <View className="flex-1 items-center justify-center">
-                        <Ionicons name="image-outline" size={48} color="#64748b" />
-                    </View>
-                )}
-
-            </View>
-
-            {/* Content Section */}
-            <View className="p-4 gap-2">
-                <View className="flex-row justify-between items-start">
-                    <Text className="text-xl font-bold text-white flex-1 mr-2" numberOfLines={1}>
-                        {item.title}
-                    </Text>
-                    <Text className="text-neon-primary font-bold text-lg">
-                        from {item.currency} {item.price}
-                    </Text>
-                </View>
-
-                <View className="flex-row items-center gap-1">
-                    <Ionicons name="location-outline" size={16} color="#94a3b8" />
-                    <Text className="text-slate-400 text-sm">
-                        {item.location.city}, {item.location.country}
-                    </Text>
-                </View>
-
-                {/* Status Badge moved from image to here */}
-
-                <View className="flex-row justify-between items-center mt-2 pt-2 border-t border-slate-700">
-                    <View className={`px-2 py-1 rounded border ${getStatusColor(item.verificationStatus).split(' ')[1]} ${getStatusColor(item.verificationStatus).split(' ')[2]}`}>
-                        <Text className={`text-xs font-bold ${getStatusColor(item.verificationStatus).split(' ')[0]}`}>
-                            {item.verificationStatus}
-                        </Text>
-                    </View>
-
-                    <View className="flex-row gap-4 items-center">
-                        <Text className="text-slate-500 text-xs">
-                            {new Date(item.createdAt).toLocaleDateString()}
-                        </Text>
-                        <View className="flex-row gap-1">
-                            <Ionicons name="star" size={14} color="#FBBF24" />
-                            <Text className="text-slate-400 text-xs text-yellow-500 font-bold">
-                                {item.rating > 0 ? `${item.rating} (${item.reviewsCount})` : 'New'}
-                            </Text>
-                        </View>
-                    </View>
-                </View>
-            </View>
-        </TouchableOpacity>
+        <OfferCard offer={item} showStatus={true} showType={true} />
     );
 
     return (

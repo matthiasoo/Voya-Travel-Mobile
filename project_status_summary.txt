@@ -1,0 +1,71 @@
+Podsumowanie Stanu Realizacji
+Twoja aplikacja (napisana w React Native / Expo) posiada solidne fundamenty. Zrealizowano większość kluczowych funkcjonalności "biznesowych" (konta, oferty, rezerwacje, czat), jednak brakuje zaawansowanych funkcji dodatkowych (AI, Dostępność, Raportowanie).
+
+✅ Zrealizowane (Funkcjonalności Działające)
+Logowanie i Uwierzytelnianie:
+Integracja z Firebase Auth.
+Podział na role: Turysta (TouristUser) i Dostawca (ProviderUser).
+Ekrany logowania, rejestracji i wyboru roli są gotowe.
+
+Zarządzanie Ofertami (Dostawca):
+Możliwość przeglądania swoich ofert (my-offers.tsx).
+Dodawanie/Edycja ofert (tytuł, opis, cena, zdjęcia, lokalizacja) – struktura danych BaseOffer i AccommodationOffer jest poprawna.
+Obsługa typów jednostek (pokoje, apartamenty) w ramach oferty.
+
+System Rezerwacji (Transakcyjny):
+Pełny model danych rezerwacji (Reservation w types/reservation.ts).
+Dwustronne potwierdzenie: Rezerwacja wpada ze statusem PENDING, dostawca widzi ją i może zaakceptować/odrzucić (logika statusów zaimplementowana).
+Kalendarz dostępności i wybór dat w BookingSection.tsx.
+
+Czat:
+Działający system wiadomości oparty na Firestore (chats collection).
+Możliwość rozpoczęcia czatu z poziomu oferty.
+Listy czatów dla obu ról.
+
+Mapa:
+Integracja z react-native-maps na ekranie szczegółów oferty (podgląd lokalizacji).
+Dedykowany ekran mapy dla turysty (app/(tourist)/map.tsx).
+
+Prywatność (Maskowanie danych):
+Dane kontaktowe turysty są wysyłane dopiero w momencie rezerwacji (contactDetails w BookingSection.tsx), co spełnia wymóg maskowania przed rezerwacją.
+
+Weryfikacja Dostawców:
+Pole verificationStatus w modelu danych.
+Logika wyświetlania odznaki zweryfikowanego dostawcy.
+Zarys panelu admina (app/(admin)/approvals.tsx).
+
+⚠️ Częściowo Zrealizowane (Wymagają Rozbudowy)
+Wyszukiwanie i Filtrowanie:
+Jest: Wyszukiwanie tekstowe po mieście/kraju.
+Brakuje: Filtrowania po cenie, dacie, typie, udogodnieniach, ocenach. Obecnie filtracja jest bardzo podstawowa.
+
+Kategorie Ofert:
+Kod jest mocno skupiony na Noclegach (AccommodationOffer).
+Typy dla wycieczek (TOURS), atrakcji czy przewodników są zdefiniowane w TypeScript, ale brakuje dla nich dedykowanych formularzy i widoków szczegółowych (chyba że są traktowane generycznie jako BaseOffer, ale ich specyfika, np. "godzina zbiórki", może wymagać rozbudowy).
+
+Oceny i Opinie:
+W bazie danych są pola rating i reviewsCount, ale brakuje interfejsu (UI) do dodawania opinii po zakończonej usłudze oraz listy opinii pod ofertą.
+
+Powiadomienia:
+Biblioteka expo-notifications jest zainstalowana, ale w analizowanych plikach nie widać aktywnego kodu wysyłającego powiadomienia Push/Email przy zmianie statusu rezerwacji czy nowej wiadomości.
+
+❌ Niezrealizowane / Braki (Do Implementacji)
+Integracje LLM (AI):
+Brak: Generowania opisów ofert na podstawie słów kluczowych.
+Brak: Automatycznego tłumaczenia ofert i czatu.
+W kodzie nie ma śladu integracji z OpenAI/Gemini ani przycisków wywołujących te funkcje.
+
+Zaawansowana Dostępność (Accessibility):
+Brak: Wyszukiwania głosowego.
+Brak: Dedykowanego trybu "Wysoki Kontrast" (przełącznika w ustawieniach). Aplikacja polega na systemowych ustawieniach i standardowych stylach.
+
+System Zgłaszania (Moderacja):
+Brak: Przycisku "Zgłoś ofertę" lub "Zgłoś użytkownika".
+Brak: Widoku dla administratora do przeglądania zgłoszeń (jest tylko weryfikacja dostawców).
+
+Rekomendacja - Co robić dalej?
+Jeśli chcesz dokończyć projekt zgodnie z założeniami, sugeruję następującą kolejność prac:
+1. AI (Priorytet "Integracje LLM"): Dodać przycisk "Generuj opis" przy tworzeniu oferty (proste wywołanie API OpenAI/Gemini).
+2. Filtry: Rozbudować ekran wyszukiwania o filtry (Data, Cena, Kategoria).
+3. Zgłaszanie: Dodać prosty przycisk "Report" na ofercie zapisujący zgłoszenie w nowej kolekcji reports.
+4. Opinie: Dodać możliwość wystawienia oceny po zakończeniu rezerwacji.

@@ -19,8 +19,9 @@ export default function CreatePropertyScreen() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [userCategory, setUserCategory] = useState<'ACCOMMODATION' | 'TOURS' | null>(null);
 
-    // Form Fields
+    // Form Fields - offerType will be set based on user category
     const [offerType, setOfferType] = useState<'ACCOMMODATION' | 'TOURS'>('ACCOMMODATION');
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -37,6 +38,14 @@ export default function CreatePropertyScreen() {
     const [meetingPoint, setMeetingPoint] = useState("");
     const [datesInput, setDatesInput] = useState(""); // Simplified: comma separated dates
     const [whatsIncludedInput, setWhatsIncludedInput] = useState("");
+    const [pickupIncluded, setPickupIncluded] = useState(false);
+    const [difficulty, setDifficulty] = useState<'EASY' | 'MODERATE' | 'CHALLENGING'>('EASY');
+    const [minimumAge, setMinimumAge] = useState("");
+    const [languagesInput, setLanguagesInput] = useState("Polski, English");
+    const [whatToBringInput, setWhatToBringInput] = useState("");
+    const [highlightsInput, setHighlightsInput] = useState("");
+    const [transportation, setTransportation] = useState("");
+    const [pricePerPerson, setPricePerPerson] = useState("");
 
     // Map & Location
     const [region, setRegion] = useState<Region>({
@@ -53,7 +62,7 @@ export default function CreatePropertyScreen() {
     // Images
     const [images, setImages] = useState<string[]>([]);
 
-    // Map Permissions & Initial Reverse Geocode
+    // Map Permissions & Initial Reverse Geocode + Fetch User Category
     useEffect(() => {
         (async () => {
             const { status } = await Location.requestForegroundPermissionsAsync();
@@ -63,6 +72,22 @@ export default function CreatePropertyScreen() {
             }
             // Initial reverse geocode for default location
             reverseGeocode(markerCoords.latitude, markerCoords.longitude);
+
+            // Fetch user category to lock offer type
+            const currentUser = auth().currentUser;
+            if (currentUser) {
+                const userDoc = await firestore().collection('users').doc(currentUser.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    if (userData?.category === 'TOURS') {
+                        setUserCategory('TOURS');
+                        setOfferType('TOURS');
+                    } else if (userData?.category === 'ACCOMMODATION') {
+                        setUserCategory('ACCOMMODATION');
+                        setOfferType('ACCOMMODATION');
+                    }
+                }
+            }
         })();
     }, []);
 
@@ -118,7 +143,7 @@ export default function CreatePropertyScreen() {
             return;
         }
 
-        if (offerType === 'TOURS' && (!duration || !maxParticipants || !meetingPoint)) {
+        if (offerType === 'TOURS' && (!duration || !maxParticipants)) {
             Alert.alert("Error", "Please fill in all tour specific fields.");
             return;
         }
@@ -189,35 +214,32 @@ export default function CreatePropertyScreen() {
             } else {
                 const startDates = datesInput.split(',').map(s => s.trim()).filter(s => s.length > 0);
                 const whatsIncluded = whatsIncludedInput.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                const languages = languagesInput.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                const whatToBring = whatToBringInput.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                const highlights = highlightsInput.split(',').map(s => s.trim()).filter(s => s.length > 0);
+
                 offerData = {
                     ...baseData,
                     type: 'TOURS' as const,
+                    price: parseFloat(pricePerPerson) || 0,
                     details: {
-                        duration: parseInt(duration) || 1,
-                        meetingPoint: meetingPoint || address, // Default to main address if not specified
+                        duration: parseFloat(duration) || 1,
                         maxParticipants: parseInt(maxParticipants) || 1,
                         startDates,
-                        whatsIncluded
+                        meetingPoint: meetingPoint || address,
+                        pickupIncluded,
+                        difficulty,
+                        minimumAge: minimumAge ? parseInt(minimumAge) : undefined,
+                        languages,
+                        whatsIncluded,
+                        whatToBring,
+                        highlights,
+                        transportation: transportation || undefined
                     }
                 };
-
-                // For tours, price might need to be set differently since there are no units.
-                // Assuming provider will update price later or we add a base price field.
-                // For simplicity, let's assume 0 for now as per baseData, or add a price input?
-                // The task description says "Hide fields dot. rooms/beds... Show fields: Duration, Meeting Point".
-                // It doesn't explicitly ask for a price input for tours, but offers usually have a price.
-                // Let's assume we might need a base price for tours. 
-                // However, I will stick to the requirements strictly. 
-                // Existing flow sets price: 0 and expects units (for accommodation).
-                // For tours, let's keep it 0 and maybe provider can edit it later, or it's free/contact based?
-                // Actually, let's add a "Price per person" input for Tours if selected.
             }
 
-            // If Tour, we should probably allow setting price directly since there are no units
-            if (offerType === 'TOURS') {
-                // We don't have a price input in the UI yet for Tours. 
-                // Let's add it in the UI section.
-            }
+
 
             await docRef.set(offerData);
 
@@ -248,20 +270,21 @@ export default function CreatePropertyScreen() {
                 <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
                     <View className="gap-6 pb-10">
 
-                        {/* Offer Type Selector */}
-                        <View className="flex-row bg-slate-800 p-1 rounded-xl">
-                            <TouchableOpacity
-                                onPress={() => setOfferType('ACCOMMODATION')}
-                                className={`flex-1 py-3 rounded-lg items-center ${offerType === 'ACCOMMODATION' ? 'bg-slate-700' : ''}`}
-                            >
-                                <Text className={`font-bold ${offerType === 'ACCOMMODATION' ? 'text-white' : 'text-slate-400'}`}>Accommodation</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={() => setOfferType('TOURS')}
-                                className={`flex-1 py-3 rounded-lg items-center ${offerType === 'TOURS' ? 'bg-slate-700' : ''}`}
-                            >
-                                <Text className={`font-bold ${offerType === 'TOURS' ? 'text-white' : 'text-slate-400'}`}>Tour / Experience</Text>
-                            </TouchableOpacity>
+                        {/* Offer Type - Styled indicator */}
+                        <View className={`flex-row items-center gap-3 p-4 rounded-xl border ${offerType === 'TOURS' ? 'bg-neon-primary/10 border-neon-primary/50' : 'bg-neon-secondary/10 border-neon-secondary/50'}`}>
+                            <View className={`w-12 h-12 rounded-full items-center justify-center ${offerType === 'TOURS' ? 'bg-neon-primary/20' : 'bg-neon-secondary/20'}`}>
+                                <Ionicons
+                                    name={offerType === 'TOURS' ? 'compass' : 'bed'}
+                                    size={24}
+                                    color={offerType === 'TOURS' ? '#00D4FF' : '#7F00FF'}
+                                />
+                            </View>
+                            <View>
+                                <Text className="text-slate-400 text-xs">Creating</Text>
+                                <Text className={`font-bold text-lg ${offerType === 'TOURS' ? 'text-neon-primary' : 'text-neon-secondary'}`}>
+                                    {offerType === 'TOURS' ? 'Tour / Experience' : 'Accommodation'}
+                                </Text>
+                            </View>
                         </View>
 
                         {/* Basic Info */}
@@ -352,6 +375,30 @@ export default function CreatePropertyScreen() {
                                     </View>
                                 </View>
 
+                                <View className="flex-row gap-4">
+                                    <View className="flex-1">
+                                        <Text className="text-gray-400 ml-1 mb-1">Price per Person</Text>
+                                        <GradientInput value={pricePerPerson} onChangeText={setPricePerPerson} placeholder="e.g. 50" keyboardType="numeric" />
+                                    </View>
+                                    <View className="flex-1">
+                                        <Text className="text-gray-400 ml-1 mb-1">Min. Age</Text>
+                                        <GradientInput value={minimumAge} onChangeText={setMinimumAge} placeholder="e.g. 12" keyboardType="numeric" />
+                                    </View>
+                                </View>
+
+                                <Text className="text-gray-400 ml-1">Difficulty</Text>
+                                <View className="flex-row gap-2">
+                                    {(['EASY', 'MODERATE', 'CHALLENGING'] as const).map(d => (
+                                        <TouchableOpacity
+                                            key={d}
+                                            onPress={() => setDifficulty(d)}
+                                            className={`flex-1 py-2 rounded-lg border items-center ${difficulty === d ? 'bg-neon-primary border-neon-primary' : 'bg-slate-800 border-slate-600'}`}
+                                        >
+                                            <Text className={`font-bold text-sm ${difficulty === d ? 'text-black' : 'text-gray-300'}`}>{d}</Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+
                                 <Text className="text-gray-400 ml-1">Meeting Point</Text>
                                 <GradientInput
                                     value={meetingPoint}
@@ -359,18 +406,56 @@ export default function CreatePropertyScreen() {
                                     placeholder="e.g. Main Square Fountain"
                                 />
 
-                                <Text className="text-gray-400 ml-1">Available Dates (optional text for now)</Text>
+                                <TouchableOpacity
+                                    onPress={() => setPickupIncluded(!pickupIncluded)}
+                                    className="flex-row items-center gap-3 bg-slate-800 p-3 rounded-lg border border-slate-700"
+                                >
+                                    <View className={`w-6 h-6 rounded border-2 items-center justify-center ${pickupIncluded ? 'bg-neon-primary border-neon-primary' : 'border-slate-500'}`}>
+                                        {pickupIncluded && <Ionicons name="checkmark" size={16} color="black" />}
+                                    </View>
+                                    <Text className="text-white">Hotel pickup included</Text>
+                                </TouchableOpacity>
+
+                                <Text className="text-gray-400 ml-1">Transportation</Text>
+                                <GradientInput
+                                    value={transportation}
+                                    onChangeText={setTransportation}
+                                    placeholder="e.g. Walking, Bus, Bike..."
+                                />
+
+                                <Text className="text-gray-400 ml-1">Languages (comma separated)</Text>
+                                <GradientInput
+                                    value={languagesInput}
+                                    onChangeText={setLanguagesInput}
+                                    placeholder="Polski, English, Deutsch..."
+                                />
+
+                                <Text className="text-gray-400 ml-1">Available Dates (comma separated)</Text>
                                 <GradientInput
                                     value={datesInput}
                                     onChangeText={setDatesInput}
-                                    placeholder="e.g. Every Monday, 2024-05-20, etc."
+                                    placeholder="Every Monday, 2024-05-20, etc."
                                 />
 
-                                <Text className="text-gray-400 ml-1">What's Included</Text>
+                                <Text className="text-gray-400 ml-1">Highlights (comma separated)</Text>
+                                <GradientInput
+                                    value={highlightsInput}
+                                    onChangeText={setHighlightsInput}
+                                    placeholder="Old Town, Castle, River Cruise..."
+                                />
+
+                                <Text className="text-gray-400 ml-1">What's Included (comma separated)</Text>
                                 <GradientInput
                                     value={whatsIncludedInput}
                                     onChangeText={setWhatsIncludedInput}
                                     placeholder="Transport, Lunch, Guide..."
+                                />
+
+                                <Text className="text-gray-400 ml-1">What to Bring (comma separated)</Text>
+                                <GradientInput
+                                    value={whatToBringInput}
+                                    onChangeText={setWhatToBringInput}
+                                    placeholder="Comfortable shoes, Water, Camera..."
                                 />
                             </View>
                         )}

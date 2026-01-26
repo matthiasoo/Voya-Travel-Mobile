@@ -59,14 +59,30 @@ export interface AccommodationOffer extends BaseOffer {
 }
 
 // Tour Offer
+export type TourDifficulty = 'EASY' | 'MODERATE' | 'CHALLENGING';
+
 export interface TourOffer extends BaseOffer {
     type: 'TOURS';
     details: {
+        // Basic
         duration: number; // hours
-        meetingPoint: string;
         maxParticipants: number;
         startDates: string[]; // Array of ISO date strings or available days
+
+        // Organizational
+        meetingPoint?: string;
+        pickupIncluded?: boolean;
+
+        // Difficulty & Requirements
+        difficulty?: TourDifficulty;
+        minimumAge?: number;
+
+        // Additional Info
+        languages: string[];
         whatsIncluded?: string[];
+        whatToBring?: string[];
+        highlights?: string[];
+        transportation?: string;
     };
 }
 

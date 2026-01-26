@@ -143,6 +143,15 @@ export function BookingSection({ offer }: BookingSectionProps) {
         }).filter(u => u.remaining > 0);
     }, [selectedStartDate, selectedEndDate, bookings, calculating, offer]);
 
+    // Helper to check same day (simple version if date-fns input is timestamp/date)
+    const isSameDay = (ts1: number, ts2: number) => {
+        const d1 = new Date(ts1);
+        const d2 = new Date(ts2);
+        return d1.getFullYear() === d2.getFullYear() &&
+            d1.getMonth() === d2.getMonth() &&
+            d1.getDate() === d2.getDate();
+    };
+
     // Tour Availability Logic
     const tourAvailability = useMemo(() => {
         if (offer.type !== 'TOURS') return null;
@@ -161,15 +170,6 @@ export function BookingSection({ offer }: BookingSectionProps) {
         const remaining = offer.details.maxParticipants - bookedGuests;
         return { remaining, isAvailable: remaining >= guestCount };
     }, [selectedStartDate, bookings, guestCount, offer]);
-
-    // Helper to check same day (simple version if date-fns input is timestamp/date)
-    const isSameDay = (ts1: number, ts2: number) => {
-        const d1 = new Date(ts1);
-        const d2 = new Date(ts2);
-        return d1.getFullYear() === d2.getFullYear() &&
-            d1.getMonth() === d2.getMonth() &&
-            d1.getDate() === d2.getDate();
-    };
 
 
     const handleBookPress = (unit: AccommodationUnit | null) => {

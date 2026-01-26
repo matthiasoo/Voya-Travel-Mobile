@@ -1,7 +1,9 @@
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { GradientBackground } from "../../components/GradientBackground";
 import { GradientInput } from "../../components/GradientInput";
+import { OfferCard } from "../../components/OfferCard";
 import { useState, useEffect, useMemo } from "react";
 import firestore from "@react-native-firebase/firestore";
 import { Offer } from "../../types/offer";
@@ -108,57 +110,7 @@ export default function Index() {
     }, [offers, searchQuery, activeFilters]);
 
     const renderOfferItem = ({ item }: { item: Offer }) => (
-        <TouchableOpacity
-            onPress={() => router.push(`/offer/${item.id}`)}
-            className="bg-slate-800/80 rounded-xl border border-slate-700 mb-4 overflow-hidden"
-        >
-            <View className="h-48 w-full bg-slate-700 relative">
-                {item.images && item.images.length > 0 ? (
-                    <Image
-                        source={{ uri: item.images[0] }}
-                        style={{ width: '100%', height: '100%' }}
-                        contentFit="cover"
-                        transition={1000}
-                    />
-                ) : (
-                    <View className="w-full h-full items-center justify-center">
-                        <Ionicons name="image-outline" size={48} color="#64748B" />
-                    </View>
-                )}
-                <View className="absolute bottom-2 right-2 bg-slate-900/80 px-2 py-1 rounded">
-                    <Text className="text-neon-primary font-bold">
-                        <Text className="text-white text-sm font-normal">from</Text> {item.currency} {item.price} <Text className="text-white text-xs font-normal">/ {item.type === 'TOURS' ? 'person' : 'night'}</Text>
-                    </Text>
-                </View>
-
-                {item.type === 'TOURS' && (
-                    <View className="absolute top-2 left-2 bg-purple-500/80 px-2 py-1 rounded">
-                        <Text className="text-white text-xs font-bold">TOUR</Text>
-                    </View>
-                )}
-            </View>
-
-            <View className="p-4">
-                <Text className="text-xl font-bold text-white mb-1" numberOfLines={1}>{item.title}</Text>
-                <View className="flex-row items-center gap-1 mb-2">
-                    <Ionicons name="location-outline" size={14} color="#94A3B8" />
-                    <Text className="text-slate-400 text-sm">{item.location.city}, {item.location.country}</Text>
-                </View>
-
-                <View className="flex-row items-center gap-4">
-                    <View className="flex-row items-center gap-1">
-                        <Ionicons name="star" size={14} color="#FBBF24" />
-                        <Text className="text-white font-bold">{item.rating ? item.rating.toFixed(1) : "New"}</Text>
-                        {item.reviewsCount ? <Text className="text-slate-500 text-xs">({item.reviewsCount})</Text> : null}
-                    </View>
-                    <View className="bg-slate-700 px-2 py-0.5 rounded">
-                        <Text className="text-slate-300 text-xs text-transform-capitalize">
-                            {item.type === 'TOURS' ? 'Tour' : item.details?.propertyType}
-                        </Text>
-                    </View>
-                </View>
-            </View>
-        </TouchableOpacity>
+        <OfferCard offer={item} showStatus={false} showType={true} />
     );
 
     const activeFiltersCount =
@@ -173,24 +125,36 @@ export default function Index() {
             <View className="flex-1 px-4 pt-12 pb-4">
                 <Text className="text-3xl font-bold text-white mb-4">Explore</Text>
 
-                <View className="flex-row gap-2 mb-6">
+                <View className="flex-row gap-3 mb-6 items-center">
                     <View className="flex-1">
                         <GradientInput
                             placeholder="Search city or country..."
                             value={searchQuery}
                             onChangeText={setSearchQuery}
+                            icon={<Ionicons name="search" size={20} color="#94A3B8" />}
                         />
                     </View>
                     <TouchableOpacity
                         onPress={() => setFilterVisible(true)}
-                        className={`w-12 h-12 rounded-xl items-center justify-center border ${activeFiltersCount > 0 ? 'bg-neon-primary/20 border-neon-primary' : 'bg-slate-800 border-slate-700'}`}
+                        className="h-[52px] w-[52px] rounded-xl overflow-hidden"
                     >
-                        <Ionicons name="options" size={24} color={activeFiltersCount > 0 ? '#00D4FF' : '#94A3B8'} />
-                        {activeFiltersCount > 0 && (
-                            <View className="absolute -top-1 -right-1 w-4 h-4 bg-neon-primary rounded-full items-center justify-center">
-                                <Text className="text-black text-[10px] font-bold">{activeFiltersCount}</Text>
+                        <LinearGradient
+                            colors={activeFiltersCount > 0 ? ['#7F00FF', '#00D4FF'] : ['#1E293B', '#1E293B']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            className="w-full h-full p-[1.5px] items-center justify-center rounded-xl"
+                        >
+                            <View className={`w-full h-full rounded-xl items-center justify-center ${activeFiltersCount > 0 ? 'bg-slate-900/90' : 'bg-slate-800'}`}>
+                                <Ionicons
+                                    name="options"
+                                    size={24}
+                                    color={activeFiltersCount > 0 ? '#00D4FF' : '#94A3B8'}
+                                />
+                                {activeFiltersCount > 0 && (
+                                    <View className="absolute top-3 right-3 w-2 h-2 bg-neon-primary rounded-full" />
+                                )}
                             </View>
-                        )}
+                        </LinearGradient>
                     </TouchableOpacity>
                 </View>
 
