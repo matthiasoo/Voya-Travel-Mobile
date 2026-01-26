@@ -14,11 +14,13 @@ import { GradientBackground } from "../../components/GradientBackground";
 import { GradientInput } from "../../components/GradientInput";
 import { GradientButton } from "../../components/GradientButton";
 import { uploadImage } from "../../utils/storage";
+import { AIService } from "../../services/ai";
 
 export default function CreatePropertyScreen() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [generating, setGenerating] = useState(false);
     const [userCategory, setUserCategory] = useState<'ACCOMMODATION' | 'TOURS' | null>(null);
 
     // Form Fields - offerType will be set based on user category
@@ -111,10 +113,27 @@ export default function CreatePropertyScreen() {
         reverseGeocode(newCoords.latitude, newCoords.longitude);
     };
 
-    const handleDragEnd = (e: any) => {
-        const newCoords = e.nativeEvent.coordinate;
-        setMarkerCoords(newCoords);
-        reverseGeocode(newCoords.latitude, newCoords.longitude);
+    const handleGenerateDescription = async () => {
+        if (!title || !city) {
+            Alert.alert("Missing Info", "Please enter at least a Title and City to generate a description.");
+            return;
+        }
+
+        setGenerating(true);
+        try {
+            const desc = await AIService.generateDescription({
+                title,
+                location: `${city}, ${country}`,
+                type: offerType,
+                amenities: offerType === 'ACCOMMODATION' ? amenitiesInput.split(',').filter(Boolean) : undefined,
+                highlights: offerType === 'TOURS' ? highlightsInput.split(',').filter(Boolean) : undefined
+            });
+            setDescription(desc);
+        } catch (error: any) {
+            Alert.alert("AI Generation Failed", error.message);
+        } finally {
+            setGenerating(false);
+        }
     };
 
     const pickImage = async () => {
@@ -182,7 +201,7 @@ export default function CreatePropertyScreen() {
                 isActive: true,
                 title,
                 description,
-                price: 0,
+                price: offerType === 'TOURS' ? (parseFloat(pricePerPerson) || 0) : 0, // Simplified price logic
                 currency: 'USD',
                 images: imageUrls,
                 location: {
@@ -239,8 +258,6 @@ export default function CreatePropertyScreen() {
                 };
             }
 
-
-
             await docRef.set(offerData);
 
             Alert.alert("Success", `${offerType === 'TOURS' ? 'Tour' : 'Property'} created successfully!`, [
@@ -270,7 +287,7 @@ export default function CreatePropertyScreen() {
                 <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
                     <View className="gap-6 pb-10">
 
-                        {/* Offer Type - Styled indicator */}
+                        {/* Offer Type Indicator */}
                         <View className={`flex-row items-center gap-3 p-4 rounded-xl border ${offerType === 'TOURS' ? 'bg-neon-primary/10 border-neon-primary/50' : 'bg-neon-secondary/10 border-neon-secondary/50'}`}>
                             <View className={`w-12 h-12 rounded-full items-center justify-center ${offerType === 'TOURS' ? 'bg-neon-primary/20' : 'bg-neon-secondary/20'}`}>
                                 <Ionicons
@@ -291,13 +308,27 @@ export default function CreatePropertyScreen() {
                         <View className="gap-4">
                             <Text className="text-neon-secondary font-bold text-lg">Basic Information</Text>
                             <GradientInput value={title} onChangeText={setTitle} placeholder="Title (e.g. City Tour or Cozy Apt)" />
-                            <GradientInput
-                                value={description}
-                                onChangeText={setDescription}
-                                placeholder="Description"
-                                multiline
-                                numberOfLines={4}
-                            />
+
+                            <View>
+                                <View className="flex-row justify-between items-end mb-2">
+                                    <Text className="text-slate-400">Description</Text>
+                                    <TouchableOpacity
+                                        onPress={handleGenerateDescription}
+                                        disabled={generating}
+                                        className="flex-row items-center gap-1 bg-neon-primary/20 px-2 py-1 rounded-lg border border-neon-primary/50"
+                                    >
+                                        {generating ? <ActivityIndicator size="small" color="#00D4FF" /> : <Ionicons name="sparkles" size={12} color="#00D4FF" />}
+                                        <Text className="text-neon-primary text-xs font-bold">Generate with AI</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <GradientInput
+                                    value={description}
+                                    onChangeText={setDescription}
+                                    placeholder="Describe your property..."
+                                    multiline
+                                    numberOfLines={4}
+                                />
+                            </View>
                         </View>
 
                         {/* Images */}
@@ -324,181 +355,113 @@ export default function CreatePropertyScreen() {
                             </View>
                         </View>
 
-                        {/* CONDITIONAL DETAILS */}
-                        {offerType === 'ACCOMMODATION' ? (
+                        {/* ACCOMMODATION SPECIFIC */}
+                        {offerType === 'ACCOMMODATION' && (
                             <View className="gap-4">
                                 <Text className="text-neon-secondary font-bold text-lg">Accommodation Details</Text>
 
-                                <Text className="text-gray-400 ml-1">Property Type</Text>
-                                <View className="flex-row gap-2">
-                                    {(['HOTEL', 'APARTMENT', 'HOSTEL'] as const).map(t => (
-                                        <TouchableOpacity
-                                            key={t}
-                                            onPress={() => setPropertyType(t)}
-                                            className={`px-4 py-2 rounded-lg border ${propertyType === t ? 'bg-neon-primary border-neon-primary' : 'bg-slate-800 border-slate-600'}`}
-                                        >
-                                            <Text className={`font-bold ${propertyType === t ? 'text-black' : 'text-gray-300'}`}>{t}</Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                </View>
-
                                 <View className="flex-row gap-4">
                                     <View className="flex-1">
-                                        <Text className="text-gray-400 ml-1 mb-1">Check-in</Text>
+                                        <Text className="text-slate-400 mb-2">Check-in</Text>
                                         <GradientInput value={checkInTime} onChangeText={setCheckInTime} placeholder="14:00" />
                                     </View>
                                     <View className="flex-1">
-                                        <Text className="text-gray-400 ml-1 mb-1">Check-out</Text>
+                                        <Text className="text-slate-400 mb-2">Check-out</Text>
                                         <GradientInput value={checkOutTime} onChangeText={setCheckOutTime} placeholder="11:00" />
                                     </View>
                                 </View>
 
-                                <Text className="text-gray-400 ml-1">Amenities (comma separated)</Text>
-                                <GradientInput
-                                    value={amenitiesInput}
-                                    onChangeText={setAmenitiesInput}
-                                    placeholder="Wifi, Pool, Parking..."
-                                />
-                            </View>
-                        ) : (
-                            <View className="gap-4">
-                                <Text className="text-neon-secondary font-bold text-lg">Tour Details</Text>
-
-                                <View className="flex-row gap-4">
-                                    <View className="flex-1">
-                                        <Text className="text-gray-400 ml-1 mb-1">Duration (hours)</Text>
-                                        <GradientInput value={duration} onChangeText={setDuration} placeholder="e.g. 2.5" keyboardType="numeric" />
-                                    </View>
-                                    <View className="flex-1">
-                                        <Text className="text-gray-400 ml-1 mb-1">Max People</Text>
-                                        <GradientInput value={maxParticipants} onChangeText={setMaxParticipants} placeholder="e.g. 15" keyboardType="numeric" />
-                                    </View>
+                                <View>
+                                    <Text className="text-slate-400 mb-2">Amenities</Text>
+                                    <GradientInput value={amenitiesInput} onChangeText={setAmenitiesInput} placeholder="Wifi, Pool, Gym (comma separated)" />
                                 </View>
-
-                                <View className="flex-row gap-4">
-                                    <View className="flex-1">
-                                        <Text className="text-gray-400 ml-1 mb-1">Price per Person</Text>
-                                        <GradientInput value={pricePerPerson} onChangeText={setPricePerPerson} placeholder="e.g. 50" keyboardType="numeric" />
-                                    </View>
-                                    <View className="flex-1">
-                                        <Text className="text-gray-400 ml-1 mb-1">Min. Age</Text>
-                                        <GradientInput value={minimumAge} onChangeText={setMinimumAge} placeholder="e.g. 12" keyboardType="numeric" />
-                                    </View>
-                                </View>
-
-                                <Text className="text-gray-400 ml-1">Difficulty</Text>
-                                <View className="flex-row gap-2">
-                                    {(['EASY', 'MODERATE', 'CHALLENGING'] as const).map(d => (
-                                        <TouchableOpacity
-                                            key={d}
-                                            onPress={() => setDifficulty(d)}
-                                            className={`flex-1 py-2 rounded-lg border items-center ${difficulty === d ? 'bg-neon-primary border-neon-primary' : 'bg-slate-800 border-slate-600'}`}
-                                        >
-                                            <Text className={`font-bold text-sm ${difficulty === d ? 'text-black' : 'text-gray-300'}`}>{d}</Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                </View>
-
-                                <Text className="text-gray-400 ml-1">Meeting Point</Text>
-                                <GradientInput
-                                    value={meetingPoint}
-                                    onChangeText={setMeetingPoint}
-                                    placeholder="e.g. Main Square Fountain"
-                                />
-
-                                <TouchableOpacity
-                                    onPress={() => setPickupIncluded(!pickupIncluded)}
-                                    className="flex-row items-center gap-3 bg-slate-800 p-3 rounded-lg border border-slate-700"
-                                >
-                                    <View className={`w-6 h-6 rounded border-2 items-center justify-center ${pickupIncluded ? 'bg-neon-primary border-neon-primary' : 'border-slate-500'}`}>
-                                        {pickupIncluded && <Ionicons name="checkmark" size={16} color="black" />}
-                                    </View>
-                                    <Text className="text-white">Hotel pickup included</Text>
-                                </TouchableOpacity>
-
-                                <Text className="text-gray-400 ml-1">Transportation</Text>
-                                <GradientInput
-                                    value={transportation}
-                                    onChangeText={setTransportation}
-                                    placeholder="e.g. Walking, Bus, Bike..."
-                                />
-
-                                <Text className="text-gray-400 ml-1">Languages (comma separated)</Text>
-                                <GradientInput
-                                    value={languagesInput}
-                                    onChangeText={setLanguagesInput}
-                                    placeholder="Polski, English, Deutsch..."
-                                />
-
-                                <Text className="text-gray-400 ml-1">Available Dates (comma separated)</Text>
-                                <GradientInput
-                                    value={datesInput}
-                                    onChangeText={setDatesInput}
-                                    placeholder="Every Monday, 2024-05-20, etc."
-                                />
-
-                                <Text className="text-gray-400 ml-1">Highlights (comma separated)</Text>
-                                <GradientInput
-                                    value={highlightsInput}
-                                    onChangeText={setHighlightsInput}
-                                    placeholder="Old Town, Castle, River Cruise..."
-                                />
-
-                                <Text className="text-gray-400 ml-1">What's Included (comma separated)</Text>
-                                <GradientInput
-                                    value={whatsIncludedInput}
-                                    onChangeText={setWhatsIncludedInput}
-                                    placeholder="Transport, Lunch, Guide..."
-                                />
-
-                                <Text className="text-gray-400 ml-1">What to Bring (comma separated)</Text>
-                                <GradientInput
-                                    value={whatToBringInput}
-                                    onChangeText={setWhatToBringInput}
-                                    placeholder="Comfortable shoes, Water, Camera..."
-                                />
                             </View>
                         )}
 
+                        {/* TOURS SPECIFIC */}
+                        {offerType === 'TOURS' && (
+                            <View className="gap-4">
+                                <Text className="text-neon-primary font-bold text-lg">Tour Details</Text>
+
+                                <View className="flex-row gap-4">
+                                    <View className="flex-1">
+                                        <Text className="text-slate-400 mb-2">Duration (h)</Text>
+                                        <GradientInput value={duration} onChangeText={setDuration} keyboardType="numeric" placeholder="e.g. 5" />
+                                    </View>
+                                    <View className="flex-1">
+                                        <Text className="text-slate-400 mb-2">Max Participants</Text>
+                                        <GradientInput value={maxParticipants} onChangeText={setMaxParticipants} keyboardType="numeric" placeholder="e.g. 10" />
+                                    </View>
+                                </View>
+
+                                <View className="flex-row gap-4">
+                                    <View className="flex-1">
+                                        <Text className="text-slate-400 mb-2">Price per Person</Text>
+                                        <GradientInput value={pricePerPerson} onChangeText={setPricePerPerson} keyboardType="numeric" placeholder="50.00" icon={<Text className="text-slate-400 ml-2">$</Text>} />
+                                    </View>
+                                    <View className="flex-1">
+                                        <Text className="text-slate-400 mb-2">Min. Age</Text>
+                                        <GradientInput value={minimumAge} onChangeText={setMinimumAge} keyboardType="numeric" placeholder="e.g. 12" />
+                                    </View>
+                                </View>
+
+                                <View>
+                                    <Text className="text-slate-400 mb-2">Meeting Point</Text>
+                                    <GradientInput value={meetingPoint} onChangeText={setMeetingPoint} placeholder="Where the tour starts" />
+                                </View>
+
+                                <View>
+                                    <Text className="text-slate-400 mb-2">Highlights</Text>
+                                    <GradientInput value={highlightsInput} onChangeText={setHighlightsInput} placeholder="Key sights (comma separated)" />
+                                </View>
+                            </View>
+                        )}
 
                         {/* Location */}
                         <View className="gap-4">
-                            <Text className="text-neon-secondary font-bold text-lg">Location</Text>
-                            <Text className="text-gray-400 text-sm">Drag or click to set exact location.</Text>
+                            <Text className="text-white font-bold text-lg">Location</Text>
 
-                            <View className="h-64 rounded-xl overflow-hidden border border-slate-700">
+                            <View className="h-48 rounded-xl overflow-hidden border border-slate-700">
                                 <MapView
-                                    provider={PROVIDER_GOOGLE}
                                     style={{ flex: 1 }}
                                     region={region}
-                                    onRegionChangeComplete={setRegion}
+                                    onRegionChangeComplete={(reg) => {
+                                        setRegion(reg);
+                                        setMarkerCoords({ latitude: reg.latitude, longitude: reg.longitude });
+                                    }}
                                     onPress={handleMapPress}
+                                    provider={PROVIDER_GOOGLE}
                                 >
-                                    <Marker
-                                        coordinate={markerCoords}
-                                        draggable
-                                        onDragEnd={handleDragEnd}
-                                    />
+                                    <Marker coordinate={markerCoords} />
                                 </MapView>
                             </View>
 
-                            <GradientInput value={address} onChangeText={setAddress} placeholder="Address" />
-                            <View className="flex-row gap-2">
-                                <View className="flex-1"><GradientInput value={city} onChangeText={setCity} placeholder="City" /></View>
-                                {/* Zip Code Removed */}
+                            <GradientInput value={address} onChangeText={setAddress} placeholder="Street Address" />
+                            <View className="flex-row gap-4">
+                                <View className="flex-1">
+                                    <GradientInput value={city} onChangeText={setCity} placeholder="City" />
+                                </View>
+                                <View className="flex-1">
+                                    <GradientInput value={country} onChangeText={setCountry} placeholder="Country" />
+                                </View>
                             </View>
-                            <GradientInput value={country} onChangeText={setCountry} placeholder="Country" />
                         </View>
 
-                        {/* Submit */}
-                        {loading || uploading ? (
-                            <View className="items-center">
-                                <ActivityIndicator size="large" color="#00D4FF" />
-                                {uploading && <Text className="text-text-muted mt-2">Uploading images...</Text>}
-                            </View>
-                        ) : (
-                            <GradientButton onPress={handleSubmit} title={`Create ${offerType === 'ACCOMMODATION' ? 'Property' : 'Tour'}`} />
-                        )}
+                        {/* Submit Button */}
+                        <View className="mt-4">
+                            {loading || uploading ? (
+                                <View className="items-center">
+                                    <ActivityIndicator size="large" color="#00D4FF" />
+                                    {uploading && <Text className="text-slate-400 mt-2">Uploading images...</Text>}
+                                </View>
+                            ) : (
+                                <GradientButton
+                                    onPress={handleSubmit}
+                                    title={`Create ${offerType === 'ACCOMMODATION' ? 'Property' : 'Tour'}`}
+                                />
+                            )}
+                        </View>
+
                     </View>
                 </ScrollView>
             </View>

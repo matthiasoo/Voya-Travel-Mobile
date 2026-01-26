@@ -81,18 +81,27 @@ export default function OfferDetailsScreen() {
                         <Ionicons name="arrow-back" size={24} color="white" />
                     </TouchableOpacity>
 
-                    {/* Status Badge in Header - Only visible to Provider */}
+                    {/* Status Badge & Edit Button in Header - Only visible to Provider */}
                     {currentUser?.uid === offer.providerId && (
-                        <View className={`px-3 py-1 rounded-full border bg-black/30 backdrop-blur-md ${offer.verificationStatus === 'VERIFIED' ? 'border-green-500 text-green-400' :
-                            offer.verificationStatus === 'REJECTED' ? 'border-red-500 text-red-400' :
-                                'border-yellow-500 text-yellow-400'
-                            }`}>
-                            <Text className={`text-xs font-bold ${offer.verificationStatus === 'VERIFIED' ? 'text-green-400' :
-                                offer.verificationStatus === 'REJECTED' ? 'text-red-400' :
-                                    'text-yellow-400'
+                        <View className="flex-row items-center gap-2">
+                            <TouchableOpacity
+                                onPress={() => router.push(`/offer/edit?id=${offer.id}`)}
+                                className="w-10 h-10 bg-black/30 backdrop-blur-md rounded-full items-center justify-center border border-slate-700"
+                            >
+                                <Ionicons name="pencil" size={20} color="white" />
+                            </TouchableOpacity>
+
+                            <View className={`px-3 py-1 rounded-full border bg-black/30 backdrop-blur-md ${offer.verificationStatus === 'VERIFIED' ? 'border-green-500 text-green-400' :
+                                offer.verificationStatus === 'REJECTED' ? 'border-red-500 text-red-400' :
+                                    'border-yellow-500 text-yellow-400'
                                 }`}>
-                                {offer.verificationStatus}
-                            </Text>
+                                <Text className={`text-xs font-bold ${offer.verificationStatus === 'VERIFIED' ? 'text-green-400' :
+                                    offer.verificationStatus === 'REJECTED' ? 'text-red-400' :
+                                        'text-yellow-400'
+                                    }`}>
+                                    {offer.verificationStatus}
+                                </Text>
+                            </View>
                         </View>
                     )}
                 </View>

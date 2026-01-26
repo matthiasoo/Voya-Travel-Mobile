@@ -27,6 +27,19 @@ export function OfferCard({ offer, showStatus = false, showType = true }: OfferC
             onPress={() => router.push(`/offer/${offer.id}`)}
             className="bg-slate-800/80 rounded-xl border border-slate-700 mb-4 overflow-hidden"
         >
+            {/* Edit Button - Only visible if showStatus is true (Provider View) */}
+            {showStatus && (
+                <TouchableOpacity
+                    onPress={(e) => {
+                        e.stopPropagation();
+                        router.push(`/offer/edit?id=${offer.id}`);
+                    }}
+                    className="absolute top-2 right-2 z-10 bg-slate-900/90 p-2 rounded-full border border-slate-700"
+                >
+                    <Ionicons name="pencil" size={16} color="white" />
+                </TouchableOpacity>
+            )}
+
             {/* Image Section */}
             <View className="h-44 w-full bg-slate-900 relative">
                 {offer.images && offer.images.length > 0 ? (
