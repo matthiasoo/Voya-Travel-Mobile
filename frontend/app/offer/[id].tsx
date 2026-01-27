@@ -212,6 +212,14 @@ export default function OfferDetailsScreen() {
                                     <Ionicons name="chatbubbles" size={20} color={isHighContrast ? "black" : "white"} />
                                     <Text className={`font-bold ml-2 ${isHighContrast ? 'text-black' : 'text-white'}`}>Chat with {offer.type === 'TOURS' ? 'Guide' : 'Host'}</Text>
                                 </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    onPress={() => router.push({ pathname: '/users/[id]', params: { id: offer.providerId } })}
+                                    className={`mt-3 p-3 rounded-xl flex-row items-center justify-center w-full border ${isHighContrast ? 'bg-black border-white' : 'bg-slate-800 border-slate-700'}`}
+                                >
+                                    <Ionicons name="person" size={20} color={isHighContrast ? "white" : "#94a3b8"} />
+                                    <Text className={`font-bold ml-2 ${isHighContrast ? 'text-white' : 'text-slate-300'}`}>View Provider Profile</Text>
+                                </TouchableOpacity>
                             </View>
                         )}
 

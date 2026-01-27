@@ -7,6 +7,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { useAccessibility } from "../contexts/AccessibilityContext";
 
+import { TouchableOpacity, Alert } from "react-native";
+import { ReportModal } from "./ReportModal";
+
 interface ReviewsListProps {
     offerId: string;
 }
@@ -14,6 +17,7 @@ interface ReviewsListProps {
 export function ReviewsList({ offerId }: ReviewsListProps) {
     const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
+    const [reportReviewObj, setReportReviewObj] = useState<Review | null>(null);
     const { isHighContrast } = useAccessibility();
 
     useEffect(() => {
@@ -39,8 +43,8 @@ export function ReviewsList({ offerId }: ReviewsListProps) {
 
     const renderReview = ({ item }: { item: Review }) => (
         <View className={`p-4 rounded-xl border mb-3 ${isHighContrast
-                ? 'bg-black border-2 border-white'
-                : 'bg-slate-800/50 border-slate-700/50'
+            ? 'bg-black border-2 border-white'
+            : 'bg-slate-800/50 border-slate-700/50'
             }`}>
             <View className="flex-row items-center justify-between mb-2">
                 <View className="flex-row items-center gap-2">
@@ -57,7 +61,7 @@ export function ReviewsList({ offerId }: ReviewsListProps) {
                         <Text className={`text-xs ${isHighContrast ? 'text-white' : 'text-slate-500'}`}>{format(item.createdAt, 'MMM d, yyyy')}</Text>
                     </View>
                 </View>
-                <View className="flex-row gap-0.5">
+                <View className="flex-row gap-0.5 items-center">
                     {[1, 2, 3, 4, 5].map(star => (
                         <Ionicons
                             key={star}
@@ -66,6 +70,13 @@ export function ReviewsList({ offerId }: ReviewsListProps) {
                             color={isHighContrast ? "white" : (item.rating >= star ? "#FBBF24" : "#334155")}
                         />
                     ))}
+                    <TouchableOpacity
+                        onPress={() => setReportReviewObj(item)}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        className="ml-2 opacity-50"
+                    >
+                        <Ionicons name="flag-outline" size={14} color={isHighContrast ? "red" : "#94a3b8"} />
+                    </TouchableOpacity>
                 </View>
             </View>
             <Text className={`text-sm ${isHighContrast ? 'text-white' : 'text-slate-300'}`}>{item.content}</Text>
@@ -90,6 +101,16 @@ export function ReviewsList({ offerId }: ReviewsListProps) {
                     {renderReview({ item: review })}
                 </View>
             ))}
+
+            {reportReviewObj && (
+                <ReportModal
+                    visible={!!reportReviewObj}
+                    onClose={() => setReportReviewObj(null)}
+                    targetId={reportReviewObj.id}
+                    targetType="REVIEW"
+                    targetName={`Review by ${reportReviewObj.userName}`}
+                />
+            )}
         </View>
     );
 }

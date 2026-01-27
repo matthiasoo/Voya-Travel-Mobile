@@ -7,6 +7,7 @@ import firestore from "@react-native-firebase/firestore";
 import auth from "@react-native-firebase/auth";
 import { Image } from "expo-image";
 import { ChatMessage, sendMessage } from "../../services/chat";
+import { ReportModal } from "../../components/ReportModal";
 
 export default function ChatScreen() {
     const { id } = useLocalSearchParams();
@@ -17,6 +18,7 @@ export default function ChatScreen() {
     const [chatMetadata, setChatMetadata] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [otherUser, setOtherUser] = useState<any>(null);
+    const [reportModalVisible, setReportModalVisible] = useState(false);
     const flatListRef = useRef<FlatList>(null);
 
     useEffect(() => {
@@ -37,7 +39,8 @@ export default function ChatScreen() {
                         const otherId = currentUser.uid === data.clientId ? data.providerId : data.clientId;
                         if (otherId) {
                             firestore().collection('users').doc(otherId).get().then(uDoc => {
-                                if (uDoc.exists) {
+                                const exists = typeof uDoc.exists === 'function' ? uDoc.exists() : uDoc.exists;
+                                if (exists) {
                                     setOtherUser(uDoc.data());
                                 }
                             });
@@ -151,12 +154,26 @@ export default function ChatScreen() {
                         <TouchableOpacity onPress={() => router.back()} className="mr-3 bg-slate-700/50 p-2 rounded-full">
                             <Ionicons name="arrow-back" size={24} color="white" />
                         </TouchableOpacity>
-                        <View className="flex-1">
+                        <TouchableOpacity
+                            onPress={() => {
+                                const targetId = currentUser?.uid === chatMetadata.clientId ? chatMetadata.providerId : chatMetadata.clientId;
+                                if (targetId) router.push({ pathname: '/users/[id]', params: { id: targetId } });
+                            }}
+                            className="flex-1"
+                        >
                             <Text className="text-lg font-bold text-white" numberOfLines={1}>
                                 {chatMetadata?.offerTitle || "Loading..."}
                             </Text>
-                            <Text className="text-slate-400 text-xs mt-0.5">{otherPersonName}</Text>
-                        </View>
+                            <Text className="text-slate-400 text-xs mt-0.5">
+                                {otherPersonName} <Ionicons name="chevron-forward" size={12} color="#94A3B8" />
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => setReportModalVisible(true)}
+                            className="bg-slate-700/50 p-2 rounded-full ml-3"
+                        >
+                            <Ionicons name="flag" size={20} color="#EF4444" />
+                        </TouchableOpacity>
                     </View>
                 </View>
 
@@ -196,6 +213,15 @@ export default function ChatScreen() {
                     </View>
                 </KeyboardAvoidingView>
             </View>
+            {chatMetadata && currentUser && (
+                <ReportModal
+                    visible={reportModalVisible}
+                    onClose={() => setReportModalVisible(false)}
+                    targetId={currentUser.uid === chatMetadata.clientId ? chatMetadata.providerId : chatMetadata.clientId}
+                    targetType="USER"
+                    targetName={otherUser?.fullName || otherPersonName}
+                />
+            )}
         </GradientBackground>
     );
 }

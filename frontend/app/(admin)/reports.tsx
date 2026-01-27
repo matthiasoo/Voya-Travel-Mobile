@@ -1,177 +1,213 @@
-import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Alert, Image } from "react-native";
-import { useState, useEffect } from "react";
+import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, Alert, ScrollView } from "react-native";
+import { useState, useEffect, useMemo } from "react";
 import firestore from "@react-native-firebase/firestore";
 import { GradientBackground } from "../../components/GradientBackground";
-import { Report } from "../../types/report";
-import { ReportService } from "../../services/reports";
 import { Ionicons } from "@expo/vector-icons";
+import { Report } from "../../types/report";
 import { format } from "date-fns";
+import { Image } from "expo-image";
+import { ReportService } from "../../services/reports";
 
-export default function AdminReports() {
+interface GroupedReport {
+    targetId: string;
+    targetType: 'OFFER' | 'USER' | 'REVIEW';
+    targetName?: string;
+    reports: Report[];
+    lastReportDate: number;
+}
+
+export default function AdminReportsScreen() {
     const [reports, setReports] = useState<Report[]>([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState<'PENDING' | 'RESOLVED' | 'DISMISSED'>('PENDING');
+    const [selectedCase, setSelectedCase] = useState<GroupedReport | null>(null);
 
     useEffect(() => {
         const unsubscribe = firestore()
             .collection('reports')
-            .where('status', '==', filter)
-            .orderBy('createdAt', 'desc')
-            .onSnapshot((querySnapshot) => {
-                const reportsData: Report[] = [];
-                querySnapshot.forEach(doc => {
-                    reportsData.push(doc.data() as Report);
-                });
-                setReports(reportsData);
-                setLoading(false);
-            }, (error) => {
-                console.error("Error fetching reports: ", error);
+            .where('status', '==', 'PENDING')
+            .onSnapshot(snapshot => {
+                const data: Report[] = [];
+                snapshot.forEach(doc => data.push(doc.data() as Report));
+                setReports(data);
                 setLoading(false);
             });
 
         return () => unsubscribe();
-    }, [filter]);
+    }, []);
 
-    const handleDismiss = async (reportId: string) => {
-        try {
-            await ReportService.updateReportStatus(reportId, 'DISMISSED', 'No violation found');
-            Alert.alert("Report Dismissed");
-        } catch (error) {
-            Alert.alert("Error", "Failed to dismiss report");
-        }
-    };
+    const groupedReports = useMemo(() => {
+        const groups: Record<string, GroupedReport> = {};
 
-    const handleBlockUser = async (reportId: string, userId: string) => {
+        reports.forEach(report => {
+            if (!groups[report.targetId]) {
+                groups[report.targetId] = {
+                    targetId: report.targetId,
+                    targetType: report.targetType,
+                    targetName: report.targetName || 'Unknown Target',
+                    reports: [],
+                    lastReportDate: 0
+                };
+            }
+            groups[report.targetId].reports.push(report);
+            groups[report.targetId].lastReportDate = Math.max(groups[report.targetId].lastReportDate, report.createdAt);
+        });
+
+        return Object.values(groups).sort((a, b) => b.lastReportDate - a.lastReportDate);
+    }, [reports]);
+
+    const handleAction = async (action: 'BLOCK_USER' | 'HIDE_OFFER' | 'DISMISS') => {
+        if (!selectedCase) return;
+
         try {
-            // Block logic: Update user status to BLOCKED (assuming field exists or using verificationStatus)
-            await firestore().collection('users').doc(userId).update({
-                verificationStatus: 'BLOCKED'
-            });
-            await ReportService.updateReportStatus(reportId, 'RESOLVED', 'User Blocked');
-            Alert.alert("User Blocked", "User has been blocked successfully.");
+            if (action === 'BLOCK_USER') {
+                await firestore().collection('users').doc(selectedCase.targetId).update({ status: 'BLOCKED' });
+                Alert.alert("Success", "User has been blocked.");
+            } else if (action === 'HIDE_OFFER') {
+                await firestore().collection('offers').doc(selectedCase.targetId).update({
+                    verificationStatus: 'REJECTED',
+                    isActive: false
+                });
+                Alert.alert("Success", "Offer has been hidden/rejected.");
+            }
+
+            // Mark all reports as resolved/dismissed
+            const status = action === 'DISMISS' ? 'DISMISS' : 'RESOLVED';
+            /* 
+               Note: ReportService.updateReportStatus expects 'RESOLVED' | 'DISMISSED'.
+               But 'DISMISS' logic implies 'DISMISSED'.
+            */
+            const finalStatus = action === 'DISMISS' ? 'DISMISS' : 'RESOLVED';
+            // Wait, type is 'DISMISSED' not 'DISMISS' in service
+
+            // Batch update reports (or one by one)
+            const promises = selectedCase.reports.map(r =>
+                ReportService.updateReportStatus(r.id, action === 'DISMISS' ? 'DISMISSED' : 'RESOLVED', action)
+            );
+            await Promise.all(promises);
+
+            setSelectedCase(null);
+
         } catch (error) {
             console.error(error);
-            Alert.alert("Error", "Failed to block user");
+            Alert.alert("Error", "Action failed.");
         }
     };
 
-    const handleHideOffer = async (reportId: string, offerId: string) => {
-        try {
-            await firestore().collection('offers').doc(offerId).update({
-                verificationStatus: 'REJECTED' // Hiding the offer
-            });
-            await ReportService.updateReportStatus(reportId, 'RESOLVED', 'Offer Hidden');
-            Alert.alert("Offer Hidden", "Offer has been rejected/hidden.");
-        } catch (error) {
-            console.error(error);
-            Alert.alert("Error", "Failed to hide offer");
-        }
-    };
-
-    const handleBanReview = async (reportId: string, reviewId: string) => {
-        try {
-            await firestore().collection('reviews').doc(reviewId).delete(); // Or update status to HIDDEN
-            await ReportService.updateReportStatus(reportId, 'RESOLVED', 'Review Deleted');
-            Alert.alert("Review Deleted");
-        } catch (error) {
-            Alert.alert("Error", "Failed to delete review");
-        }
-    };
-
-    const renderReportItem = ({ item }: { item: Report }) => (
-        <View className="bg-slate-800/80 p-4 rounded-xl border border-slate-700 mb-3">
-            <View className="flex-row justify-between mb-2">
-                <View className="flex-row items-center gap-2">
-                    <Ionicons
-                        name={item.reason === 'SPAM' ? 'warning' : item.reason === 'VIOLENCE' ? 'alert-circle' : 'flag'}
-                        size={20}
-                        color="#F87171"
-                    />
-                    <Text className="text-red-400 font-bold">{item.reason}</Text>
+    const renderCase = ({ item }: { item: GroupedReport }) => (
+        <TouchableOpacity
+            onPress={() => setSelectedCase(item)}
+            className="bg-slate-800 p-4 rounded-xl mb-3 border border-slate-700 mx-4"
+        >
+            <View className="flex-row justify-between items-start">
+                <View className="flex-1">
+                    <View className="flex-row items-center gap-2 mb-1">
+                        <View className={`px-2 py-0.5 rounded text-xs ${item.targetType === 'USER' ? 'bg-blue-500/20' :
+                                item.targetType === 'OFFER' ? 'bg-purple-500/20' : 'bg-gray-500/20'
+                            }`}>
+                            <Text className={`${item.targetType === 'USER' ? 'text-blue-400' :
+                                    item.targetType === 'OFFER' ? 'text-purple-400' : 'text-gray-400'
+                                } text-[10px] font-bold`}>{item.targetType}</Text>
+                        </View>
+                        <Text className="text-slate-400 text-xs">{format(item.lastReportDate, 'MMM d, HH:mm')}</Text>
+                    </View>
+                    <Text className="text-white font-bold text-lg">{item.targetName}</Text>
+                    <Text className="text-slate-400 text-sm mt-1">{item.reports.length} pending reports</Text>
                 </View>
-                <Text className="text-slate-500 text-xs">{format(item.createdAt, 'MMM d, HH:mm')}</Text>
+                <Ionicons name="chevron-forward" size={20} color="#64748B" />
             </View>
-
-            <Text className="text-white font-bold mb-1">Target: {item.targetType} {item.targetName ? `(${item.targetName})` : ''}</Text>
-            {item.description ? (
-                <Text className="text-slate-300 italic mb-3">"{item.description}"</Text>
-            ) : (
-                <Text className="text-slate-500 italic mb-3">No description provided.</Text>
-            )}
-
-            <View className="flex-row gap-2 mt-2 pt-2 border-t border-slate-700">
-                <TouchableOpacity
-                    onPress={() => handleDismiss(item.id)}
-                    className="flex-1 bg-slate-700 p-2 rounded-lg items-center"
-                >
-                    <Text className="text-white font-bold text-xs">Dismiss</Text>
-                </TouchableOpacity>
-
-                {item.targetType === 'USER' && (
-                    <TouchableOpacity
-                        onPress={() => handleBlockUser(item.id, item.targetId)}
-                        className="flex-1 bg-red-500/20 border border-red-500 p-2 rounded-lg items-center"
-                    >
-                        <Text className="text-red-400 font-bold text-xs">Block User</Text>
-                    </TouchableOpacity>
-                )}
-
-                {item.targetType === 'OFFER' && (
-                    <TouchableOpacity
-                        onPress={() => handleHideOffer(item.id, item.targetId)}
-                        className="flex-1 bg-red-500/20 border border-red-500 p-2 rounded-lg items-center"
-                    >
-                        <Text className="text-red-400 font-bold text-xs">Hide Offer</Text>
-                    </TouchableOpacity>
-                )}
-
-                {item.targetType === 'REVIEW' && (
-                    <TouchableOpacity
-                        onPress={() => handleBanReview(item.id, item.targetId)}
-                        className="flex-1 bg-red-500/20 border border-red-500 p-2 rounded-lg items-center"
-                    >
-                        <Text className="text-red-400 font-bold text-xs">Delete Review</Text>
-                    </TouchableOpacity>
-                )}
-            </View>
-        </View>
+        </TouchableOpacity>
     );
+
+    if (loading) {
+        return (
+            <GradientBackground variant="full">
+                <View className="flex-1 items-center justify-center">
+                    <ActivityIndicator size="large" color="#00D4FF" />
+                </View>
+            </GradientBackground>
+        );
+    }
+
+    if (selectedCase) {
+        return (
+            <GradientBackground variant="full">
+                <View className="flex-1">
+                    {/* Header */}
+                    <View className="flex-row items-center p-4 border-b border-slate-800">
+                        <TouchableOpacity onPress={() => setSelectedCase(null)} className="mr-4">
+                            <Ionicons name="arrow-back" size={24} color="white" />
+                        </TouchableOpacity>
+                        <Text className="text-xl font-bold text-white flex-1" numberOfLines={1}>{selectedCase.targetName}</Text>
+                    </View>
+
+                    <ScrollView className="flex-1 p-4">
+                        <View className="bg-slate-900/50 p-4 rounded-xl border border-slate-700 mb-6">
+                            <Text className="text-slate-400 text-xs uppercase mb-1">Target ID</Text>
+                            <Text className="text-white font-mono text-xs mb-4">{selectedCase.targetId}</Text>
+
+                            <Text className="text-slate-400 text-xs uppercase mb-2">Reports ({selectedCase.reports.length})</Text>
+                            {selectedCase.reports.map((report, idx) => (
+                                <View key={report.id} className="mb-3 pb-3 border-b border-slate-800 last:border-0 last:pb-0 last:mb-0">
+                                    <View className="flex-row justify-between mb-1">
+                                        <Text className="text-red-400 font-bold text-xs">{report.reason}</Text>
+                                        <Text className="text-slate-500 text-[10px]">{format(report.createdAt, 'MMM d')}</Text>
+                                    </View>
+                                    <Text className="text-slate-300 text-sm">{report.description || "No description provided."}</Text>
+                                </View>
+                            ))}
+                        </View>
+
+                        <Text className="text-white font-bold text-lg mb-3">Actions</Text>
+
+                        <View className="gap-3">
+                            <TouchableOpacity
+                                onPress={() => handleAction('DISMISS')}
+                                className="w-full bg-slate-700 p-4 rounded-xl items-center border border-slate-600"
+                            >
+                                <Text className="text-white font-bold">Dismiss All Reports</Text>
+                            </TouchableOpacity>
+
+                            {selectedCase.targetType === 'USER' && (
+                                <TouchableOpacity
+                                    onPress={() => handleAction('BLOCK_USER')}
+                                    className="w-full bg-red-500/20 p-4 rounded-xl items-center border border-red-500"
+                                >
+                                    <Text className="text-red-400 font-bold">Block User</Text>
+                                </TouchableOpacity>
+                            )}
+
+                            {selectedCase.targetType === 'OFFER' && (
+                                <TouchableOpacity
+                                    onPress={() => handleAction('HIDE_OFFER')}
+                                    className="w-full bg-orange-500/20 p-4 rounded-xl items-center border border-orange-500"
+                                >
+                                    <Text className="text-orange-400 font-bold">Hide Offer</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    </ScrollView>
+                </View>
+            </GradientBackground>
+        );
+    }
 
     return (
         <GradientBackground variant="full">
-            <View className="flex-1 p-4 pt-12">
-                <Text className="text-2xl font-bold text-white mb-6">Moderation Reports</Text>
+            <View className="flex-1">
+                <Text className="text-2xl font-bold text-white p-4 pt-12">Moderation Queue</Text>
 
-                {/* Filter Tabs */}
-                <View className="flex-row mb-6 bg-slate-800/50 p-1 rounded-xl border border-slate-700">
-                    {(['PENDING', 'RESOLVED', 'DISMISSED'] as const).map(status => (
-                        <TouchableOpacity
-                            key={status}
-                            onPress={() => setFilter(status)}
-                            className={`flex-1 py-2 rounded-lg items-center ${filter === status ? 'bg-slate-700' : ''}`}
-                        >
-                            <Text className={`font-bold text-xs ${filter === status ? 'text-white' : 'text-slate-400'}`}>{status}</Text>
-                        </TouchableOpacity>
-                    ))}
-                </View>
-
-                {loading ? (
-                    <ActivityIndicator size="large" color="#00D4FF" />
-                ) : (
-                    <FlatList
-                        data={reports}
-                        renderItem={renderReportItem}
-                        keyExtractor={item => item.id}
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{ paddingBottom: 20 }}
-                        ListEmptyComponent={
-                            <View className="flex-1 items-center justify-center py-10 opacity-50">
-                                <Ionicons name="shield-checkmark-outline" size={48} color="white" />
-                                <Text className="text-white text-lg font-bold mt-2">No reports found</Text>
-                            </View>
-                        }
-                    />
-                )}
+                <FlatList
+                    data={groupedReports}
+                    renderItem={renderCase}
+                    keyExtractor={item => item.targetId}
+                    contentContainerStyle={{ paddingBottom: 20 }}
+                    ListEmptyComponent={
+                        <View className="items-center py-20 opacity-50">
+                            <Ionicons name="checkmark-circle-outline" size={64} color="#94A3B8" />
+                            <Text className="text-slate-400 mt-4">All caught up! No pending reports.</Text>
+                        </View>
+                    }
+                />
             </View>
         </GradientBackground>
     );

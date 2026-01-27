@@ -67,10 +67,34 @@ export default function RootLayout() {
     }, [user]);
 
     useEffect(() => {
+        if (!user) return;
+
+        // Listen for user status (Ban System)
+        const unsubscribe = firestore()
+            .collection('users')
+            .doc(user.uid)
+            .onSnapshot((doc) => {
+                const exists = typeof doc.exists === 'function' ? doc.exists() : doc.exists;
+                if (exists) {
+                    const userData = doc.data();
+                    if (userData?.status === 'BLOCKED') {
+                        if (segments[0] !== 'banned') {
+                            router.replace('/banned');
+                        }
+                    } else if (segments[0] === 'banned') {
+                        router.replace('/');
+                    }
+                }
+            });
+
+        return () => unsubscribe();
+    }, [user, segments]);
+
+    useEffect(() => {
         if (initializing) return;
 
         const inAuthGroup = segments[0] === '(auth)';
-        const inPublicGroup = segments[0] === '(auth)' || !segments[0];
+        const inPublicGroup = segments[0] === '(auth)' || !segments[0] || segments[0] === 'banned';
 
         // If user is not logged in and tries to access restricted areas
         if (!user && !inPublicGroup) {
@@ -94,6 +118,7 @@ export default function RootLayout() {
                 <Stack.Screen name="(tourist)" />
                 <Stack.Screen name="(provider)" />
                 <Stack.Screen name="(admin)" />
+                <Stack.Screen name="banned" options={{ gestureEnabled: false }} />
                 <Stack.Screen name="+not-found" options={{ presentation: 'modal' }} />
             </Stack>
         </AccessibilityProvider>

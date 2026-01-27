@@ -7,11 +7,12 @@ export interface BaseUser {
     firstName: string;
     lastName: string;
     createdAt: number;
+    avatarUrl?: string;
+    status?: 'ACTIVE' | 'BLOCKED';
 }
 
 export interface TouristUser extends BaseUser {
     role: 'TOURIST';
-    avatarUrl?: string;
 }
 
 export type VerificationStatus = 'UNVERIFIED' | 'VERIFIED' | 'REJECTED';

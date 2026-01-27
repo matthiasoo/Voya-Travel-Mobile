@@ -25,6 +25,24 @@ export const ReportService = {
             };
 
             await reportRef.set(report);
+
+            // Auto-Block Logic (Client-side simulation)
+            if (targetType === 'USER') {
+                const reportsSnapshot = await firestore()
+                    .collection('reports')
+                    .where('targetId', '==', targetId)
+                    .get();
+
+                const uniqueReporters = new Set(reportsSnapshot.docs.map(d => d.data().reporterId)).size;
+
+                if (uniqueReporters >= 5) {
+                    await firestore().collection('users').doc(targetId).update({
+                        status: 'BLOCKED'
+                    });
+                    console.log(`User ${targetId} has been auto-blocked due to high report count.`);
+                }
+            }
+
             return report.id;
         } catch (error) {
             console.error("Error creating report:", error);
