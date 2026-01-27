@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { useState, useEffect } from "react";
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
@@ -6,12 +6,15 @@ import { GradientBackground } from "../../components/GradientBackground";
 import { GradientButton } from "../../components/GradientButton";
 import { AdminUser } from "../../types/user";
 import { Ionicons } from '@expo/vector-icons';
+import { SeederService } from "../../services/seeder";
 
 export default function AdminProfile() {
     const [user, setUser] = useState<AdminUser | null>(null);
     const [loading, setLoading] = useState(true);
+    const [seeding, setSeeding] = useState(false);
 
     useEffect(() => {
+        // ... (keep useEffect as is)
         const currentUser = auth().currentUser;
         if (!currentUser) return;
 
@@ -34,6 +37,30 @@ export default function AdminProfile() {
         } catch (error) {
             console.error("Error signing out: ", error);
         }
+    };
+
+    const handleSeed = async () => {
+        Alert.alert(
+            "Confirm Seeding",
+            "This will add test offers and reviews to the database. Continue?",
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Yes, Populate",
+                    onPress: async () => {
+                        try {
+                            setSeeding(true);
+                            const count = await SeederService.seedDatabase();
+                            Alert.alert("Success", `Added ${count} new offers with mock data!`);
+                        } catch (error: any) {
+                            Alert.alert("Error", error.message);
+                        } finally {
+                            setSeeding(false);
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     if (loading) {
@@ -69,8 +96,21 @@ export default function AdminProfile() {
                     </View>
                 </View>
 
+                {/* dev tools */}
+                <View className="w-full px-8 mt-4 mb-4">
+                    <Text className="text-slate-500 text-xs font-bold uppercase mb-4 ml-2">Developer Area</Text>
+                    <GradientButton
+                        title={seeding ? "Seeding..." : "Seed Database"}
+                        onPress={handleSeed}
+                        disabled={seeding}
+                    />
+                    <Text className="text-slate-600 text-xs text-center mt-2">
+                        Adds mock offers, reviews & providers
+                    </Text>
+                </View>
+
                 {/* Actions */}
-                <View className="w-full px-8 mt-10">
+                <View className="w-full px-8 mt-2">
                     <TouchableOpacity onPress={handleSignOut} className="items-center p-2">
                         <Text className="text-red-400 font-bold">Log Out</Text>
                     </TouchableOpacity>

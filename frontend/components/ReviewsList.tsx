@@ -1,13 +1,12 @@
-import { View, Text, FlatList } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, Alert } from "react-native";
 import { useEffect, useState } from "react";
 import { Review } from "../types/review";
 import firestore from "@react-native-firebase/firestore";
+import auth from "@react-native-firebase/auth";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { useAccessibility } from "../contexts/AccessibilityContext";
-
-import { TouchableOpacity, Alert } from "react-native";
 import { ReportModal } from "./ReportModal";
 
 interface ReviewsListProps {
@@ -15,6 +14,7 @@ interface ReviewsListProps {
 }
 
 export function ReviewsList({ offerId }: ReviewsListProps) {
+    // ... (state remains)
     const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
     const [reportReviewObj, setReportReviewObj] = useState<Review | null>(null);
@@ -22,6 +22,7 @@ export function ReviewsList({ offerId }: ReviewsListProps) {
 
     useEffect(() => {
         const unsubscribe = firestore()
+            // ... (query remains)
             .collection('reviews')
             .where('offerId', '==', offerId)
             .orderBy('createdAt', 'desc')
@@ -61,9 +62,7 @@ export function ReviewsList({ offerId }: ReviewsListProps) {
                         <Text className={`text-xs ${isHighContrast ? 'text-white' : 'text-slate-500'}`}>{format(item.createdAt, 'MMM d, yyyy')}</Text>
                     </View>
                 </View>
-                import auth from "@react-native-firebase/auth";
 
-                // ... inside renderReview
                 <View className="flex-row gap-0.5 items-center">
                     {[1, 2, 3, 4, 5].map(star => (
                         <Ionicons

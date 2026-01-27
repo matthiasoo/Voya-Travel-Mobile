@@ -490,7 +490,6 @@ export default function OfferDetailsScreen() {
 
                         {/* Reviews */}
                         <View>
-                            <Text className="text-lg font-bold text-white mb-4">Reviews</Text>
                             <ReviewsList offerId={offer.id} />
                         </View>
 
