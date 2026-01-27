@@ -61,6 +61,9 @@ export function ReviewsList({ offerId }: ReviewsListProps) {
                         <Text className={`text-xs ${isHighContrast ? 'text-white' : 'text-slate-500'}`}>{format(item.createdAt, 'MMM d, yyyy')}</Text>
                     </View>
                 </View>
+                import auth from "@react-native-firebase/auth";
+
+                // ... inside renderReview
                 <View className="flex-row gap-0.5 items-center">
                     {[1, 2, 3, 4, 5].map(star => (
                         <Ionicons
@@ -70,13 +73,15 @@ export function ReviewsList({ offerId }: ReviewsListProps) {
                             color={isHighContrast ? "white" : (item.rating >= star ? "#FBBF24" : "#334155")}
                         />
                     ))}
-                    <TouchableOpacity
-                        onPress={() => setReportReviewObj(item)}
-                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                        className="ml-2 opacity-50"
-                    >
-                        <Ionicons name="flag-outline" size={14} color={isHighContrast ? "red" : "#94a3b8"} />
-                    </TouchableOpacity>
+                    {auth().currentUser?.uid !== item.userId && (
+                        <TouchableOpacity
+                            onPress={() => setReportReviewObj(item)}
+                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                            className="ml-2 opacity-50"
+                        >
+                            <Ionicons name="flag-outline" size={14} color={isHighContrast ? "red" : "#94a3b8"} />
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
             <Text className={`text-sm ${isHighContrast ? 'text-white' : 'text-slate-300'}`}>{item.content}</Text>

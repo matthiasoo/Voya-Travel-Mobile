@@ -102,10 +102,10 @@ export default function AdminReportsScreen() {
                 <View className="flex-1">
                     <View className="flex-row items-center gap-2 mb-1">
                         <View className={`px-2 py-0.5 rounded text-xs ${item.targetType === 'USER' ? 'bg-blue-500/20' :
-                                item.targetType === 'OFFER' ? 'bg-purple-500/20' : 'bg-gray-500/20'
+                            item.targetType === 'OFFER' ? 'bg-purple-500/20' : 'bg-gray-500/20'
                             }`}>
                             <Text className={`${item.targetType === 'USER' ? 'text-blue-400' :
-                                    item.targetType === 'OFFER' ? 'text-purple-400' : 'text-gray-400'
+                                item.targetType === 'OFFER' ? 'text-purple-400' : 'text-gray-400'
                                 } text-[10px] font-bold`}>{item.targetType}</Text>
                         </View>
                         <Text className="text-slate-400 text-xs">{format(item.lastReportDate, 'MMM d, HH:mm')}</Text>
@@ -142,8 +142,7 @@ export default function AdminReportsScreen() {
 
                     <ScrollView className="flex-1 p-4">
                         <View className="bg-slate-900/50 p-4 rounded-xl border border-slate-700 mb-6">
-                            <Text className="text-slate-400 text-xs uppercase mb-1">Target ID</Text>
-                            <Text className="text-white font-mono text-xs mb-4">{selectedCase.targetId}</Text>
+
 
                             <Text className="text-slate-400 text-xs uppercase mb-2">Reports ({selectedCase.reports.length})</Text>
                             {selectedCase.reports.map((report, idx) => (
