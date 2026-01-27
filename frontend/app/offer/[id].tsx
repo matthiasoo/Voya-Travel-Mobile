@@ -13,6 +13,7 @@ import { createChat } from "../../services/chat";
 import { BookingSection } from "../../components/BookingSection";
 import { ReviewsList } from "../../components/ReviewsList";
 import { useAccessibility } from "../../contexts/AccessibilityContext";
+import { ReportModal } from "../../components/ReportModal";
 
 export default function OfferDetailsScreen() {
     const { id } = useLocalSearchParams();
@@ -23,6 +24,7 @@ export default function OfferDetailsScreen() {
 
     const [offer, setOffer] = useState<Offer | null>(null);
     const [loading, setLoading] = useState(true);
+    const [reportModalVisible, setReportModalVisible] = useState(false);
 
     useEffect(() => {
         if (!id) return;
@@ -79,21 +81,22 @@ export default function OfferDetailsScreen() {
                     <TouchableOpacity
                         onPress={() => router.back()}
                         className={`w-10 h-10 rounded-full items-center justify-center ${isHighContrast
-                                ? 'bg-black/80 border border-white'
-                                : 'bg-black/30 backdrop-blur-md'
+                            ? 'bg-black/80 border border-white'
+                            : 'bg-black/30 backdrop-blur-md'
                             }`}
                     >
                         <Ionicons name="arrow-back" size={24} color="white" />
                     </TouchableOpacity>
 
                     {/* Status Badge & Edit Button in Header - Only visible to Provider */}
-                    {currentUser?.uid === offer.providerId && (
+                    {/* Status Badge & Edit Button in Header - Only visible to Provider */}
+                    {currentUser?.uid === offer.providerId ? (
                         <View className="flex-row items-center gap-2">
                             <TouchableOpacity
                                 onPress={() => router.push(`/offer/edit?id=${offer.id}`)}
                                 className={`w-10 h-10 rounded-full items-center justify-center border ${isHighContrast
-                                        ? 'bg-black/80 border-white'
-                                        : 'bg-black/30 backdrop-blur-md border-slate-700'
+                                    ? 'bg-black/80 border-white'
+                                    : 'bg-black/30 backdrop-blur-md border-slate-700'
                                     }`}
                             >
                                 <Ionicons name="pencil" size={20} color="white" />
@@ -105,13 +108,23 @@ export default function OfferDetailsScreen() {
                                         'border-yellow-500'
                                 }`}>
                                 <Text className={`text-xs font-bold ${offer.verificationStatus === 'VERIFIED' ? 'text-green-400' :
-                                        offer.verificationStatus === 'REJECTED' ? 'text-red-400' :
-                                            'text-yellow-400'
+                                    offer.verificationStatus === 'REJECTED' ? 'text-red-400' :
+                                        'text-yellow-400'
                                     }`}>
                                     {offer.verificationStatus}
                                 </Text>
                             </View>
                         </View>
+                    ) : (
+                        <TouchableOpacity
+                            onPress={() => setReportModalVisible(true)}
+                            className={`w-10 h-10 rounded-full items-center justify-center ${isHighContrast
+                                ? 'bg-black/80 border border-red-500'
+                                : 'bg-black/30 backdrop-blur-md'
+                                }`}
+                        >
+                            <Ionicons name="flag-outline" size={20} color={isHighContrast ? "#ef4444" : "white"} />
+                        </TouchableOpacity>
                     )}
                 </View>
 
@@ -203,8 +216,8 @@ export default function OfferDetailsScreen() {
                         )}
 
                         <View className={`p-4 rounded-xl border gap-4 ${isHighContrast
-                                ? 'bg-black border-2 border-white'
-                                : 'bg-slate-800/50 border-slate-700'
+                            ? 'bg-black border-2 border-white'
+                            : 'bg-slate-800/50 border-slate-700'
                             }`}>
                             <View className="flex-row justify-between items-center">
                                 <Text className="text-lg font-bold text-white">Details</Text>
@@ -212,8 +225,8 @@ export default function OfferDetailsScreen() {
                                     <TouchableOpacity
                                         onPress={() => router.push(`/offer/create-unit?offerId=${id}`)}
                                         className={`flex-row items-center px-3 py-1 rounded-full border ${isHighContrast
-                                                ? 'bg-white border-white'
-                                                : 'bg-neon-primary/20 border-neon-primary/50'
+                                            ? 'bg-white border-white'
+                                            : 'bg-neon-primary/20 border-neon-primary/50'
                                             }`}
                                     >
                                         <Ionicons name="add" size={16} color={isHighContrast ? "black" : "#7F00FF"} />
@@ -291,8 +304,8 @@ export default function OfferDetailsScreen() {
                                     {/* Pickup */}
                                     {offer.details.pickupIncluded && (
                                         <View className={`flex-row items-center gap-2 px-3 py-2 rounded-lg ${isHighContrast
-                                                ? 'bg-neutral-800 border border-green-400'
-                                                : 'bg-green-500/20'
+                                            ? 'bg-neutral-800 border border-green-400'
+                                            : 'bg-green-500/20'
                                             }`}>
                                             <Ionicons name="car" size={16} color={isHighContrast ? "#4ade80" : "#4ade80"} />
                                             <Text className="text-green-400 font-bold text-sm">Hotel pickup included</Text>
@@ -314,8 +327,8 @@ export default function OfferDetailsScreen() {
                                             <View className="flex-row flex-wrap gap-2">
                                                 {offer.details.languages.map((lang, index) => (
                                                     <View key={index} className={`px-3 py-1 rounded-full border ${isHighContrast
-                                                            ? 'bg-neutral-800 border-white'
-                                                            : 'bg-blue-500/20 border-blue-500/50'
+                                                        ? 'bg-neutral-800 border-white'
+                                                        : 'bg-blue-500/20 border-blue-500/50'
                                                         }`}>
                                                         <Text className={`text-xs font-bold ${isHighContrast ? 'text-white' : 'text-blue-400'}`}>{lang}</Text>
                                                     </View>
@@ -331,8 +344,8 @@ export default function OfferDetailsScreen() {
                                             <View className="flex-row flex-wrap gap-2">
                                                 {offer.details.highlights.map((item, index) => (
                                                     <View key={index} className={`px-3 py-1 rounded-full border ${isHighContrast
-                                                            ? 'bg-neutral-800 border-white'
-                                                            : 'bg-neon-primary/20 border-neon-primary/50'
+                                                        ? 'bg-neutral-800 border-white'
+                                                        : 'bg-neon-primary/20 border-neon-primary/50'
                                                         }`}>
                                                         <Text className={`text-xs font-bold ${isHighContrast ? 'text-white' : 'text-neon-primary'}`}>{item}</Text>
                                                     </View>
@@ -348,8 +361,8 @@ export default function OfferDetailsScreen() {
                                             <View className="flex-row flex-wrap gap-2">
                                                 {offer.details.whatsIncluded.map((item, index) => (
                                                     <View key={index} className={`px-3 py-1 rounded-full border ${isHighContrast
-                                                            ? 'bg-neutral-800 border-white'
-                                                            : 'bg-green-500/20 border-green-500/50'
+                                                        ? 'bg-neutral-800 border-white'
+                                                        : 'bg-green-500/20 border-green-500/50'
                                                         }`}>
                                                         <Text className={`text-xs ${isHighContrast ? 'text-white font-bold' : 'text-green-400'}`}>{item}</Text>
                                                     </View>
@@ -365,8 +378,8 @@ export default function OfferDetailsScreen() {
                                             <View className="flex-row flex-wrap gap-2">
                                                 {offer.details.whatToBring.map((item, index) => (
                                                     <View key={index} className={`px-3 py-1 rounded-full border ${isHighContrast
-                                                            ? 'bg-neutral-800 border-white'
-                                                            : 'bg-yellow-500/20 border-yellow-500/50'
+                                                        ? 'bg-neutral-800 border-white'
+                                                        : 'bg-yellow-500/20 border-yellow-500/50'
                                                         }`}>
                                                         <Text className={`text-xs ${isHighContrast ? 'text-white font-bold' : 'text-yellow-400'}`}>{item}</Text>
                                                     </View>
@@ -389,8 +402,8 @@ export default function OfferDetailsScreen() {
                                                 key={index}
                                                 onPress={() => router.push({ pathname: "/offer/units/[id]", params: { id: unit.id, offerId: offer.id } })}
                                                 className={`rounded-xl overflow-hidden border flex-row ${isHighContrast
-                                                        ? 'bg-black border-2 border-white'
-                                                        : 'bg-slate-800/90 border-slate-700'
+                                                    ? 'bg-black border-2 border-white'
+                                                    : 'bg-slate-800/90 border-slate-700'
                                                     }`}
                                             >
                                                 <Image
@@ -477,6 +490,15 @@ export default function OfferDetailsScreen() {
 
                     </View>
                 </ScrollView>
+                {offer && (
+                    <ReportModal
+                        visible={reportModalVisible}
+                        onClose={() => setReportModalVisible(false)}
+                        targetId={offer.id}
+                        targetType="OFFER"
+                        targetName={offer.title}
+                    />
+                )}
             </View>
         </GradientBackground>
     );

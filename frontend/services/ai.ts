@@ -67,5 +67,49 @@ export const AIService = {
             console.error("AI Generation failed:", error);
             throw error;
         }
+    },
+    checkContentSafety: async (text: string): Promise<{ safe: boolean; reason?: string }> => {
+        if (!API_KEY || API_KEY.includes('PLACEHOLDER')) {
+            console.warn("Missing Groq API Key. Skipping safety check.");
+            return { safe: true }; // Fail open if no key, or handle stricter
+        }
+
+        const systemPrompt = `You are a content safety moderator. Analyze the user text for hate speech, harassment, explicit violence, self-harm, or adult content. 
+        Return ONLY a JSON object with the following structure: { "safe": boolean, "reason": "string explaining why if unsafe, else null" }.
+        Do not include any other text.`;
+
+        try {
+            const response = await fetch(GROQ_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: 'llama-3.3-70b-versatile',
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: text }
+                    ],
+                    temperature: 0,
+                    response_format: { type: "json_object" }
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.error("Groq API Error (Safety Check):", data);
+                return { safe: true }; // Fail open on API error to not block user
+            }
+
+            const content = data.choices[0].message.content;
+            const result = JSON.parse(content);
+            return { safe: result.safe, reason: result.reason };
+
+        } catch (error) {
+            console.error("AI Safety Check failed:", error);
+            return { safe: true }; // Fail open
+        }
     }
 };

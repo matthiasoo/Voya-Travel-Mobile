@@ -1,9 +1,10 @@
-import { View, Text, Modal, TouchableOpacity, TextInput, ActivityIndicator } from "react-native";
+import { View, Text, Modal, TouchableOpacity, TextInput, ActivityIndicator, Alert } from "react-native";
 import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { GradientButton } from "./GradientButton";
 import firestore from "@react-native-firebase/firestore";
 import auth from "@react-native-firebase/auth";
+import { AIService } from "../services/ai";
 
 interface ReviewModalProps {
     visible: boolean;
@@ -23,6 +24,17 @@ export function ReviewModal({ visible, onClose, offerId, reservationId, onSucces
         setSubmitting(true);
 
         try {
+            // AI Safety Check
+            const safetyResult = await AIService.checkContentSafety(content);
+            if (!safetyResult.safe) {
+                Alert.alert(
+                    "Content Warning",
+                    `Your review contains content that may violate our safety guidelines${safetyResult.reason ? `: ${safetyResult.reason}` : '.'}\nPlease revise it.`
+                );
+                setSubmitting(false);
+                return;
+            }
+
             const user = auth().currentUser;
             if (!user) return;
 
@@ -100,7 +112,7 @@ export function ReviewModal({ visible, onClose, offerId, reservationId, onSucces
             onClose();
         } catch (error) {
             console.error("Error submitting review:", error);
-            alert("Failed to submit review. Please try again.");
+            Alert.alert("Error", "Failed to submit review. Please try again.");
         } finally {
             setSubmitting(false);
         }

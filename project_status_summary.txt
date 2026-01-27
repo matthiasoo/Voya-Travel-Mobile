@@ -64,17 +64,18 @@
 
 ### Integracje LLM (AI)
 - ✅ Generowanie opisów ofert (services/ai.ts)
+- ✅ **Automatyczna Moderacja**: Weryfikacja treści recenzji pod kątem bezpieczeństwa (Hate speech, Violence).
 - Groq API z modelem Llama 3.3-70B
-- Przycisk "Generate with AI" w formularzach ofert (edit.tsx, create-property.tsx)
-- Obsługa różnych stylów: luxury, adventurous, calm, romantic
+- Przycisk "Generate with AI" w formularzach ofert
+
+### Moderacja i Bezpieczeństwo
+- ✅ **System Zgłoszeń**: Przycisk "Flag" w ofertach, ReportModal dla użytkowników.
+- ✅ **Panel Administratora**: (admin)/reports.tsx - przegląd zgłoszeń, blokowanie użytkowników, ukrywanie ofert.
+- ✅ Model danych raportów w Firestore.
 
 ---
 
 ## ❌ Niezrealizowane
-
-### System Zgłaszania (Moderacja)
-- Brak przycisku "Zgłoś ofertę/użytkownika"
-- Brak widoku admina dla zgłoszeń
 
 ---
 
