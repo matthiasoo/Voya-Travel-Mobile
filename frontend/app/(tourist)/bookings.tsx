@@ -9,12 +9,14 @@ import { Image } from "expo-image";
 import { Reservation, ReservationStatus } from "../../types/reservation";
 import { ReviewModal } from "../../components/ReviewModal";
 import { Review } from "../../types/review";
+import { useAccessibility } from "../../contexts/AccessibilityContext";
 
 type FilterTab = 'ALL' | 'PENDING' | 'ACCEPTED' | 'COMPLETED' | 'CANCELLED';
 
 export default function TouristBookingsScreen() {
     const router = useRouter();
     const currentUser = auth().currentUser;
+    const { isHighContrast } = useAccessibility();
 
     const [bookings, setBookings] = useState<Reservation[]>([]);
     const [loading, setLoading] = useState(true);
@@ -141,7 +143,10 @@ export default function TouristBookingsScreen() {
         return (
             <TouchableOpacity
                 activeOpacity={0.8}
-                className="bg-slate-800/90 border border-slate-700 rounded-xl mb-4 overflow-hidden"
+                className={`rounded-xl mb-4 overflow-hidden border ${isHighContrast
+                        ? 'bg-black border-2 border-white'
+                        : 'bg-slate-800/90 border-slate-700'
+                    }`}
             >
                 <View className="flex-row">
                     <Image
@@ -152,7 +157,7 @@ export default function TouristBookingsScreen() {
                     <View className="flex-1 p-3 justify-between">
                         <View>
                             <Text className="text-white font-bold text-lg" numberOfLines={1}>{item.offerTitle}</Text>
-                            <Text className="text-slate-400 text-xs mt-1">{dateRange}</Text>
+                            <Text className={`text-xs mt-1 ${isHighContrast ? 'text-gray-400' : 'text-slate-400'}`}>{dateRange}</Text>
                         </View>
                         <View className="flex-row justify-between items-end">
                             <View className={`px-2 py-1 rounded border self-start ${getStatusColor(item.status)}`}>
@@ -160,7 +165,7 @@ export default function TouristBookingsScreen() {
                                     {item.status}
                                 </Text>
                             </View>
-                            <Text className="text-slate-500 text-xs text-right">
+                            <Text className={`text-xs text-right ${isHighContrast ? 'text-gray-500' : 'text-slate-500'}`}>
                                 {item.unitName}
                                 {'\n'}
                                 {item.guestCount} guest(s)
@@ -170,7 +175,10 @@ export default function TouristBookingsScreen() {
                 </View>
 
                 {/* Actions */}
-                <View className="flex-row justify-end bg-slate-800 border-t border-slate-700">
+                <View className={`flex-row justify-end border-t ${isHighContrast
+                        ? 'bg-neutral-900 border-white'
+                        : 'bg-slate-800 border-slate-700'
+                    }`}>
                     {canCancel && item.status !== 'COMPLETED' && (
                         <TouchableOpacity
                             onPress={() => handleCancel(item.id)}
@@ -183,10 +191,11 @@ export default function TouristBookingsScreen() {
                     {canReview && (
                         <TouchableOpacity
                             onPress={() => handleRatePress(item)}
-                            className="bg-neon-primary px-6 py-3 flex-row items-center"
+                            className={`px-6 py-3 flex-row items-center ${isHighContrast ? 'bg-yellow-400' : 'bg-neon-primary'
+                                }`}
                         >
-                            <Ionicons name="star" size={16} color="white" />
-                            <Text className="text-white font-bold text-xs ml-2">Rate Stay</Text>
+                            <Ionicons name="star" size={16} color={isHighContrast ? "black" : "white"} />
+                            <Text className={`font-bold text-xs ml-2 ${isHighContrast ? 'text-black' : 'text-white'}`}>Rate Stay</Text>
                         </TouchableOpacity>
                     )}
 
@@ -207,14 +216,21 @@ export default function TouristBookingsScreen() {
                 <Text className="text-2xl font-bold text-white mb-4">My Bookings</Text>
 
                 {/* Filters */}
-                <View className="flex-row mb-6 bg-slate-900/50 p-1 rounded-lg">
+                <View className={`flex-row mb-6 p-1 rounded-lg ${isHighContrast ? 'bg-neutral-900 border-2 border-white' : 'bg-slate-900/50'
+                    }`}>
                     {(['ALL', 'PENDING', 'ACCEPTED', 'COMPLETED', 'CANCELLED'] as FilterTab[]).map(tab => (
                         <TouchableOpacity
                             key={tab}
                             onPress={() => setSelectedTab(tab)}
-                            className={`flex-1 py-2 items-center rounded-md ${selectedTab === tab ? 'bg-slate-700' : ''}`}
+                            className={`flex-1 py-2 items-center rounded-md ${selectedTab === tab
+                                    ? isHighContrast ? 'bg-yellow-400' : 'bg-slate-700'
+                                    : ''
+                                }`}
                         >
-                            <Text className={`text-xs font-bold ${selectedTab === tab ? 'text-white' : 'text-slate-400'}`}>
+                            <Text className={`text-xs font-bold ${selectedTab === tab
+                                    ? isHighContrast ? 'text-black' : 'text-white'
+                                    : isHighContrast ? 'text-gray-400' : 'text-slate-400'
+                                }`}>
                                 {tab === 'CANCELLED' ? 'ARCHIVE' : tab}
                             </Text>
                         </TouchableOpacity>
@@ -223,7 +239,7 @@ export default function TouristBookingsScreen() {
 
                 {loading ? (
                     <View className="flex-1 items-center justify-center">
-                        <ActivityIndicator size="large" color="#00D4FF" />
+                        <ActivityIndicator size="large" color={isHighContrast ? "#FACC15" : "#00D4FF"} />
                     </View>
                 ) : (
                     <FlatList
@@ -233,8 +249,8 @@ export default function TouristBookingsScreen() {
                         contentContainerStyle={{ paddingBottom: 20 }}
                         ListEmptyComponent={
                             <View className="items-center justify-center mt-20">
-                                <Ionicons name="calendar-outline" size={64} color="#475569" />
-                                <Text className="text-slate-500 mt-4 text-center text-lg">No bookings found</Text>
+                                <Ionicons name="calendar-outline" size={64} color={isHighContrast ? "#6B7280" : "#475569"} />
+                                <Text className={`mt-4 text-center text-lg ${isHighContrast ? 'text-gray-500' : 'text-slate-500'}`}>No bookings found</Text>
                             </View>
                         }
                     />
@@ -253,3 +269,4 @@ export default function TouristBookingsScreen() {
         </GradientBackground>
     );
 }
+

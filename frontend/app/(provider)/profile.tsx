@@ -1,4 +1,4 @@
-import { View, Text, ActivityIndicator, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, ActivityIndicator, TouchableOpacity, ScrollView, Switch } from "react-native";
 import { useState, useEffect } from "react";
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
@@ -7,12 +7,15 @@ import { GradientButton } from "../../components/GradientButton";
 import { GradientInput } from "../../components/GradientInput";
 import { ProviderUser } from "../../types/user";
 import { Ionicons } from '@expo/vector-icons';
+import { useAccessibility } from "../../contexts/AccessibilityContext";
 
 export default function ProviderProfileScreen() {
     const [user, setUser] = useState<ProviderUser | null>(null);
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [saving, setSaving] = useState(false);
+
+    const { isHighContrast, toggleHighContrast } = useAccessibility();
 
     // Edit State
     const [editCompanyName, setEditCompanyName] = useState('');
@@ -116,22 +119,22 @@ export default function ProviderProfileScreen() {
 
                     {/* Header / Avatar */}
                     <View className="items-center relative">
-                        <View className="w-32 h-32 rounded-full overflow-hidden border-4 border-neon-primary bg-slate-800 items-center justify-center shadow-neon-primary">
-                            <Ionicons name="business" size={64} color="#7F00FF" />
+                        <View className={`w-32 h-32 rounded-full overflow-hidden border-4 ${isHighContrast ? 'border-white bg-black' : 'border-neon-primary bg-slate-800'} items-center justify-center shadow-neon-primary`}>
+                            <Ionicons name="business" size={64} color={isHighContrast ? "#FACC15" : "#7F00FF"} />
                         </View>
                     </View>
 
                     {/* Basic Info & Status */}
                     {!isEditing && (
                         <View className="items-center gap-2">
-                            <Text className="text-3xl font-bold text-white text-center">
+                            <Text className={`text-3xl font-bold ${isHighContrast ? 'text-white' : 'text-white'} text-center`}>
                                 {user?.companyName}
                             </Text>
-                            <Text className="text-lg text-gray-300 font-medium text-center">
+                            <Text className={`text-lg font-medium text-center ${isHighContrast ? 'text-gray-300' : 'text-gray-300'}`}>
                                 {user?.firstName} {user?.lastName}
                             </Text>
-                            <View className="px-3 py-1 bg-neon-primary/20 rounded-full border border-neon-primary mt-2">
-                                <Text className="text-neon-primary text-sm font-bold uppercase tracking-wider">
+                            <View className={`px-3 py-1 ${isHighContrast ? 'bg-yellow-400/20 border-yellow-400' : 'bg-neon-primary/20 border-neon-primary'} rounded-full border mt-2`}>
+                                <Text className={`text-sm font-bold uppercase tracking-wider ${isHighContrast ? 'text-yellow-400' : 'text-neon-primary'}`}>
                                     {user?.category}
                                 </Text>
                             </View>
@@ -170,20 +173,20 @@ export default function ProviderProfileScreen() {
                             />
                         </View>
                     ) : (
-                        <View className="w-full gap-4 bg-slate-800/40 p-4 rounded-xl border border-slate-700">
+                        <View className={`w-full gap-4 ${isHighContrast ? 'bg-neutral-900 border-2 border-white' : 'bg-slate-800/40 border-slate-700'} p-4 rounded-xl border`}>
                             <View>
-                                <Text className="text-text-muted text-xs uppercase font-bold">Bio</Text>
+                                <Text className={`text-xs uppercase font-bold ${isHighContrast ? 'text-gray-400' : 'text-text-muted'}`}>Bio</Text>
                                 <Text className="text-white text-base leading-6">{user?.bio || 'No bio provided.'}</Text>
                             </View>
-                            <View className="h-[1px] bg-slate-700/50" />
+                            <View className={`h-[1px] ${isHighContrast ? 'bg-gray-600' : 'bg-slate-700/50'}`} />
                             <View>
-                                <Text className="text-text-muted text-xs uppercase font-bold">Contact</Text>
+                                <Text className={`text-xs uppercase font-bold ${isHighContrast ? 'text-gray-400' : 'text-text-muted'}`}>Contact</Text>
                                 <Text className="text-white text-base">{user?.phoneNumber}</Text>
                                 <Text className="text-white text-base">{user?.email}</Text>
                             </View>
-                            <View className="h-[1px] bg-slate-700/50" />
+                            <View className={`h-[1px] ${isHighContrast ? 'bg-gray-600' : 'bg-slate-700/50'}`} />
                             <View>
-                                <Text className="text-text-muted text-xs uppercase font-bold">Address</Text>
+                                <Text className={`text-xs uppercase font-bold ${isHighContrast ? 'text-gray-400' : 'text-text-muted'}`}>Address</Text>
                                 <Text className="text-white text-base">
                                     {user?.address?.street}, {user?.address?.city}
                                 </Text>
@@ -193,6 +196,34 @@ export default function ProviderProfileScreen() {
                             </View>
                         </View>
                     )}
+
+                    {/* Accessibility Settings */}
+                    <View className={`w-full p-4 rounded-xl ${isHighContrast ? 'bg-neutral-900 border-2 border-white' : 'bg-void-surface'}`}>
+                        <Text className={`text-lg font-bold mb-3 ${isHighContrast ? 'text-white' : 'text-white'}`}>
+                            Accessibility
+                        </Text>
+                        <View className="flex-row items-center justify-between">
+                            <View className="flex-row items-center gap-3">
+                                <Ionicons
+                                    name="contrast"
+                                    size={24}
+                                    color={isHighContrast ? '#FACC15' : '#00D4FF'}
+                                />
+                                <Text className={`text-base ${isHighContrast ? 'text-white' : 'text-text-main'}`}>
+                                    High Contrast Mode
+                                </Text>
+                            </View>
+                            <Switch
+                                value={isHighContrast}
+                                onValueChange={toggleHighContrast}
+                                trackColor={{
+                                    false: '#3f3f46',
+                                    true: isHighContrast ? '#FACC15' : '#7F00FF'
+                                }}
+                                thumbColor={isHighContrast ? '#000000' : '#ffffff'}
+                            />
+                        </View>
+                    </View>
 
                     {/* Actions */}
                     <View className="w-full mt-4 gap-4">
@@ -229,3 +260,4 @@ export default function ProviderProfileScreen() {
         </GradientBackground >
     );
 }
+

@@ -9,6 +9,7 @@ import { Offer, AccommodationUnit } from "../types/offer";
 import { Reservation, UserAddress } from "../types/reservation";
 import { BookingModal } from "./BookingModal";
 import { Ionicons } from "@expo/vector-icons";
+import { useAccessibility } from "../contexts/AccessibilityContext";
 
 interface BookingSectionProps {
     offer: Offer;
@@ -21,6 +22,7 @@ export function BookingSection({ offer }: BookingSectionProps) {
     const [calculating, setCalculating] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedUnit, setSelectedUnit] = useState<AccommodationUnit | null>(null);
+    const { isHighContrast } = useAccessibility();
 
     // Tour specific state
     const [guestCount, setGuestCount] = useState(1);
@@ -93,34 +95,29 @@ export function BookingSection({ offer }: BookingSectionProps) {
 
     const markedDates = useMemo(() => {
         const marks: any = {};
-
-        // Mark available dates for Tours if provided
-        if (offer.type === 'TOURS' && offer.details.startDates && offer.details.startDates.length > 0) {
-            // If we have specific start dates, we could mark them.
-            // But parsing might be tricky if they are not YYYY-MM-DD.
-            // For now, let's rely on user selecting a date.
-        }
+        const selectionColor = isHighContrast ? '#FACC15' : '#00D4FF';
+        const selectionTextColor = isHighContrast ? 'black' : 'white';
 
         if (selectedStartDate) {
-            marks[selectedStartDate] = { startingDay: true, color: '#00D4FF', textColor: 'white' };
+            marks[selectedStartDate] = { startingDay: true, color: selectionColor, textColor: selectionTextColor };
             if (selectedEndDate) {
                 if (offer.type === 'TOURS') {
-                    marks[selectedStartDate] = { selected: true, color: '#00D4FF', textColor: 'white' };
+                    marks[selectedStartDate] = { selected: true, color: selectionColor, textColor: selectionTextColor };
                 } else {
                     const start = new Date(selectedStartDate);
                     const end = new Date(selectedEndDate);
                     const days = eachDayOfInterval({ start, end });
                     days.forEach(d => {
                         const ds = format(d, 'yyyy-MM-dd');
-                        if (ds === selectedStartDate) marks[ds] = { startingDay: true, color: '#00D4FF', textColor: 'white' };
-                        else if (ds === selectedEndDate) marks[ds] = { endingDay: true, color: '#00D4FF', textColor: 'white' };
-                        else marks[ds] = { color: '#00D4FF', textColor: 'white', opacity: 0.5 };
+                        if (ds === selectedStartDate) marks[ds] = { startingDay: true, color: selectionColor, textColor: selectionTextColor };
+                        else if (ds === selectedEndDate) marks[ds] = { endingDay: true, color: selectionColor, textColor: selectionTextColor };
+                        else marks[ds] = { color: selectionColor, textColor: selectionTextColor, opacity: isHighContrast ? 1 : 0.5 };
                     });
                 }
             }
         }
         return marks;
-    }, [selectedStartDate, selectedEndDate, offer]);
+    }, [selectedStartDate, selectedEndDate, offer, isHighContrast]);
 
     // Availability Logic
     const availableUnits = useMemo(() => {
@@ -236,9 +233,12 @@ export function BookingSection({ offer }: BookingSectionProps) {
 
     if (userRole === 'PROVIDER') {
         return (
-            <View className="mx-4 my-6 bg-yellow-500/20 border border-yellow-500/50 p-4 rounded-xl flex-row items-center">
-                <Ionicons name="warning-outline" size={24} color="#FACC15" />
-                <Text className="text-yellow-400 font-bold ml-3 flex-1">
+            <View className={`mx-4 my-6 p-4 rounded-xl flex-row items-center border ${isHighContrast
+                ? 'bg-neutral-800 border-yellow-400'
+                : 'bg-yellow-500/20 border-yellow-500/50'
+                }`}>
+                <Ionicons name="warning-outline" size={24} color={isHighContrast ? "#FACC15" : "#FACC15"} />
+                <Text className={`font-bold ml-3 flex-1 ${isHighContrast ? 'text-yellow-400' : 'text-yellow-400'}`}>
                     As a provider, you cannot book offers.
                 </Text>
             </View>
@@ -249,53 +249,57 @@ export function BookingSection({ offer }: BookingSectionProps) {
         <View className="py-6">
             <Text className="text-white font-bold text-lg mb-4 px-4">{offer.type === 'TOURS' ? 'Select Date & Participants' : 'Check Availability'}</Text>
 
-            <View className="mx-4 rounded-xl overflow-hidden border border-slate-700 mb-6">
+            <View className={`mx-4 rounded-xl overflow-hidden mb-6 border ${isHighContrast ? 'border-2 border-white' : 'border-slate-700'
+                }`}>
                 <Calendar
                     onDayPress={onDayPress}
-                    markingType={offer.type === 'TOURS' ? 'simple' : 'period'}
+                    markingType={(offer.type === 'TOURS' ? 'simple' : 'period') as any}
                     markedDates={markedDates}
                     theme={{
-                        backgroundColor: '#0f172a',
-                        calendarBackground: '#0f172a',
-                        textSectionTitleColor: '#94a3b8',
-                        selectedDayBackgroundColor: '#00D4FF',
-                        selectedDayTextColor: '#ffffff',
-                        todayTextColor: '#00D4FF',
+                        backgroundColor: isHighContrast ? '#000000' : '#0f172a',
+                        calendarBackground: isHighContrast ? '#000000' : '#0f172a',
+                        textSectionTitleColor: isHighContrast ? '#ffffff' : '#94a3b8',
+                        selectedDayBackgroundColor: isHighContrast ? '#FACC15' : '#00D4FF',
+                        selectedDayTextColor: isHighContrast ? '#000000' : '#ffffff',
+                        todayTextColor: isHighContrast ? '#FACC15' : '#00D4FF',
                         dayTextColor: '#ffffff',
                         textDisabledColor: '#334155',
-                        dotColor: '#00adf5',
-                        selectedDotColor: '#ffffff',
-                        arrowColor: '#00D4FF',
+                        dotColor: isHighContrast ? '#FACC15' : '#00adf5',
+                        selectedDotColor: isHighContrast ? '#000000' : '#ffffff',
+                        arrowColor: isHighContrast ? '#FACC15' : '#00D4FF',
                         monthTextColor: '#ffffff',
                         indicatorColor: 'blue',
                     }}
                 />
             </View>
 
-            {calculating && <ActivityIndicator color="#00D4FF" className="mb-4" />}
+            {calculating && <ActivityIndicator color={isHighContrast ? "#FACC15" : "#00D4FF"} className="mb-4" />}
 
             {selectedStartDate && (offer.type === 'TOURS' || selectedEndDate) ? (
                 <View className="px-4">
                     {offer.type === 'ACCOMMODATION' ? (
                         <>
-                            <Text className="text-slate-400 text-xs mb-2 uppercase font-bold">Available Units ({nightCount} nights)</Text>
+                            <Text className={`text-xs mb-2 uppercase font-bold ${isHighContrast ? 'text-white' : 'text-slate-400'}`}>Available Units ({nightCount} nights)</Text>
                             {availableUnits.length > 0 ? (
                                 availableUnits.map(unit => (
-                                    <View key={unit.id} className="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-4">
+                                    <View key={unit.id} className={`p-4 rounded-xl border mb-4 ${isHighContrast
+                                        ? 'bg-black border-2 border-white'
+                                        : 'bg-slate-800 border-slate-700'
+                                        }`}>
                                         <View className="flex-row">
                                             <Image source={{ uri: unit.images?.[0] }} style={{ width: 80, height: 80, borderRadius: 8 }} contentFit="cover" />
                                             <View className="flex-1 ml-3 justify-between">
                                                 <View>
                                                     <Text className="text-white font-bold text-lg">{unit.name}</Text>
-                                                    <Text className="text-slate-400 text-xs">{unit.type.replace('_', ' ')} • Max {unit.capacity.adults} Adults</Text>
+                                                    <Text className={`text-xs ${isHighContrast ? 'text-white' : 'text-slate-400'}`}>{unit.type.replace('_', ' ')} • Max {unit.capacity.adults} Adults</Text>
                                                 </View>
                                                 <View className="flex-row justify-between items-end">
-                                                    <Text className="text-neon-primary font-bold">{offer.currency} {unit.pricePerNight * nightCount} <Text className="text-slate-500 font-normal text-xs">total</Text></Text>
+                                                    <Text className={`font-bold ${isHighContrast ? 'text-white' : 'text-neon-primary'}`}>{offer.currency} {unit.pricePerNight * nightCount} <Text className={`font-normal text-xs ${isHighContrast ? 'text-white' : 'text-slate-500'}`}>total</Text></Text>
                                                     <TouchableOpacity
                                                         onPress={() => handleBookPress(unit)}
-                                                        className="bg-neon-primary px-4 py-2 rounded-lg"
+                                                        className={`px-4 py-2 rounded-lg ${isHighContrast ? 'bg-yellow-400' : 'bg-neon-primary'}`}
                                                     >
-                                                        <Text className="text-white font-bold text-xs">Book</Text>
+                                                        <Text className={`font-bold text-xs ${isHighContrast ? 'text-black' : 'text-white'}`}>Book</Text>
                                                     </TouchableOpacity>
                                                 </View>
                                             </View>
@@ -303,28 +307,32 @@ export function BookingSection({ offer }: BookingSectionProps) {
                                     </View>
                                 ))
                             ) : (
-                                <Text className="text-slate-500 italic">No units available for selected dates.</Text>
+                                <Text className={isHighContrast ? "text-white italic" : "text-slate-500 italic"}>No units available for selected dates.</Text>
                             )}
                         </>
                     ) : (
                         // TOUR UI
-                        <View className="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-4">
+                        <View className={`p-4 rounded-xl border mb-4 ${isHighContrast
+                            ? 'bg-black border-2 border-white'
+                            : 'bg-slate-800 border-slate-700'
+                            }`}>
                             <Text className="text-white font-bold text-lg mb-2">Booking Details</Text>
-                            <Text className="text-slate-300 mb-4">Date: {selectedStartDate}</Text>
+                            <Text className={isHighContrast ? "text-white mb-4" : "text-slate-300 mb-4"}>Date: {selectedStartDate}</Text>
 
                             <View className="flex-row justify-between items-center mb-4">
-                                <Text className="text-slate-400">Participants</Text>
-                                <View className="flex-row items-center border border-slate-600 rounded-lg">
+                                <Text className={isHighContrast ? "text-white" : "text-slate-400"}>Participants</Text>
+                                <View className={`flex-row items-center border rounded-lg ${isHighContrast ? 'border-white' : 'border-slate-600'
+                                    }`}>
                                     <TouchableOpacity
                                         onPress={() => setGuestCount(Math.max(1, guestCount - 1))}
-                                        className="p-2 border-r border-slate-600"
+                                        className={`p-2 border-r ${isHighContrast ? 'border-white' : 'border-slate-600'}`}
                                     >
                                         <Ionicons name="remove" size={20} color="white" />
                                     </TouchableOpacity>
                                     <Text className="text-white font-bold px-4">{guestCount}</Text>
                                     <TouchableOpacity
                                         onPress={() => setGuestCount(Math.min(offer.details.maxParticipants, guestCount + 1))}
-                                        className="p-2 border-l border-slate-600"
+                                        className={`p-2 border-l ${isHighContrast ? 'border-white' : 'border-slate-600'}`}
                                     >
                                         <Ionicons name="add" size={20} color="white" />
                                     </TouchableOpacity>
@@ -334,19 +342,21 @@ export function BookingSection({ offer }: BookingSectionProps) {
                             {tourAvailability && tourAvailability.isAvailable ? (
                                 <View className="mt-2">
                                     <View className="flex-row justify-between items-center mb-4">
-                                        <Text className="text-slate-400">Total Price</Text>
-                                        <Text className="text-neon-primary font-bold text-xl">{offer.currency} {offer.price * guestCount}</Text>
+                                        <Text className={isHighContrast ? "text-white" : "text-slate-400"}>Total Price</Text>
+                                        <Text className={`font-bold text-xl ${isHighContrast ? 'text-white' : 'text-neon-primary'}`}>{offer.currency} {offer.price * guestCount}</Text>
                                     </View>
                                     <TouchableOpacity
                                         onPress={() => handleBookPress(null)}
-                                        className="bg-neon-primary w-full p-3 rounded-lg items-center"
+                                        className={`w-full p-3 rounded-lg items-center ${isHighContrast ? 'bg-yellow-400' : 'bg-neon-primary'
+                                            }`}
                                     >
-                                        <Text className="text-white font-bold">Book Now</Text>
+                                        <Text className={`font-bold ${isHighContrast ? 'text-black' : 'text-white'}`}>Book Now</Text>
                                     </TouchableOpacity>
-                                    <Text className="text-slate-500 text-xs text-center mt-2">{tourAvailability.remaining} spots remaining</Text>
+                                    <Text className={`text-xs text-center mt-2 ${isHighContrast ? 'text-white' : 'text-slate-500'}`}>{tourAvailability.remaining} spots remaining</Text>
                                 </View>
                             ) : (
-                                <View className="bg-red-500/10 p-3 rounded-lg border border-red-500/50">
+                                <View className={`p-3 rounded-lg border ${isHighContrast ? 'bg-neutral-800 border-red-400' : 'bg-red-500/10 border-red-500/50'
+                                    }`}>
                                     <Text className="text-red-400 text-center font-bold">Not enough spots available.</Text>
                                 </View>
                             )}
@@ -354,9 +364,10 @@ export function BookingSection({ offer }: BookingSectionProps) {
                     )}
                 </View>
             ) : (
-                <View className="px-4 py-8 items-center border border-dashed border-slate-700 rounded-xl mx-4">
-                    <Ionicons name="calendar-clear-outline" size={40} color="#475569" />
-                    <Text className="text-slate-500 mt-2">{offer.type === 'TOURS' ? 'Select a date' : 'Select check-in and check-out dates'}</Text>
+                <View className={`px-4 py-8 items-center border border-dashed rounded-xl mx-4 ${isHighContrast ? 'border-white' : 'border-slate-700'
+                    }`}>
+                    <Ionicons name="calendar-clear-outline" size={40} color={isHighContrast ? "#fff" : "#475569"} />
+                    <Text className={isHighContrast ? "text-white mt-2" : "text-slate-500 mt-2"}>{offer.type === 'TOURS' ? 'Select a date' : 'Select check-in and check-out dates'}</Text>
                 </View>
             )}
 
@@ -372,3 +383,4 @@ export function BookingSection({ offer }: BookingSectionProps) {
         </View>
     );
 }
+

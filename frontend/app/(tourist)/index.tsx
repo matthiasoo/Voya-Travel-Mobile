@@ -11,12 +11,14 @@ import { Offer } from "../../types/offer";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { FilterModal, FilterState } from "../../components/FilterModal";
+import { useAccessibility } from "../../contexts/AccessibilityContext";
 
 export default function Index() {
     const [searchQuery, setSearchQuery] = useState("");
     const [offers, setOffers] = useState<Offer[]>([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
+    const { isHighContrast } = useAccessibility();
 
     // Filter State
     const [filterVisible, setFilterVisible] = useState(false);
@@ -132,31 +134,43 @@ export default function Index() {
                             placeholder="Search city or country..."
                             value={searchQuery}
                             onChangeText={setSearchQuery}
-                            icon={<Ionicons name="search" size={20} color="#94A3B8" />}
+                            icon={<Ionicons name="search" size={20} color={isHighContrast ? "#9CA3AF" : "#94A3B8"} />}
                         />
                     </View>
                     <VoiceSearchButton onResult={setSearchQuery} />
                     <TouchableOpacity
                         onPress={() => setFilterVisible(true)}
-                        className="h-[52px] w-[52px] rounded-xl overflow-hidden"
+                        className={`h-[52px] w-[52px] rounded-xl overflow-hidden ${isHighContrast && activeFiltersCount > 0 ? 'border-2 border-yellow-400' : ''
+                            }`}
                     >
-                        <LinearGradient
-                            colors={activeFiltersCount > 0 ? ['#7F00FF', '#00D4FF'] : ['#1E293B', '#1E293B']}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 1 }}
-                            className="w-full h-full p-[1.5px] items-center justify-center rounded-xl"
-                        >
-                            <View className={`w-full h-full rounded-xl items-center justify-center ${activeFiltersCount > 0 ? 'bg-slate-900/90' : 'bg-slate-800'}`}>
+                        {isHighContrast ? (
+                            <View className={`w-full h-full rounded-xl items-center justify-center ${activeFiltersCount > 0 ? 'bg-yellow-400' : 'bg-neutral-800 border-2 border-white'
+                                }`}>
                                 <Ionicons
                                     name="options"
                                     size={24}
-                                    color={activeFiltersCount > 0 ? '#00D4FF' : '#94A3B8'}
+                                    color={activeFiltersCount > 0 ? 'black' : 'white'}
                                 />
-                                {activeFiltersCount > 0 && (
-                                    <View className="absolute top-3 right-3 w-2 h-2 bg-neon-primary rounded-full" />
-                                )}
                             </View>
-                        </LinearGradient>
+                        ) : (
+                            <LinearGradient
+                                colors={activeFiltersCount > 0 ? ['#7F00FF', '#00D4FF'] : ['#1E293B', '#1E293B']}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                className="w-full h-full p-[1.5px] items-center justify-center rounded-xl"
+                            >
+                                <View className={`w-full h-full rounded-xl items-center justify-center ${activeFiltersCount > 0 ? 'bg-slate-900/90' : 'bg-slate-800'}`}>
+                                    <Ionicons
+                                        name="options"
+                                        size={24}
+                                        color={activeFiltersCount > 0 ? '#00D4FF' : '#94A3B8'}
+                                    />
+                                    {activeFiltersCount > 0 && (
+                                        <View className="absolute top-3 right-3 w-2 h-2 bg-neon-primary rounded-full" />
+                                    )}
+                                </View>
+                            </LinearGradient>
+                        )}
                     </TouchableOpacity>
                 </View>
 
@@ -172,7 +186,7 @@ export default function Index() {
 
                 {loading ? (
                     <View className="flex-1 items-center justify-center">
-                        <ActivityIndicator size="large" color="#00D4FF" />
+                        <ActivityIndicator size="large" color={isHighContrast ? "#FACC15" : "#00D4FF"} />
                     </View>
                 ) : (
                     <FlatList
@@ -184,7 +198,7 @@ export default function Index() {
                         ListEmptyComponent={
                             <View className="items-center justify-center py-10 opacity-50">
                                 <Text className="text-white text-lg font-bold">No places found</Text>
-                                <Text className="text-text-muted text-center">Try adjusting your search criteria.</Text>
+                                <Text className={`text-center ${isHighContrast ? 'text-gray-400' : 'text-text-muted'}`}>Try adjusting your search criteria.</Text>
                             </View>
                         }
                     />
@@ -193,3 +207,4 @@ export default function Index() {
         </GradientBackground>
     );
 }
+

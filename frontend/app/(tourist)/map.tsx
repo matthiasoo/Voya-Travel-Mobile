@@ -6,6 +6,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { Offer } from "../../types/offer";
+import { useAccessibility } from "../../contexts/AccessibilityContext";
 
 const INITIAL_REGION: Region = {
     latitude: 51.7592,
@@ -21,6 +22,7 @@ export default function MapScreen() {
     const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
     const mapRef = useRef<MapView>(null);
     const router = useRouter();
+    const { isHighContrast } = useAccessibility();
 
     // Fetch verified offers
     useEffect(() => {
@@ -62,11 +64,14 @@ export default function MapScreen() {
     }, []);
 
     const getMarkerColor = (type: string) => {
-        return type === 'TOURS' ? '#00D4FF' : '#7F00FF';
+        if (isHighContrast) {
+            return type === 'TOURS' ? '#FACC15' : '#22D3EE';
+        }
+        return type === 'TOURS' ? '#7F00FF' : '#00D4FF';
     };
 
     return (
-        <View className="flex-1 bg-slate-900">
+        <View className={`flex-1 ${isHighContrast ? 'bg-black' : 'bg-slate-900'}`}>
             {/* Map */}
             <MapView
                 ref={mapRef}
@@ -76,7 +81,7 @@ export default function MapScreen() {
                 onRegionChangeComplete={setRegion}
                 showsUserLocation
                 showsMyLocationButton
-                customMapStyle={darkMapStyle}
+                customMapStyle={isHighContrast ? highContrastMapStyle : darkMapStyle}
             >
                 {offers.map((offer) => (
                     <Marker
@@ -92,7 +97,7 @@ export default function MapScreen() {
                         <Ionicons
                             name="location"
                             size={40}
-                            color={offer.type === 'TOURS' ? '#7F00FF' : '#00D4FF'}
+                            color={getMarkerColor(offer.type)}
                         />
                     </Marker>
                 ))}
@@ -100,45 +105,54 @@ export default function MapScreen() {
 
             {/* Loading Overlay */}
             {loading && (
-                <View className="absolute inset-0 bg-slate-900/50 items-center justify-center">
-                    <ActivityIndicator size="large" color="#00D4FF" />
+                <View className={`absolute inset-0 items-center justify-center ${isHighContrast ? 'bg-black/70' : 'bg-slate-900/50'}`}>
+                    <ActivityIndicator size="large" color={isHighContrast ? "#FACC15" : "#00D4FF"} />
                     <Text className="text-white mt-2">Loading offers...</Text>
                 </View>
             )}
 
             {/* Header */}
             <View className="absolute top-12 left-4 right-4">
-                <View className="bg-slate-900/90 p-3 rounded-xl border border-slate-700 flex-row items-center">
-                    <Ionicons name="map" size={20} color="#00D4FF" />
+                <View className={`p-3 rounded-xl flex-row items-center ${isHighContrast
+                        ? 'bg-black border-2 border-white'
+                        : 'bg-slate-900/90 border border-slate-700'
+                    }`}>
+                    <Ionicons name="map" size={20} color={isHighContrast ? "#FACC15" : "#00D4FF"} />
                     <Text className="text-white font-bold ml-2">Explore Map</Text>
                     <View className="flex-1" />
-                    <Text className="text-slate-400 text-xs">{offers.length} offers</Text>
+                    <Text className={`text-xs ${isHighContrast ? 'text-gray-400' : 'text-slate-400'}`}>{offers.length} offers</Text>
                 </View>
             </View>
 
             {/* Legend */}
-            <View className="absolute top-28 left-4 bg-slate-900/90 p-2 rounded-lg border border-slate-700">
+            <View className={`absolute top-28 left-4 p-2 rounded-lg ${isHighContrast
+                    ? 'bg-black border-2 border-white'
+                    : 'bg-slate-900/90 border border-slate-700'
+                }`}>
                 <View className="flex-row items-center gap-2 mb-1">
-                    <View className="w-3 h-3 rounded-full bg-neon-secondary" />
-                    <Text className="text-slate-300 text-xs">Stays</Text>
+                    <View className={`w-3 h-3 rounded-full ${isHighContrast ? 'bg-cyan-400' : 'bg-neon-secondary'}`} />
+                    <Text className={`text-xs ${isHighContrast ? 'text-gray-300' : 'text-slate-300'}`}>Stays</Text>
                 </View>
                 <View className="flex-row items-center gap-2">
-                    <View className="w-3 h-3 rounded-full bg-neon-primary" />
-                    <Text className="text-slate-300 text-xs">Tours</Text>
+                    <View className={`w-3 h-3 rounded-full ${isHighContrast ? 'bg-yellow-400' : 'bg-neon-primary'}`} />
+                    <Text className={`text-xs ${isHighContrast ? 'text-gray-300' : 'text-slate-300'}`}>Tours</Text>
                 </View>
             </View>
 
             {/* Selected Offer Card */}
             {selectedOffer && (
                 <View className="absolute bottom-6 left-4 right-4">
-                    <View className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+                    <View className={`rounded-xl overflow-hidden ${isHighContrast
+                            ? 'bg-black border-2 border-white'
+                            : 'bg-slate-800 border border-slate-700'
+                        }`}>
                         <TouchableOpacity
                             onPress={handleNavigateToOffer}
                             className="flex-row"
                             activeOpacity={0.9}
                         >
                             {/* Image */}
-                            <View className="w-28 h-28 bg-slate-700">
+                            <View className={`w-28 h-28 ${isHighContrast ? 'bg-neutral-800' : 'bg-slate-700'}`}>
                                 {selectedOffer.images?.[0] ? (
                                     <Image
                                         source={{ uri: selectedOffer.images[0] }}
@@ -147,7 +161,7 @@ export default function MapScreen() {
                                     />
                                 ) : (
                                     <View className="flex-1 items-center justify-center">
-                                        <Ionicons name="image-outline" size={32} color="#64748B" />
+                                        <Ionicons name="image-outline" size={32} color={isHighContrast ? "#6B7280" : "#64748B"} />
                                     </View>
                                 )}
                             </View>
@@ -156,8 +170,14 @@ export default function MapScreen() {
                             <View className="flex-1 p-3 justify-between">
                                 <View>
                                     <View className="flex-row items-center gap-2 mb-1">
-                                        <View className={`px-2 py-0.5 rounded ${selectedOffer.type === 'TOURS' ? 'bg-neon-primary/20' : 'bg-neon-secondary/20'}`}>
-                                            <Text className={`text-xs font-bold ${selectedOffer.type === 'TOURS' ? 'text-neon-primary' : 'text-neon-secondary'}`}>
+                                        <View className={`px-2 py-0.5 rounded ${selectedOffer.type === 'TOURS'
+                                                ? isHighContrast ? 'bg-yellow-400/30' : 'bg-neon-primary/20'
+                                                : isHighContrast ? 'bg-cyan-400/30' : 'bg-neon-secondary/20'
+                                            }`}>
+                                            <Text className={`text-xs font-bold ${selectedOffer.type === 'TOURS'
+                                                    ? isHighContrast ? 'text-yellow-400' : 'text-neon-primary'
+                                                    : isHighContrast ? 'text-cyan-400' : 'text-neon-secondary'
+                                                }`}>
                                                 {selectedOffer.type === 'TOURS' ? 'TOUR' : 'STAY'}
                                             </Text>
                                         </View>
@@ -169,16 +189,16 @@ export default function MapScreen() {
                                         )}
                                     </View>
                                     <Text className="text-white font-bold" numberOfLines={1}>{selectedOffer.title}</Text>
-                                    <Text className="text-slate-400 text-xs" numberOfLines={1}>
+                                    <Text className={`text-xs ${isHighContrast ? 'text-gray-400' : 'text-slate-400'}`} numberOfLines={1}>
                                         {selectedOffer.location.city}, {selectedOffer.location.country}
                                     </Text>
                                 </View>
                                 <View className="flex-row justify-between items-end">
-                                    <Text className="text-neon-primary font-bold">
+                                    <Text className={`font-bold ${isHighContrast ? 'text-yellow-400' : 'text-neon-primary'}`}>
                                         {selectedOffer.currency} {selectedOffer.price}
-                                        <Text className="text-slate-500 text-xs font-normal"> /{selectedOffer.type === 'TOURS' ? 'person' : 'night'}</Text>
+                                        <Text className={`text-xs font-normal ${isHighContrast ? 'text-gray-500' : 'text-slate-500'}`}> /{selectedOffer.type === 'TOURS' ? 'person' : 'night'}</Text>
                                     </Text>
-                                    <Ionicons name="chevron-forward" size={20} color="#00D4FF" />
+                                    <Ionicons name="chevron-forward" size={20} color={isHighContrast ? "#FACC15" : "#00D4FF"} />
                                 </View>
                             </View>
                         </TouchableOpacity>
@@ -186,7 +206,8 @@ export default function MapScreen() {
                         {/* Close button */}
                         <TouchableOpacity
                             onPress={handleCloseCard}
-                            className="absolute top-2 right-2 bg-slate-900/80 rounded-full p-1"
+                            className={`absolute top-2 right-2 rounded-full p-1 ${isHighContrast ? 'bg-neutral-800 border border-white' : 'bg-slate-900/80'
+                                }`}
                         >
                             <Ionicons name="close" size={16} color="white" />
                         </TouchableOpacity>
@@ -214,3 +235,22 @@ const darkMapStyle = [
     { featureType: "water", elementType: "geometry", stylers: [{ color: "#0c4a6e" }] },
     { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }] },
 ];
+
+// High contrast map style
+const highContrastMapStyle = [
+    { elementType: "geometry", stylers: [{ color: "#000000" }] },
+    { elementType: "labels.text.fill", stylers: [{ color: "#ffffff" }] },
+    { elementType: "labels.text.stroke", stylers: [{ color: "#000000" }] },
+    { featureType: "administrative.country", elementType: "geometry.stroke", stylers: [{ color: "#ffffff" }] },
+    { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#1a1a1a" }] },
+    { featureType: "poi", elementType: "geometry", stylers: [{ color: "#2a2a2a" }] },
+    { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#cccccc" }] },
+    { featureType: "poi.park", elementType: "geometry.fill", stylers: [{ color: "#1a3a1a" }] },
+    { featureType: "road", elementType: "geometry", stylers: [{ color: "#4a4a4a" }] },
+    { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#ffffff" }] },
+    { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#666666" }] },
+    { featureType: "transit", elementType: "geometry", stylers: [{ color: "#3a3a3a" }] },
+    { featureType: "water", elementType: "geometry", stylers: [{ color: "#0a0a2a" }] },
+    { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#888888" }] },
+];
+

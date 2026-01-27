@@ -3,6 +3,7 @@ import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Offer, VerificationStatus } from "../types/offer";
+import { useAccessibility } from "../contexts/AccessibilityContext";
 
 interface OfferCardProps {
     offer: Offer;
@@ -12,6 +13,7 @@ interface OfferCardProps {
 
 export function OfferCard({ offer, showStatus = false, showType = true }: OfferCardProps) {
     const router = useRouter();
+    const { isHighContrast } = useAccessibility();
 
     const getStatusColor = (status: VerificationStatus) => {
         switch (status) {
@@ -25,7 +27,10 @@ export function OfferCard({ offer, showStatus = false, showType = true }: OfferC
     return (
         <TouchableOpacity
             onPress={() => router.push(`/offer/${offer.id}`)}
-            className="bg-slate-800/80 rounded-xl border border-slate-700 mb-4 overflow-hidden"
+            className={`rounded-xl border mb-4 overflow-hidden ${isHighContrast
+                ? 'bg-black border-2 border-white'
+                : 'bg-slate-800/80 border-slate-700'
+                }`}
         >
             {/* Edit Button - Only visible if showStatus is true (Provider View) */}
             {showStatus && (
@@ -34,14 +39,17 @@ export function OfferCard({ offer, showStatus = false, showType = true }: OfferC
                         e.stopPropagation();
                         router.push(`/offer/edit?id=${offer.id}`);
                     }}
-                    className="absolute top-2 right-2 z-10 bg-slate-900/90 p-2 rounded-full border border-slate-700"
+                    className={`absolute top-2 right-2 z-10 p-2 rounded-full border ${isHighContrast
+                        ? 'bg-black border-white'
+                        : 'bg-slate-900/90 border-slate-700'
+                        }`}
                 >
                     <Ionicons name="pencil" size={16} color="white" />
                 </TouchableOpacity>
             )}
 
             {/* Image Section */}
-            <View className="h-44 w-full bg-slate-900 relative">
+            <View className={`h-44 w-full relative ${isHighContrast ? 'bg-neutral-900' : 'bg-slate-900'}`}>
                 {offer.images && offer.images.length > 0 ? (
                     <Image
                         source={{ uri: offer.images[0] }}
@@ -51,30 +59,33 @@ export function OfferCard({ offer, showStatus = false, showType = true }: OfferC
                     />
                 ) : (
                     <View className="flex-1 items-center justify-center">
-                        <Ionicons name="image-outline" size={48} color="#64748B" />
+                        <Ionicons name="image-outline" size={48} color={isHighContrast ? "#666" : "#64748B"} />
                     </View>
                 )}
 
                 {/* Price Badge */}
-                <View className="absolute bottom-2 right-2 bg-slate-900/90 px-3 py-1.5 rounded-lg">
-                    <Text className="text-neon-primary font-bold">
-                        <Text className="text-slate-400 text-xs font-normal">from </Text>
+                <View className={`absolute bottom-2 right-2 px-3 py-1.5 rounded-lg ${isHighContrast ? 'bg-black border border-white' : 'bg-slate-900/90'
+                    }`}>
+                    <Text className={`font-bold ${isHighContrast ? 'text-white' : 'text-neon-primary'}`}>
+                        <Text className={`text-xs font-normal ${isHighContrast ? 'text-white' : 'text-slate-400'}`}>from </Text>
                         {offer.currency} {offer.price}
-                        <Text className="text-slate-400 text-xs font-normal"> / {offer.type === 'TOURS' ? 'person' : 'night'}</Text>
+                        <Text className={`text-xs font-normal ${isHighContrast ? 'text-white' : 'text-slate-400'}`}> / {offer.type === 'TOURS' ? 'person' : 'night'}</Text>
                     </Text>
                 </View>
 
                 {/* Type Badge */}
                 {showType && offer.type === 'TOURS' && (
-                    <View className="absolute top-2 left-2 bg-neon-primary/90 px-2.5 py-1 rounded-lg flex-row items-center gap-1">
-                        <Ionicons name="compass" size={12} color="white" />
-                        <Text className="text-white text-xs font-bold">TOUR</Text>
+                    <View className={`absolute top-2 left-2 px-2.5 py-1 rounded-lg flex-row items-center gap-1 ${isHighContrast ? 'bg-yellow-400' : 'bg-neon-primary/90'
+                        }`}>
+                        <Ionicons name="compass" size={12} color={isHighContrast ? "black" : "white"} />
+                        <Text className={`text-xs font-bold ${isHighContrast ? 'text-black' : 'text-white'}`}>TOUR</Text>
                     </View>
                 )}
                 {showType && offer.type === 'ACCOMMODATION' && (
-                    <View className="absolute top-2 left-2 bg-neon-secondary/90 px-2.5 py-1 rounded-lg flex-row items-center gap-1">
-                        <Ionicons name="bed" size={12} color="white" />
-                        <Text className="text-white text-xs font-bold">STAY</Text>
+                    <View className={`absolute top-2 left-2 px-2.5 py-1 rounded-lg flex-row items-center gap-1 ${isHighContrast ? 'bg-cyan-400' : 'bg-neon-secondary/90'
+                        }`}>
+                        <Ionicons name="bed" size={12} color={isHighContrast ? "black" : "white"} />
+                        <Text className={`text-xs font-bold ${isHighContrast ? 'text-black' : 'text-white'}`}>STAY</Text>
                     </View>
                 )}
             </View>
@@ -86,8 +97,8 @@ export function OfferCard({ offer, showStatus = false, showType = true }: OfferC
                 </Text>
 
                 <View className="flex-row items-center gap-1 mb-3">
-                    <Ionicons name="location-outline" size={14} color="#94A3B8" />
-                    <Text className="text-slate-400 text-sm">
+                    <Ionicons name="location-outline" size={14} color={isHighContrast ? "white" : "#94A3B8"} />
+                    <Text className={`text-sm ${isHighContrast ? 'text-white font-medium' : 'text-slate-400'}`}>
                         {offer.location.city}, {offer.location.country}
                     </Text>
                 </View>
@@ -95,12 +106,12 @@ export function OfferCard({ offer, showStatus = false, showType = true }: OfferC
                 {/* Bottom Row: Rating + Status/Date */}
                 <View className="flex-row justify-between items-center">
                     <View className="flex-row items-center gap-1">
-                        <Ionicons name="star" size={14} color="#FBBF24" />
-                        <Text className="text-yellow-500 text-sm font-bold">
+                        <Ionicons name="star" size={14} color={isHighContrast ? "white" : "#FBBF24"} />
+                        <Text className={`text-sm font-bold ${isHighContrast ? 'text-white' : 'text-yellow-500'}`}>
                             {offer.rating > 0 ? offer.rating.toFixed(1) : 'New'}
                         </Text>
                         {offer.reviewsCount > 0 && (
-                            <Text className="text-slate-500 text-xs">({offer.reviewsCount})</Text>
+                            <Text className={`text-xs ${isHighContrast ? 'text-white' : 'text-slate-500'}`}>({offer.reviewsCount})</Text>
                         )}
                     </View>
 
@@ -116,3 +127,4 @@ export function OfferCard({ offer, showStatus = false, showType = true }: OfferC
         </TouchableOpacity>
     );
 }
+

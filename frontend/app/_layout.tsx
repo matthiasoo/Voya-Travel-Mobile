@@ -6,6 +6,7 @@ import firestore from "@react-native-firebase/firestore";
 import { useFonts, Inter_400Regular, Inter_700Bold } from '@expo-google-fonts/inter';
 import "./globals.css";
 import { NotificationService } from "../services/notifications";
+import { AccessibilityProvider } from "../contexts/AccessibilityContext";
 
 export default function RootLayout() {
     const [initializing, setInitializing] = useState(true);
@@ -86,13 +87,16 @@ export default function RootLayout() {
     }
 
     return (
-        <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="index" />
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(tourist)" />
-            <Stack.Screen name="(provider)" />
-            <Stack.Screen name="(admin)" />
-            <Stack.Screen name="+not-found" options={{ presentation: 'modal' }} />
-        </Stack>
+        <AccessibilityProvider>
+            <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="index" />
+                <Stack.Screen name="(auth)" />
+                <Stack.Screen name="(tourist)" />
+                <Stack.Screen name="(provider)" />
+                <Stack.Screen name="(admin)" />
+                <Stack.Screen name="+not-found" options={{ presentation: 'modal' }} />
+            </Stack>
+        </AccessibilityProvider>
     );
 }
+

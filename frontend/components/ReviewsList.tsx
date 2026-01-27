@@ -5,6 +5,7 @@ import firestore from "@react-native-firebase/firestore";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
+import { useAccessibility } from "../contexts/AccessibilityContext";
 
 interface ReviewsListProps {
     offerId: string;
@@ -13,6 +14,7 @@ interface ReviewsListProps {
 export function ReviewsList({ offerId }: ReviewsListProps) {
     const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
+    const { isHighContrast } = useAccessibility();
 
     useEffect(() => {
         const unsubscribe = firestore()
@@ -36,10 +38,14 @@ export function ReviewsList({ offerId }: ReviewsListProps) {
     }, [offerId]);
 
     const renderReview = ({ item }: { item: Review }) => (
-        <View className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 mb-3">
+        <View className={`p-4 rounded-xl border mb-3 ${isHighContrast
+                ? 'bg-black border-2 border-white'
+                : 'bg-slate-800/50 border-slate-700/50'
+            }`}>
             <View className="flex-row items-center justify-between mb-2">
                 <View className="flex-row items-center gap-2">
-                    <View className="w-8 h-8 rounded-full bg-slate-700 overflow-hidden items-center justify-center">
+                    <View className={`w-8 h-8 rounded-full overflow-hidden items-center justify-center ${isHighContrast ? 'bg-neutral-800 border border-white' : 'bg-slate-700'
+                        }`}>
                         {item.userAvatar ? (
                             <Image source={{ uri: item.userAvatar }} style={{ width: 32, height: 32 }} contentFit="cover" />
                         ) : (
@@ -48,7 +54,7 @@ export function ReviewsList({ offerId }: ReviewsListProps) {
                     </View>
                     <View>
                         <Text className="text-white font-bold text-sm">{item.userName}</Text>
-                        <Text className="text-slate-500 text-xs">{format(item.createdAt, 'MMM d, yyyy')}</Text>
+                        <Text className={`text-xs ${isHighContrast ? 'text-white' : 'text-slate-500'}`}>{format(item.createdAt, 'MMM d, yyyy')}</Text>
                     </View>
                 </View>
                 <View className="flex-row gap-0.5">
@@ -57,12 +63,12 @@ export function ReviewsList({ offerId }: ReviewsListProps) {
                             key={star}
                             name="star"
                             size={12}
-                            color={item.rating >= star ? "#FBBF24" : "#334155"}
+                            color={isHighContrast ? "white" : (item.rating >= star ? "#FBBF24" : "#334155")}
                         />
                     ))}
                 </View>
             </View>
-            <Text className="text-slate-300 text-sm">{item.content}</Text>
+            <Text className={`text-sm ${isHighContrast ? 'text-white' : 'text-slate-300'}`}>{item.content}</Text>
         </View>
     );
 
@@ -71,7 +77,7 @@ export function ReviewsList({ offerId }: ReviewsListProps) {
     if (reviews.length === 0) {
         return (
             <View className="py-8 items-center">
-                <Text className="text-slate-500 italic">No reviews yet.</Text>
+                <Text className={isHighContrast ? "text-white italic" : "text-slate-500 italic"}>No reviews yet.</Text>
             </View>
         );
     }
@@ -87,3 +93,4 @@ export function ReviewsList({ offerId }: ReviewsListProps) {
         </View>
     );
 }
+

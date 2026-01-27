@@ -30,6 +30,7 @@
 
 ### Wyszukiwanie i Filtrowanie
 - Wyszukiwanie tekstowe po mieście/kraju
+- **Wyszukiwanie głosowe (Voice Search)** - expo-speech-recognition
 - Filtry: cena min/max, typ (HOTEL/APARTMENT/TOURS), amenities
 - Sortowanie: cena rosnąco/malejąco, ocena
 
@@ -46,25 +47,30 @@
 ### Prywatność
 - Dane kontaktowe turysty wysyłane dopiero przy rezerwacji
 
----
-
-## ⚠️ Do rozbudowy (opcjonalnie)
+### Dostępność (Accessibility)
+- ✅ Wyszukiwanie głosowe (VoiceSearchButton.tsx)
+- ✅ **Tryb wysokiego kontrastu** (AccessibilityContext.tsx)
+  - Przełącznik w ustawieniach profilu (Tourist i Provider)
+  - Białe teksty i silne obramowania w trybie HC dla maksymalnej czytelności
+  - Zapisywane w AsyncStorage (preferencje użytkownika)
+- Tryb ciemny (dark mode) jako domyślny
 
 ### Powiadomienia Push
-- Biblioteka expo-notifications zainstalowana
-- Brak aktywnego kodu wysyłającego powiadomienia
+- ✅ Pełna implementacja (services/notifications.ts)
+- Powiadomienia o nowych rezerwacjach (dla dostawcy)
+- Powiadomienia o statusie rezerwacji (przyjęta/odrzucona)
+- Powiadomienia o nowych wiadomościach w czacie
+- Nasłuchiwanie zmian w Firestore w czasie rzeczywistym
+
+### Integracje LLM (AI)
+- ✅ Generowanie opisów ofert (services/ai.ts)
+- Groq API z modelem Llama 3.3-70B
+- Przycisk "Generate with AI" w formularzach ofert (edit.tsx, create-property.tsx)
+- Obsługa różnych stylów: luxury, adventurous, calm, romantic
 
 ---
 
 ## ❌ Niezrealizowane
-
-### Integracje LLM (AI)
-- Brak generowania opisów ofert
-- Brak automatycznego tłumaczenia
-
-### Dostępność (Accessibility)
-- Brak wyszukiwania głosowego
-- Brak dedykowanego trybu wysokiego kontrastu
 
 ### System Zgłaszania (Moderacja)
 - Brak przycisku "Zgłoś ofertę/użytkownika"
@@ -72,4 +78,4 @@
 
 ---
 
-*Ostatnia aktualizacja: 26.01.2026*
+*Ostatnia aktualizacja: 27.01.2026*

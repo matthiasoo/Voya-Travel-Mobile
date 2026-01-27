@@ -1,4 +1,4 @@
-import { View, Text, ActivityIndicator } from "react-native";
+import { View, Text, ActivityIndicator, Switch } from "react-native";
 import { useState, useEffect } from "react";
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
@@ -11,6 +11,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { uploadUserAvatar } from "../../utils/storage";
 import { TouchableOpacity } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
+import { useAccessibility } from "../../contexts/AccessibilityContext";
 
 export default function ProfileScreen() {
     const [user, setUser] = useState<TouristUser | null>(null);
@@ -20,6 +21,8 @@ export default function ProfileScreen() {
     const [editLastName, setEditLastName] = useState('');
     const [newImageUri, setNewImageUri] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
+
+    const { isHighContrast, toggleHighContrast } = useAccessibility();
 
     useEffect(() => {
         const currentUser = auth().currentUser;
@@ -112,7 +115,7 @@ export default function ProfileScreen() {
             <View className="items-center gap-6 w-full">
                 {/* Avatar Section */}
                 <View className="items-center relative">
-                    <View className="w-32 h-32 rounded-full overflow-hidden border-4 border-neon-secondary bg-slate-800 items-center justify-center shadow-neon-primary">
+                    <View className={`w-32 h-32 rounded-full overflow-hidden border-4 ${isHighContrast ? 'border-white bg-black' : 'border-neon-secondary bg-slate-800'} items-center justify-center shadow-neon-primary`}>
                         {newImageUri ? (
                             <Image
                                 source={{ uri: newImageUri }}
@@ -127,7 +130,7 @@ export default function ProfileScreen() {
                                 transition={500}
                             />
                         ) : (
-                            <Text className="text-4xl font-bold text-text-muted">
+                            <Text className={`text-4xl font-bold ${isHighContrast ? 'text-white' : 'text-text-muted'}`}>
                                 {user ? getInitials(user.firstName, user.lastName) : "?"}
                             </Text>
                         )}
@@ -135,9 +138,9 @@ export default function ProfileScreen() {
                     {isEditing && (
                         <TouchableOpacity
                             onPress={pickImage}
-                            className="absolute bottom-0 right-0 bg-neon-secondary p-2 rounded-full border-2 border-slate-900"
+                            className={`absolute bottom-0 right-0 ${isHighContrast ? 'bg-yellow-400' : 'bg-neon-secondary'} p-2 rounded-full border-2 border-slate-900`}
                         >
-                            <Ionicons name="camera" size={20} color="white" />
+                            <Ionicons name="camera" size={20} color={isHighContrast ? "black" : "white"} />
                         </TouchableOpacity>
                     )}
                 </View>
@@ -158,17 +161,45 @@ export default function ProfileScreen() {
                     </View>
                 ) : (
                     <View className="items-center gap-2">
-                        <Text className="text-3xl font-bold text-white text-center">
+                        <Text className={`text-3xl font-bold ${isHighContrast ? 'text-white' : 'text-white'} text-center`}>
                             {user?.firstName} {user?.lastName}
                         </Text>
-                        <Text className="text-text-muted text-lg">{user?.email}</Text>
-                        <View className="px-3 py-1 bg-neon-secondary/20 rounded-full border border-neon-secondary mt-2">
-                            <Text className="text-neon-secondary text-sm font-bold uppercase tracking-wider">
+                        <Text className={`text-lg ${isHighContrast ? 'text-gray-300' : 'text-text-muted'}`}>{user?.email}</Text>
+                        <View className={`px-3 py-1 ${isHighContrast ? 'bg-yellow-400/20 border-yellow-400' : 'bg-neon-secondary/20 border-neon-secondary'} rounded-full border mt-2`}>
+                            <Text className={`text-sm font-bold uppercase tracking-wider ${isHighContrast ? 'text-yellow-400' : 'text-neon-secondary'}`}>
                                 {user?.role}
                             </Text>
                         </View>
                     </View>
                 )}
+
+                {/* Accessibility Settings */}
+                <View className={`w-full p-4 rounded-xl ${isHighContrast ? 'bg-neutral-900 border-2 border-white' : 'bg-void-surface'}`}>
+                    <Text className={`text-lg font-bold mb-3 ${isHighContrast ? 'text-white' : 'text-white'}`}>
+                        Accessibility
+                    </Text>
+                    <View className="flex-row items-center justify-between">
+                        <View className="flex-row items-center gap-3">
+                            <Ionicons
+                                name="contrast"
+                                size={24}
+                                color={isHighContrast ? '#FACC15' : '#00D4FF'}
+                            />
+                            <Text className={`text-base ${isHighContrast ? 'text-white' : 'text-text-main'}`}>
+                                High Contrast Mode
+                            </Text>
+                        </View>
+                        <Switch
+                            value={isHighContrast}
+                            onValueChange={toggleHighContrast}
+                            trackColor={{
+                                false: '#3f3f46',
+                                true: isHighContrast ? '#FACC15' : '#7F00FF'
+                            }}
+                            thumbColor={isHighContrast ? '#000000' : '#ffffff'}
+                        />
+                    </View>
+                </View>
 
                 {/* Actions */}
                 <View className="w-full mt-4 gap-4">
@@ -204,3 +235,4 @@ export default function ProfileScreen() {
         </GradientBackground>
     );
 }
+

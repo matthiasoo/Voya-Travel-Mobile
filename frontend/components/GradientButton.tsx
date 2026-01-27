@@ -1,5 +1,6 @@
-import { Text, TouchableOpacity, TouchableOpacityProps } from 'react-native';
+import { Text, TouchableOpacity, TouchableOpacityProps, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useAccessibility } from '../contexts/AccessibilityContext';
 
 interface GradientButtonProps extends TouchableOpacityProps {
     title: string;
@@ -7,6 +8,19 @@ interface GradientButtonProps extends TouchableOpacityProps {
 }
 
 export function GradientButton({ title, colors = ['#7F00FF', '#00D4FF'], className, ...props }: GradientButtonProps) {
+    const { isHighContrast } = useAccessibility();
+
+    if (isHighContrast) {
+        return (
+            <TouchableOpacity
+                className={`rounded-xl overflow-hidden bg-yellow-400 p-4 items-center ${className}`}
+                {...props}
+            >
+                <Text className="text-black font-bold text-lg">{title}</Text>
+            </TouchableOpacity>
+        );
+    }
+
     return (
         <TouchableOpacity className={`rounded-xl overflow-hidden ${className}`} {...props}>
             <LinearGradient
@@ -20,3 +34,4 @@ export function GradientButton({ title, colors = ['#7F00FF', '#00D4FF'], classNa
         </TouchableOpacity>
     );
 }
+

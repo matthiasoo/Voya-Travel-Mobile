@@ -1,14 +1,19 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useAccessibility } from "../../contexts/AccessibilityContext";
 
 export default function Layout() {
+    const { isHighContrast } = useAccessibility();
+
     return (
         <Tabs screenOptions={{
             headerShown: false,
-            tabBarActiveTintColor: '#3B82F6',
+            tabBarActiveTintColor: isHighContrast ? '#FACC15' : '#3B82F6',
+            tabBarInactiveTintColor: isHighContrast ? '#9CA3AF' : '#64748B',
             tabBarStyle: {
-                backgroundColor: '#0f172a',
-                borderTopColor: '#1e293b'
+                backgroundColor: isHighContrast ? '#000000' : '#0f172a',
+                borderTopColor: isHighContrast ? '#FFFFFF' : '#1e293b',
+                borderTopWidth: isHighContrast ? 2 : 1,
             }
         }}>
             <Tabs.Screen
@@ -49,3 +54,4 @@ export default function Layout() {
         </Tabs>
     );
 }
+

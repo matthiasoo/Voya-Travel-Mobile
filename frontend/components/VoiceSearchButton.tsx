@@ -6,6 +6,7 @@ import {
     ExpoSpeechRecognitionModule,
     useSpeechRecognitionEvent,
 } from 'expo-speech-recognition';
+import { useAccessibility } from '../contexts/AccessibilityContext';
 
 interface VoiceSearchButtonProps {
     onResult: (text: string) => void;
@@ -18,6 +19,7 @@ export function VoiceSearchButton({ onResult, disabled = false }: VoiceSearchBut
     const [voiceState, setVoiceState] = useState<VoiceState>('idle');
     const pulseAnim = useRef(new Animated.Value(1)).current;
     const opacityAnim = useRef(new Animated.Value(0.6)).current;
+    const { isHighContrast } = useAccessibility();
 
     // Speech recognition event listeners
     useSpeechRecognitionEvent('start', () => {
@@ -109,6 +111,45 @@ export function VoiceSearchButton({ onResult, disabled = false }: VoiceSearchBut
 
     const isListening = voiceState === 'listening';
 
+    // High contrast mode colors
+    const getIconColor = () => {
+        if (isHighContrast) {
+            return isListening ? '#FF0000' : '#FACC15';
+        }
+        return isListening ? '#FF6B6B' : '#00D4FF';
+    };
+
+    if (isHighContrast) {
+        return (
+            <TouchableOpacity
+                onPress={handlePress}
+                disabled={disabled}
+                className="h-[52px] w-[52px] rounded-xl overflow-hidden"
+                activeOpacity={0.7}
+            >
+                <Animated.View
+                    style={{
+                        transform: [{ scale: pulseAnim }],
+                        width: '100%',
+                        height: '100%',
+                    }}
+                >
+                    <View className={`w-full h-full rounded-xl items-center justify-center border-2 ${isListening ? 'bg-red-600 border-red-400' : 'bg-neutral-800 border-white'
+                        }`}>
+                        <Ionicons
+                            name={isListening ? 'mic' : 'mic-outline'}
+                            size={24}
+                            color={isListening ? 'white' : '#FACC15'}
+                        />
+                        {isListening && (
+                            <View className="absolute top-3 right-3 w-2 h-2 bg-white rounded-full" />
+                        )}
+                    </View>
+                </Animated.View>
+            </TouchableOpacity>
+        );
+    }
+
     return (
         <TouchableOpacity
             onPress={handlePress}
@@ -148,3 +189,4 @@ export function VoiceSearchButton({ onResult, disabled = false }: VoiceSearchBut
         </TouchableOpacity>
     );
 }
+
