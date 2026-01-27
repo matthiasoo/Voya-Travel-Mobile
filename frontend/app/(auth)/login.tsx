@@ -44,8 +44,13 @@ export default function Login() {
     return (
         <GradientBackground>
             <View className="items-center">
-                <Text className="text-5xl font-extrabold text-neon-primary mb-2">Voya Travel</Text>
-                <Text className="text-text-muted text-lg">Your Journey Begins Here</Text>
+                <Text
+                    className="text-4xl font-extrabold text-white mb-2 tracking-widest"
+                    style={{ textShadowColor: 'rgba(127, 0, 255, 0.5)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 20 }}
+                >
+                    VOYA <Text className="text-neon-secondary">TRAVEL</Text>
+                </Text>
+                <Text className="text-slate-400 text-base font-medium tracking-wide">Your Journey Begins Here</Text>
             </View>
 
             <View className="gap-4">

@@ -1,4 +1,5 @@
 import { View, ActivityIndicator } from "react-native";
+import { Image } from "expo-image";
 import { useEffect } from "react";
 import { useRouter } from "expo-router";
 import auth from "@react-native-firebase/auth";
@@ -44,6 +45,11 @@ export default function Index() {
 
     return (
         <View className="flex-1 items-center justify-center bg-background">
+            <Image
+                source={require('../assets/icon.png')}
+                style={{ width: 120, height: 120, borderRadius: 24, marginBottom: 32 }}
+                contentFit="contain"
+            />
             <ActivityIndicator size="large" color="#3B82F6" />
         </View>
     );
