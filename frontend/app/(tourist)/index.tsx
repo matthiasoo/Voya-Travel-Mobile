@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { GradientBackground } from "../../components/GradientBackground";
 import { GradientInput } from "../../components/GradientInput";
 import { OfferCard } from "../../components/OfferCard";
+import { VoiceSearchButton } from "../../components/VoiceSearchButton";
 import { useState, useEffect, useMemo } from "react";
 import firestore from "@react-native-firebase/firestore";
 import { Offer } from "../../types/offer";
@@ -134,6 +135,7 @@ export default function Index() {
                             icon={<Ionicons name="search" size={20} color="#94A3B8" />}
                         />
                     </View>
+                    <VoiceSearchButton onResult={setSearchQuery} />
                     <TouchableOpacity
                         onPress={() => setFilterVisible(true)}
                         className="h-[52px] w-[52px] rounded-xl overflow-hidden"

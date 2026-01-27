@@ -7,6 +7,17 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         ...config,
         name: config.name || "frontend",
         slug: config.slug || "frontend",
+        plugins: [
+            ...(config.plugins || []),
+            [
+                "expo-speech-recognition",
+                {
+                    "microphonePermission": "Zezwól $(PRODUCT_NAME) na użycie mikrofonu do wyszukiwania głosowego.",
+                    "speechRecognitionPermission": "Zezwól $(PRODUCT_NAME) na rozpoznawanie mowy do wyszukiwania ofert.",
+                    "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox"]
+                }
+            ]
+        ],
         android: {
             ...config.android,
             permissions: [
@@ -14,7 +25,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
                 "ACCESS_FINE_LOCATION",
                 "ACCESS_BACKGROUND_LOCATION",
                 "FOREGROUND_SERVICE",
-                "FOREGROUND_SERVICE_LOCATION"
+                "FOREGROUND_SERVICE_LOCATION",
+                "RECORD_AUDIO"
             ],
             config: {
                 ...config.android?.config,
