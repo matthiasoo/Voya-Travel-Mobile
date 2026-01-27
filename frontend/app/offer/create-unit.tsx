@@ -13,6 +13,7 @@ import { GradientInput } from "../../components/GradientInput";
 import { GradientButton } from "../../components/GradientButton";
 import { uploadImage } from "../../utils/storage";
 import { AccommodationOffer, AccommodationUnit } from "../../types/offer";
+import { AIService } from "../../services/ai";
 
 export default function CreateUnitScreen() {
     const { offerId } = useLocalSearchParams();
@@ -62,6 +63,18 @@ export default function CreateUnitScreen() {
         }
 
         setLoading(true);
+
+        try {
+            const safetyCheck = await AIService.checkContentSafety(`${name}\n${description}`);
+            if (!safetyCheck.safe) {
+                Alert.alert("Content Unsafe", `Your unit content was flagged: ${safetyCheck.reason}. Please revise.`);
+                setLoading(false);
+                return;
+            }
+        } catch (err) {
+            console.error("Safety check failed:", err);
+        }
+
         try {
             const currentUser = auth().currentUser;
             if (!currentUser) throw new Error("User not logged in");
@@ -78,10 +91,6 @@ export default function CreateUnitScreen() {
                     // Path: /offers/{offerId}/units/{unitId}/{filename}
                     const filename = uri.substring(uri.lastIndexOf('/') + 1);
                     const path = `offers/${offerId}/units/${unitId}`;
-                    // Reuse uploadImage but we need to pass full path or key.
-                    // The utility appends timestamp + filename.
-                    // Let's uset utility but carefully. 
-                    // Utility: `ref(`${path}/${Date.now()}_${filename}`)`
                     const url = await uploadImage(path, uri);
                     imageUrls.push(url);
                 }
@@ -111,7 +120,8 @@ export default function CreateUnitScreen() {
 
             await firestore().runTransaction(async (transaction) => {
                 const offerDoc = await transaction.get(offerRef);
-                if (!offerDoc.exists) {
+                const exists = typeof offerDoc.exists === 'function' ? offerDoc.exists() : offerDoc.exists;
+                if (!exists) {
                     throw "Offer does not exist!";
                 }
 

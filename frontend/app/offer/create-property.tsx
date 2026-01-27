@@ -79,7 +79,8 @@ export default function CreatePropertyScreen() {
             const currentUser = auth().currentUser;
             if (currentUser) {
                 const userDoc = await firestore().collection('users').doc(currentUser.uid).get();
-                if (userDoc.exists) {
+                const exists = typeof userDoc.exists === 'function' ? userDoc.exists() : userDoc.exists;
+                if (exists) {
                     const userData = userDoc.data();
                     if (userData?.category === 'TOURS') {
                         setUserCategory('TOURS');
@@ -167,7 +168,21 @@ export default function CreatePropertyScreen() {
             return;
         }
 
+        // AI Safety Check
         setLoading(true);
+        try {
+            const safetyCheck = await AIService.checkContentSafety(`${title}\n${description}`);
+            if (!safetyCheck.safe) {
+                Alert.alert("Content Unsafe", `Your offer content was flagged: ${safetyCheck.reason}. Please revise.`);
+                setLoading(false);
+                return;
+            }
+        } catch (err) {
+            console.error("Safety check failed:", err);
+            // Fail open or closed? System prompt says fail open in service, so we might just proceed or log.
+            // But here we are inside a try block. If checkContentSafety catches its own errors and returns {safe:true}, we are good.
+            // If it throws, we land here.
+        }
         try {
             const currentUser = auth().currentUser;
             if (!currentUser) throw new Error("User not logged in");

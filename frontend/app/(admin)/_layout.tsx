@@ -21,7 +21,8 @@ export default function AdminLayout() {
             .collection('users')
             .doc(currentUser.uid)
             .onSnapshot((doc) => {
-                if (doc.exists && doc.data()?.role === 'ADMIN') {
+                const exists = typeof doc.exists === 'function' ? doc.exists() : doc.exists;
+                if (exists && doc.data()?.role === 'ADMIN') {
                     setUser(doc.data() as AdminUser);
                 }
                 setLoading(false);
@@ -60,6 +61,15 @@ export default function AdminLayout() {
                     title: 'Approvals',
                     tabBarIcon: ({ color, size }) => (
                         <Ionicons name="checkmark-circle" size={size} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="reports"
+                options={{
+                    title: 'Reports',
+                    tabBarIcon: ({ color, size }) => (
+                        <Ionicons name="alert-circle" size={size} color={color} />
                     ),
                 }}
             />

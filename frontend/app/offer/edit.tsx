@@ -82,7 +82,8 @@ export default function EditOfferScreen() {
         const fetchOffer = async () => {
             try {
                 const doc = await firestore().collection('offers').doc(id as string).get();
-                if (doc.exists) {
+                const exists = typeof doc.exists === 'function' ? doc.exists() : doc.exists;
+                if (exists) {
                     const data = doc.data() as any;
 
                     setTitle(data.title || "");
@@ -207,6 +208,18 @@ export default function EditOfferScreen() {
         }
 
         setUpdating(true);
+
+        // AI Safety Check
+        try {
+            const safetyCheck = await AIService.checkContentSafety(`${title}\n${description}`);
+            if (!safetyCheck.safe) {
+                Alert.alert("Content Unsafe", `Your offer content was flagged: ${safetyCheck.reason}. Please revise.`);
+                setUpdating(false);
+                return;
+            }
+        } catch (err) {
+            console.error("Safety check failed:", err);
+        }
         try {
             const geohash = geofire.geohashForLocation([markerCoords.latitude, markerCoords.longitude]);
 
