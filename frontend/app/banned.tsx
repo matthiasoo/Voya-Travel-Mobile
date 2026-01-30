@@ -3,6 +3,7 @@ import { Redirect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { GradientBackground } from "../components/GradientBackground";
 import { useEffect } from "react";
+import auth from "@react-native-firebase/auth";
 
 export default function BannedScreen() {
 
@@ -14,6 +15,10 @@ export default function BannedScreen() {
 
     const handleSupport = () => {
         Linking.openURL("mailto:support@voyatravel.com?subject=Appeal Ban");
+    };
+
+    const handleSignOut = async () => {
+        await auth().signOut();
     };
 
     return (
@@ -52,6 +57,13 @@ export default function BannedScreen() {
                     className="w-full bg-slate-700 p-4 rounded-xl items-center border border-slate-600"
                 >
                     <Text className="text-white font-bold">Contact Support</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={handleSignOut}
+                    className="w-full p-4 rounded-xl items-center border border-red-500/50"
+                >
+                    <Text className="text-red-400 font-bold">Sign Out</Text>
                 </TouchableOpacity>
             </View>
         </GradientBackground>

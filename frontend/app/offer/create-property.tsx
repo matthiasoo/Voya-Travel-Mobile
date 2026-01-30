@@ -339,7 +339,7 @@ export default function CreatePropertyScreen() {
                                 <GradientInput
                                     value={description}
                                     onChangeText={setDescription}
-                                    placeholder="Describe your property..."
+                                    placeholder={offerType === 'TOURS' ? "Describe the experience..." : "Describe your property..."}
                                     multiline
                                     numberOfLines={4}
                                 />
@@ -420,9 +420,62 @@ export default function CreatePropertyScreen() {
                                     </View>
                                 </View>
 
+                                {/* Difficulty Selector */}
+                                <View>
+                                    <Text className="text-slate-400 mb-2">Difficulty</Text>
+                                    <View className="flex-row gap-2">
+                                        {(['EASY', 'MODERATE', 'CHALLENGING'] as const).map((level) => (
+                                            <TouchableOpacity
+                                                key={level}
+                                                onPress={() => setDifficulty(level)}
+                                                className={`flex-1 p-3 rounded-lg border ${difficulty === level ? 'bg-neon-primary/20 border-neon-primary' : 'bg-slate-800 border-slate-700'}`}
+                                            >
+                                                <Text className={`text-center font-bold ${difficulty === level ? 'text-neon-primary' : 'text-slate-400'}`}>
+                                                    {level}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </View>
+                                </View>
+
+                                <View>
+                                    <Text className="text-slate-400 mb-2">Languages</Text>
+                                    <GradientInput value={languagesInput} onChangeText={setLanguagesInput} placeholder="English, Spanish, Polish..." />
+                                </View>
+
+                                {/* Pickup Toggle */}
+                                <TouchableOpacity
+                                    onPress={() => setPickupIncluded(!pickupIncluded)}
+                                    className={`flex-row items-center justify-between p-4 rounded-xl border ${pickupIncluded ? 'bg-neon-primary/10 border-neon-primary' : 'bg-slate-800 border-slate-700'}`}
+                                >
+                                    <View className="flex-row items-center gap-3">
+                                        <Ionicons name="car" size={24} color={pickupIncluded ? '#00D4FF' : '#94a3b8'} />
+                                        <View>
+                                            <Text className={pickupIncluded ? 'text-neon-primary font-bold' : 'text-slate-400'}>Pickup Included</Text>
+                                            <Text className="text-slate-500 text-xs">Is hotel pickup provided?</Text>
+                                        </View>
+                                    </View>
+                                    <Ionicons name={pickupIncluded ? "checkmark-circle" : "ellipse-outline"} size={24} color={pickupIncluded ? '#00D4FF' : '#94a3b8'} />
+                                </TouchableOpacity>
+
                                 <View>
                                     <Text className="text-slate-400 mb-2">Meeting Point</Text>
                                     <GradientInput value={meetingPoint} onChangeText={setMeetingPoint} placeholder="Where the tour starts" />
+                                </View>
+
+                                <View>
+                                    <Text className="text-slate-400 mb-2">Transportation</Text>
+                                    <GradientInput value={transportation} onChangeText={setTransportation} placeholder="e.g. Minivan, Boat, Walking..." />
+                                </View>
+
+                                <View>
+                                    <Text className="text-slate-400 mb-2">What's Included</Text>
+                                    <GradientInput value={whatsIncludedInput} onChangeText={setWhatsIncludedInput} placeholder="Lunch, Equipment, Tickets..." />
+                                </View>
+
+                                <View>
+                                    <Text className="text-slate-400 mb-2">What to Bring</Text>
+                                    <GradientInput value={whatToBringInput} onChangeText={setWhatToBringInput} placeholder="Sunscreen, Water, Towel..." />
                                 </View>
 
                                 <View>
