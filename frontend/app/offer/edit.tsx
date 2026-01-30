@@ -20,7 +20,7 @@ export default function EditOfferScreen() {
     const router = useRouter();
     const { id } = useLocalSearchParams();
 
-    // --- STATE DEFINITIONS ---
+    
     const [loading, setLoading] = useState(true);
     const [updating, setUpdating] = useState(false);
     const [uploading, setUploading] = useState(false);
@@ -31,13 +31,13 @@ export default function EditOfferScreen() {
     const [price, setPrice] = useState("");
     const [offerType, setOfferType] = useState<"ACCOMMODATION" | "TOURS">("ACCOMMODATION");
 
-    // Accommodation Specific
+    
     const [amenitiesInput, setAmenitiesInput] = useState("");
     const [checkInTime, setCheckInTime] = useState("");
     const [checkOutTime, setCheckOutTime] = useState("");
     const [propertyType, setPropertyType] = useState("HOTEL");
 
-    // Tour Specific
+    
     const [duration, setDuration] = useState("");
     const [maxParticipants, setMaxParticipants] = useState("");
     const [meetingPoint, setMeetingPoint] = useState("");
@@ -51,7 +51,7 @@ export default function EditOfferScreen() {
     const [whatToBringInput, setWhatToBringInput] = useState("");
     const [transportation, setTransportation] = useState("");
 
-    // Location
+    
     const [address, setAddress] = useState("");
     const [city, setCity] = useState("");
     const [country, setCountry] = useState("");
@@ -63,18 +63,18 @@ export default function EditOfferScreen() {
     });
     const [markerCoords, setMarkerCoords] = useState({ latitude: 52.2297, longitude: 21.0122 });
 
-    // Images
+    
     const [images, setImages] = useState<string[]>([]);
 
-    // Helper to request location permissions
+    
     const requestLocationPermission = async () => {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
-            // console.log('Permission to access location was denied');
+            
         }
     };
 
-    // --- EFFECT: Fetch Offer Data ---
+    
     useEffect(() => {
         if (!id) return;
         requestLocationPermission();
@@ -116,7 +116,7 @@ export default function EditOfferScreen() {
                         setCheckOutTime(details.checkOutTime || "");
                         setPropertyType(details.propertyType || "HOTEL");
                     } else {
-                        // TOURS
+                        
                         setDuration(details.duration?.toString() || "");
                         setMaxParticipants(details.maxParticipants?.toString() || "");
                         setMeetingPoint(details.meetingPoint || "");
@@ -145,7 +145,7 @@ export default function EditOfferScreen() {
         fetchOffer();
     }, [id]);
 
-    // --- HANDLERS ---
+    
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
@@ -159,14 +159,14 @@ export default function EditOfferScreen() {
         if (!result.canceled) {
             setUploading(true);
             const newImages = [...images];
-            // In a real app we might upload here or on save. 
-            // For now, let's assume we upload immediately to get a URL, 
-            // OR we just store local URI and upload on save. 
-            // Based on create-property, existing flow uploads immediately? 
-            // create-property uploads on submit. edit.tsx logic usually varies.
-            // Let's stick to simple: add to list, upload on submit. 
-            // BUT wait, existing images are URLs. Mixed array?
-            // Let's upload immediately to keep array consistent as URLs.
+            
+            
+            
+            
+            
+            
+            
+            
 
             for (const asset of result.assets) {
                 try {
@@ -209,7 +209,7 @@ export default function EditOfferScreen() {
 
         setUpdating(true);
 
-        // AI Safety Check
+        
         try {
             const safetyCheck = await AIService.checkContentSafety(`${title}\n${description}`);
             if (!safetyCheck.safe) {
@@ -243,7 +243,7 @@ export default function EditOfferScreen() {
             if (offerType === 'ACCOMMODATION') {
                 typeData = {
                     details: {
-                        propertyType, // preserve if not edited
+                        propertyType, 
                         generalAmenities: amenitiesInput.split(',').map(s => s.trim()).filter(Boolean),
                         checkInTime,
                         checkOutTime
@@ -268,7 +268,7 @@ export default function EditOfferScreen() {
                 };
             }
 
-            // We use set with merge true or update. Update is safer if doc exists.
+            
             await firestore().collection('offers').doc(id as string).update({
                 ...baseData,
                 ...typeData
@@ -308,7 +308,7 @@ export default function EditOfferScreen() {
         }
     };
 
-    // --- RENDER ---
+    
     if (loading) {
         return (
             <GradientBackground variant="full">
@@ -369,7 +369,7 @@ export default function EditOfferScreen() {
                         />
                     </View>
 
-                    {/* Type Specific Fields */}
+                    {}
                     {
                         offerType === 'ACCOMMODATION' && (
                             <>
@@ -428,7 +428,7 @@ export default function EditOfferScreen() {
                         )
                     }
 
-                    {/* Location */}
+                    {}
                     <Text className="text-white font-bold text-lg mb-4 mt-4">Location</Text>
 
                     <View className="h-48 rounded-xl overflow-hidden mb-4 border border-slate-700">
@@ -465,7 +465,7 @@ export default function EditOfferScreen() {
                         </View>
                     </View>
 
-                    {/* Images */}
+                    {}
                     <Text className="text-white font-bold text-lg mb-4 mt-2">Images</Text>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
                         <TouchableOpacity

@@ -33,7 +33,7 @@ export default function OfferDetailsScreen() {
             .collection('offers')
             .doc(id as string)
             .onSnapshot((doc) => {
-                // Handle both property and function cases for compatibility
+                
                 const exists = typeof doc.exists === 'function' ? doc.exists() : doc.exists;
                 if (exists) {
                     setOffer({ id: doc.id, ...doc.data() } as Offer);
@@ -76,7 +76,7 @@ export default function OfferDetailsScreen() {
     return (
         <GradientBackground variant="full">
             <View className="flex-1">
-                {/* Header */}
+                {}
                 <View className="absolute top-0 left-0 right-0 z-10 pt-12 px-4 flex-row justify-between items-center">
                     <TouchableOpacity
                         onPress={() => router.back()}
@@ -88,8 +88,8 @@ export default function OfferDetailsScreen() {
                         <Ionicons name="arrow-back" size={24} color="white" />
                     </TouchableOpacity>
 
-                    {/* Status Badge & Edit Button in Header - Only visible to Provider */}
-                    {/* Status Badge & Edit Button in Header - Only visible to Provider */}
+                    {}
+                    {}
                     {currentUser?.uid === offer.providerId ? (
                         <View className="flex-row items-center gap-2">
                             <TouchableOpacity
@@ -129,7 +129,7 @@ export default function OfferDetailsScreen() {
                 </View>
 
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
-                    {/* Images Carousel */}
+                    {}
                     <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>
                         {offer.images && offer.images.length > 0 ? (
                             offer.images.map((img, index) => (
@@ -149,10 +149,10 @@ export default function OfferDetailsScreen() {
                         )}
                     </ScrollView>
 
-                    {/* Content Body */}
+                    {}
                     <View className="px-4 py-6 gap-6">
 
-                        {/* Title & Price */}
+                        {}
                         <View>
                             <Text className="text-2xl font-bold text-white mb-2">{offer.title}</Text>
                             <Text className={`text-xl font-bold ${isHighContrast ? 'text-white' : 'text-neon-primary'}`}>
@@ -165,20 +165,20 @@ export default function OfferDetailsScreen() {
                             </View>
                         </View>
 
-                        {/* Description */}
+                        {}
                         <View>
                             <Text className="text-lg font-bold text-white mb-2">About</Text>
                             <Text className={`leading-6 ${isHighContrast ? 'text-white' : 'text-slate-300'}`}>{offer.description}</Text>
                         </View>
 
-                        {/* Property Details */}
+                        {}
                         {currentUser?.uid !== offer.providerId && (
                             <View className="mb-4">
                                 <TouchableOpacity
                                     onPress={async () => {
                                         try {
                                             setLoading(true);
-                                            // Fetch provider name explicitly as requested
+                                            
                                             let providerName = "Host";
                                             try {
                                                 const providerDoc = await firestore().collection('users').doc(offer.providerId).get();
@@ -274,7 +274,7 @@ export default function OfferDetailsScreen() {
                                 </>
                             ) : (
                                 <>
-                                    {/* Tour Basic Info */}
+                                    {}
                                     <View className="flex-row flex-wrap gap-4">
                                         <View className={`px-3 py-2 rounded-lg ${isHighContrast ? 'bg-neutral-800 border border-white' : 'bg-slate-900'}`}>
                                             <Text className={isHighContrast ? "text-white text-xs" : "text-slate-400 text-xs"}>Duration</Text>
@@ -298,7 +298,7 @@ export default function OfferDetailsScreen() {
                                         )}
                                     </View>
 
-                                    {/* Meeting Point */}
+                                    {}
                                     {offer.details.meetingPoint && (
                                         <View>
                                             <Text className={`text-sm mb-2 ${isHighContrast ? 'text-white font-bold' : 'text-slate-400'}`}>Meeting Point</Text>
@@ -309,7 +309,7 @@ export default function OfferDetailsScreen() {
                                         </View>
                                     )}
 
-                                    {/* Pickup */}
+                                    {}
                                     {offer.details.pickupIncluded && (
                                         <View className={`flex-row items-center gap-2 px-3 py-2 rounded-lg ${isHighContrast
                                             ? 'bg-neutral-800 border border-green-400'
@@ -320,7 +320,7 @@ export default function OfferDetailsScreen() {
                                         </View>
                                     )}
 
-                                    {/* Transportation */}
+                                    {}
                                     {offer.details.transportation && (
                                         <View>
                                             <Text className={`text-sm mb-2 ${isHighContrast ? 'text-white font-bold' : 'text-slate-400'}`}>Transportation</Text>
@@ -328,7 +328,7 @@ export default function OfferDetailsScreen() {
                                         </View>
                                     )}
 
-                                    {/* Languages */}
+                                    {}
                                     {offer.details.languages && offer.details.languages.length > 0 && (
                                         <View>
                                             <Text className={`text-sm mb-2 ${isHighContrast ? 'text-white font-bold' : 'text-slate-400'}`}>Languages</Text>
@@ -345,7 +345,7 @@ export default function OfferDetailsScreen() {
                                         </View>
                                     )}
 
-                                    {/* Highlights */}
+                                    {}
                                     {offer.details.highlights && offer.details.highlights.length > 0 && (
                                         <View>
                                             <Text className={`text-sm mb-2 ${isHighContrast ? 'text-white font-bold' : 'text-slate-400'}`}>Highlights</Text>
@@ -362,7 +362,7 @@ export default function OfferDetailsScreen() {
                                         </View>
                                     )}
 
-                                    {/* What's Included */}
+                                    {}
                                     {offer.details.whatsIncluded && offer.details.whatsIncluded.length > 0 && (
                                         <View>
                                             <Text className={`text-sm mb-2 ${isHighContrast ? 'text-white font-bold' : 'text-slate-400'}`}>What's Included</Text>
@@ -379,7 +379,7 @@ export default function OfferDetailsScreen() {
                                         </View>
                                     )}
 
-                                    {/* What to Bring */}
+                                    {}
                                     {offer.details.whatToBring && offer.details.whatToBring.length > 0 && (
                                         <View>
                                             <Text className={`text-sm mb-2 ${isHighContrast ? 'text-white font-bold' : 'text-slate-400'}`}>What to Bring</Text>
@@ -399,7 +399,7 @@ export default function OfferDetailsScreen() {
                             )}
                         </View>
 
-                        {/* Units List (Only for Accommodation) */}
+                        {}
                         {offer.type === 'ACCOMMODATION' && (
                             <View>
                                 <Text className="text-lg font-bold text-white mb-4">Units</Text>
@@ -447,7 +447,7 @@ export default function OfferDetailsScreen() {
                             </View>
                         )}
 
-                        {/* Map */}
+                        {}
                         <View>
                             <Text className="text-lg font-bold text-white mb-4">Location</Text>
                             <View className={`h-48 rounded-xl overflow-hidden border relative ${isHighContrast ? 'border-2 border-white bg-black' : 'border-slate-700'
@@ -478,17 +478,17 @@ export default function OfferDetailsScreen() {
                                         }}
                                     />
                                 </MapView>
-                                {/* Overlay to intercept touches if we want it strictly static, or simple block scrolling */}
+                                {}
                                 <TouchableOpacity
                                     className="absolute inset-0 bg-transparent"
                                     onPress={() => {
-                                        // Maybe open full screen map?
+                                        
                                     }}
                                 />
                             </View>
                         </View>
 
-                        {/* Reviews */}
+                        {}
                         <View>
                             <ReviewsList offerId={offer.id} />
                         </View>

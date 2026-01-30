@@ -29,7 +29,7 @@ export default function PublicProfileScreen() {
 
         const fetchData = async () => {
             try {
-                // Fetch User
+                
                 const userDoc = await firestore().collection('users').doc(id as string).get();
                 const userExists = typeof userDoc.exists === 'function' ? userDoc.exists() : userDoc.exists;
 
@@ -37,7 +37,7 @@ export default function PublicProfileScreen() {
                     const userData = userDoc.data() as UserData;
                     setUser(userData);
 
-                    // If Provider, fetch active offers
+                    
                     if (userData.role === 'PROVIDER') {
                         const offersSnapshot = await firestore()
                             .collection('offers')

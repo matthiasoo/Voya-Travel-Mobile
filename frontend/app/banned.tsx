@@ -7,7 +7,7 @@ import auth from "@react-native-firebase/auth";
 
 export default function BannedScreen() {
 
-    // Prevent going back
+    
     useEffect(() => {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true);
         return () => backHandler.remove();

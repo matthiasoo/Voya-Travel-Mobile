@@ -14,7 +14,7 @@ export default function AdminProfile() {
     const [seeding, setSeeding] = useState(false);
 
     useEffect(() => {
-        // ... (keep useEffect as is)
+        
         const currentUser = auth().currentUser;
         if (!currentUser) return;
 
@@ -76,14 +76,14 @@ export default function AdminProfile() {
     return (
         <GradientBackground variant="full">
             <View className="flex-1 items-center gap-6 w-full pt-12">
-                {/* Avatar Section */}
+                {}
                 <View className="items-center relative">
                     <View className="w-32 h-32 rounded-full overflow-hidden border-4 border-neon-accent bg-slate-800 items-center justify-center shadow-neon-accent shadow-lg">
                         <Ionicons name="shield-checkmark" size={64} color="#FF0055" />
                     </View>
                 </View>
 
-                {/* Info Section */}
+                {}
                 <View className="items-center gap-3">
                     <Text className="text-3xl font-bold text-white text-center tracking-tight">
                         {user?.firstName} {user?.lastName}
@@ -96,7 +96,7 @@ export default function AdminProfile() {
                     </View>
                 </View>
 
-                {/* dev tools */}
+                {}
                 <View className="w-full px-8 mt-4 mb-4">
                     <Text className="text-slate-500 text-xs font-bold uppercase mb-4 ml-2">Developer Area</Text>
                     <GradientButton
@@ -109,7 +109,7 @@ export default function AdminProfile() {
                     </Text>
                 </View>
 
-                {/* Actions */}
+                {}
                 <View className="w-full px-8 mt-2">
                     <TouchableOpacity onPress={handleSignOut} className="items-center p-2">
                         <Text className="text-red-400 font-bold">Log Out</Text>

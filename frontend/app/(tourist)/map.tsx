@@ -24,7 +24,7 @@ export default function MapScreen() {
     const router = useRouter();
     const { isHighContrast } = useAccessibility();
 
-    // Fetch verified offers
+    
     useEffect(() => {
         try {
             const unsubscribe = firestore()
@@ -72,7 +72,7 @@ export default function MapScreen() {
 
     return (
         <View className={`flex-1 ${isHighContrast ? 'bg-black' : 'bg-slate-900'}`}>
-            {/* Map */}
+            {}
             <MapView
                 ref={mapRef}
                 provider={PROVIDER_GOOGLE}
@@ -103,7 +103,7 @@ export default function MapScreen() {
                 ))}
             </MapView>
 
-            {/* Loading Overlay */}
+            {}
             {loading && (
                 <View className={`absolute inset-0 items-center justify-center ${isHighContrast ? 'bg-black/70' : 'bg-slate-900/50'}`}>
                     <ActivityIndicator size="large" color={isHighContrast ? "#FACC15" : "#00D4FF"} />
@@ -111,7 +111,7 @@ export default function MapScreen() {
                 </View>
             )}
 
-            {/* Header */}
+            {}
             <View className="absolute top-12 left-4 right-4">
                 <View className={`p-3 rounded-xl flex-row items-center ${isHighContrast
                         ? 'bg-black border-2 border-white'
@@ -124,7 +124,7 @@ export default function MapScreen() {
                 </View>
             </View>
 
-            {/* Legend */}
+            {}
             <View className={`absolute top-28 left-4 p-2 rounded-lg ${isHighContrast
                     ? 'bg-black border-2 border-white'
                     : 'bg-slate-900/90 border border-slate-700'
@@ -139,7 +139,7 @@ export default function MapScreen() {
                 </View>
             </View>
 
-            {/* Selected Offer Card */}
+            {}
             {selectedOffer && (
                 <View className="absolute bottom-6 left-4 right-4">
                     <View className={`rounded-xl overflow-hidden ${isHighContrast
@@ -151,7 +151,7 @@ export default function MapScreen() {
                             className="flex-row"
                             activeOpacity={0.9}
                         >
-                            {/* Image */}
+                            {}
                             <View className={`w-28 h-28 ${isHighContrast ? 'bg-neutral-800' : 'bg-slate-700'}`}>
                                 {selectedOffer.images?.[0] ? (
                                     <Image
@@ -166,7 +166,7 @@ export default function MapScreen() {
                                 )}
                             </View>
 
-                            {/* Content */}
+                            {}
                             <View className="flex-1 p-3 justify-between">
                                 <View>
                                     <View className="flex-row items-center gap-2 mb-1">
@@ -203,7 +203,7 @@ export default function MapScreen() {
                             </View>
                         </TouchableOpacity>
 
-                        {/* Close button */}
+                        {}
                         <TouchableOpacity
                             onPress={handleCloseCard}
                             className={`absolute top-2 right-2 rounded-full p-1 ${isHighContrast ? 'bg-neutral-800 border border-white' : 'bg-slate-900/80'
@@ -218,7 +218,7 @@ export default function MapScreen() {
     );
 }
 
-// Dark map style for Google Maps
+
 const darkMapStyle = [
     { elementType: "geometry", stylers: [{ color: "#1d2c4d" }] },
     { elementType: "labels.text.fill", stylers: [{ color: "#8ec3b9" }] },
@@ -236,7 +236,7 @@ const darkMapStyle = [
     { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }] },
 ];
 
-// High contrast map style
+
 const highContrastMapStyle = [
     { elementType: "geometry", stylers: [{ color: "#000000" }] },
     { elementType: "labels.text.fill", stylers: [{ color: "#ffffff" }] },

@@ -19,7 +19,7 @@ export default function Login() {
         try {
             const { user } = await auth().signInWithEmailAndPassword(email, password);
 
-            // Check role
+            
             const userDoc = await firestore().collection('users').doc(user.uid).get();
             if (userDoc.exists) {
                 const userData = userDoc.data();

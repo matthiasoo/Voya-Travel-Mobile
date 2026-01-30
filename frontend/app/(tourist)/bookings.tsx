@@ -22,7 +22,7 @@ export default function TouristBookingsScreen() {
     const [loading, setLoading] = useState(true);
     const [selectedTab, setSelectedTab] = useState<FilterTab>('ALL');
 
-    // Review State
+    
     const [reviewModalVisible, setReviewModalVisible] = useState(false);
     const [selectedBookingForReview, setSelectedBookingForReview] = useState<Reservation | null>(null);
 
@@ -36,7 +36,7 @@ export default function TouristBookingsScreen() {
                 .get();
 
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Reservation));
-            // Sort by createdAt desc
+            
             data.sort((a, b) => b.createdAt - a.createdAt);
             setBookings(data);
         } catch (error) {
@@ -46,7 +46,7 @@ export default function TouristBookingsScreen() {
         }
     };
 
-    // Auto-update ACCEPTED bookings to COMPLETED when end date passes
+    
     useEffect(() => {
         const updateCompletedBookings = async () => {
             const now = Date.now();
@@ -62,7 +62,7 @@ export default function TouristBookingsScreen() {
                         batch.update(ref, { status: 'COMPLETED', updatedAt: Date.now() });
                     });
                     await batch.commit();
-                    fetchBookings(); // Refresh to show updated statuses
+                    fetchBookings(); 
                 } catch (error) {
                     console.error("Error updating completed bookings:", error);
                 }
@@ -95,7 +95,7 @@ export default function TouristBookingsScreen() {
                                 status: 'CANCELLED',
                                 updatedAt: Date.now()
                             });
-                            fetchBookings(); // Refresh
+                            fetchBookings(); 
                         } catch (error) {
                             Alert.alert("Error", "Failed to cancel booking.");
                         }
@@ -136,7 +136,7 @@ export default function TouristBookingsScreen() {
     const renderItem = ({ item }: { item: Reservation }) => {
         const canCancel = item.status === 'PENDING' || item.status === 'ACCEPTED';
 
-        // Only allow review for COMPLETED bookings
+        
         const canReview = item.status === 'COMPLETED' && !item.hasReviewed;
         const dateRange = `${new Date(item.startDate).toLocaleDateString()} - ${new Date(item.endDate).toLocaleDateString()}`;
 
@@ -174,7 +174,7 @@ export default function TouristBookingsScreen() {
                     </View>
                 </View>
 
-                {/* Actions */}
+                {}
                 <View className={`flex-row justify-end border-t ${isHighContrast
                         ? 'bg-neutral-900 border-white'
                         : 'bg-slate-800 border-slate-700'
@@ -215,7 +215,7 @@ export default function TouristBookingsScreen() {
             <View className="flex-1 pt-12 pb-4 px-4">
                 <Text className="text-2xl font-bold text-white mb-4">My Bookings</Text>
 
-                {/* Filters */}
+                {}
                 <View className={`flex-row mb-6 p-1 rounded-lg ${isHighContrast ? 'bg-neutral-900 border-2 border-white' : 'bg-slate-900/50'
                     }`}>
                     {(['ALL', 'PENDING', 'ACCEPTED', 'COMPLETED', 'CANCELLED'] as FilterTab[]).map(tab => (

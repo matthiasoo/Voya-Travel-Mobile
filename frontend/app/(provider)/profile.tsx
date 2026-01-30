@@ -17,7 +17,7 @@ export default function ProviderProfileScreen() {
 
     const { isHighContrast, toggleHighContrast } = useAccessibility();
 
-    // Edit State
+    
     const [editCompanyName, setEditCompanyName] = useState('');
     const [editPhoneNumber, setEditPhoneNumber] = useState('');
     const [editBio, setEditBio] = useState('');
@@ -117,14 +117,14 @@ export default function ProviderProfileScreen() {
             <ScrollView className="w-full flex-1" showsVerticalScrollIndicator={false}>
                 <View className="items-center gap-6 w-full pb-8 pt-4">
 
-                    {/* Header / Avatar */}
+                    {}
                     <View className="items-center relative">
                         <View className={`w-32 h-32 rounded-full overflow-hidden border-4 ${isHighContrast ? 'border-white bg-black' : 'border-neon-primary bg-slate-800'} items-center justify-center shadow-neon-primary`}>
                             <Ionicons name="business" size={64} color={isHighContrast ? "#FACC15" : "#7F00FF"} />
                         </View>
                     </View>
 
-                    {/* Basic Info & Status */}
+                    {}
                     {!isEditing && (
                         <View className="items-center gap-2">
                             <Text className={`text-3xl font-bold ${isHighContrast ? 'text-white' : 'text-white'} text-center`}>
@@ -144,7 +144,7 @@ export default function ProviderProfileScreen() {
                         </View>
                     )}
 
-                    {/* Details / Edit Form */}
+                    {}
                     {isEditing ? (
                         <View className="w-full gap-4">
                             <Text className="text-white text-lg font-bold ml-1">Company Info</Text>
@@ -197,7 +197,7 @@ export default function ProviderProfileScreen() {
                         </View>
                     )}
 
-                    {/* Accessibility Settings */}
+                    {}
                     <View className={`w-full p-4 rounded-xl ${isHighContrast ? 'bg-neutral-900 border-2 border-white' : 'bg-void-surface'}`}>
                         <Text className={`text-lg font-bold mb-3 ${isHighContrast ? 'text-white' : 'text-white'}`}>
                             Accessibility
@@ -225,7 +225,7 @@ export default function ProviderProfileScreen() {
                         </View>
                     </View>
 
-                    {/* Actions */}
+                    {}
                     <View className="w-full mt-4 gap-4">
                         {isEditing ? (
                             <View className="gap-3">

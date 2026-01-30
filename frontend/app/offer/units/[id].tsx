@@ -66,7 +66,7 @@ export default function UnitDetailsScreen() {
     return (
         <GradientBackground variant="full">
             <View className="flex-1">
-                {/* Header */}
+                {}
                 <View className="absolute top-0 left-0 right-0 z-10 pt-12 px-4 flex-row items-center">
                     <TouchableOpacity
                         onPress={() => router.back()}
@@ -78,7 +78,7 @@ export default function UnitDetailsScreen() {
                 </View>
 
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
-                    {/* Images Carousel */}
+                    {}
                     <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>
                         {unit.images && unit.images.length > 0 ? (
                             unit.images.map((img, index) => (
@@ -99,7 +99,7 @@ export default function UnitDetailsScreen() {
                     </ScrollView>
 
                     <View className="px-4 py-6 gap-6">
-                        {/* Title & Price */}
+                        {}
                         <View>
                             <Text className="text-2xl font-bold text-white mb-1">{unit.name}</Text>
                             <Text className="text-slate-400 text-sm mb-2">{unit.type.replace(/_/g, ' ')}</Text>
@@ -109,7 +109,7 @@ export default function UnitDetailsScreen() {
                             </Text>
                         </View>
 
-                        {/* Quick Stats */}
+                        {}
                         <View className="flex-row gap-4">
                             <View className="bg-slate-800/50 px-4 py-3 rounded-xl border border-slate-700 items-center flex-1">
                                 <Ionicons name="people" size={20} color="#94a3b8" />
@@ -128,7 +128,7 @@ export default function UnitDetailsScreen() {
                             </View>
                         </View>
 
-                        {/* Description */}
+                        {}
                         {unit.unitDescription ? (
                             <View>
                                 <Text className="text-lg font-bold text-white mb-2">Description</Text>
@@ -136,7 +136,7 @@ export default function UnitDetailsScreen() {
                             </View>
                         ) : null}
 
-                        {/* Amenities */}
+                        {}
                         {unit.amenities && unit.amenities.length > 0 && (
                             <View>
                                 <Text className="text-lg font-bold text-white mb-2">Amenities</Text>
@@ -150,7 +150,7 @@ export default function UnitDetailsScreen() {
                             </View>
                         )}
 
-                        {/* Inventory */}
+                        {}
                         <View className="bg-slate-800 p-4 rounded-xl border border-slate-700 flex-row justify-between items-center">
                             <Text className="text-slate-300">Inventory Quantity</Text>
                             <Text className="text-white font-bold text-lg">{unit.quantity}</Text>

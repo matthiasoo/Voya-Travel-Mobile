@@ -72,7 +72,7 @@ export default function BaseUserSetup() {
         }
         console.log('Navigating to provider setup');
 
-        // Navigate to provider setup, passing names
+        
         router.push({
             pathname: '/(auth)/provider-setup',
             params: { firstName, lastName }

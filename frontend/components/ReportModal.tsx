@@ -52,7 +52,7 @@ export function ReportModal({ visible, onClose, targetId, targetType, targetName
             );
             Alert.alert("Report Sent", "Thank you for reporting. We will review this content shortly.");
             onClose();
-            // Reset form
+            
             setReason(null);
             setDescription("");
         } catch (error) {

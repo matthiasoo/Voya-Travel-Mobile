@@ -19,7 +19,7 @@ export default function ProviderSetup() {
     const [category, setCategory] = useState<ProviderCategory>('ACCOMMODATION');
     const [bio, setBio] = useState('');
 
-    // Address
+    
     const [street, setStreet] = useState('');
     const [city, setCity] = useState('');
     const [zipCode, setZipCode] = useState('');

@@ -22,7 +22,7 @@ export default function ProviderReservationsScreen() {
                 .get();
 
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Reservation));
-            // Sort by createdAt desc
+            
             data.sort((a, b) => b.createdAt - a.createdAt);
             setReservations(data);
         } catch (error) {
@@ -44,7 +44,7 @@ export default function ProviderReservationsScreen() {
                 status: newStatus,
                 updatedAt: Date.now()
             });
-            // Update local state for immediate feedback
+            
             setReservations(prev => prev.map(r =>
                 r.id === reservationId ? { ...r, status: newStatus } : r
             ));
@@ -90,7 +90,7 @@ export default function ProviderReservationsScreen() {
                     </View>
                 </View>
 
-                {/* Additional Details */}
+                {}
                 <View className="flex-row gap-4 mt-2 border-t border-slate-700/50 pt-2 mb-3">
                     <View className="flex-1">
                         <Text className="text-slate-500 text-xs">Unit</Text>
@@ -106,7 +106,7 @@ export default function ProviderReservationsScreen() {
                     </View>
                 </View>
 
-                {/* Actions */}
+                {}
                 {isPending && (
                     <View className="flex-row gap-3 pt-2 border-t border-slate-700">
                         <TouchableOpacity

@@ -21,7 +21,7 @@ export default function CreateUnitScreen() {
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
 
-    // Form Fields
+    
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [type, setType] = useState<'ROOM' | 'ENTIRE_APARTMENT' | 'BED_IN_DORM'>('ROOM');
@@ -33,13 +33,13 @@ export default function CreateUnitScreen() {
     const [amenitiesInput, setAmenitiesInput] = useState("");
     const [quantity, setQuantity] = useState("1");
 
-    // Images
-    const [images, setImages] = useState<string[]>([]); // Local URIs
+    
+    const [images, setImages] = useState<string[]>([]); 
 
     const pickImage = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
-            allowsEditing: true, // simplified
+            allowsEditing: true, 
             aspect: [4, 3],
             quality: 0.5,
             allowsMultipleSelection: true,
@@ -79,16 +79,16 @@ export default function CreateUnitScreen() {
             const currentUser = auth().currentUser;
             if (!currentUser) throw new Error("User not logged in");
 
-            const unitId = Date.now().toString(); // Simple ID generation
+            const unitId = Date.now().toString(); 
             const priceNum = parseFloat(price);
             const quantityNum = parseInt(quantity) || 1;
 
-            // 1. Upload Images
+            
             const imageUrls: string[] = [];
             if (images.length > 0) {
                 setUploading(true);
                 for (const uri of images) {
-                    // Path: /offers/{offerId}/units/{unitId}/{filename}
+                    
                     const filename = uri.substring(uri.lastIndexOf('/') + 1);
                     const path = `offers/${offerId}/units/${unitId}`;
                     const url = await uploadImage(path, uri);
@@ -128,18 +128,18 @@ export default function CreateUnitScreen() {
                 const offerData = offerDoc.data() as AccommodationOffer;
                 const currentUnits = offerData.details.units || [];
 
-                // Append new unit
+                
                 const updatedUnits = [...currentUnits, newUnit];
 
-                // Recalculate Min Price (From Price)
+                
                 let minPrice = priceNum;
                 if (currentUnits.length > 0) {
-                    // Find min of existing
+                    
                     const existingMin = Math.min(...currentUnits.map(u => u.pricePerNight));
                     minPrice = Math.min(minPrice, existingMin);
                 }
 
-                // Update
+                
                 transaction.update(offerRef, {
                     'details.units': updatedUnits,
                     price: minPrice
@@ -162,7 +162,7 @@ export default function CreateUnitScreen() {
     return (
         <GradientBackground variant="full">
             <View className="flex-1">
-                {/* Header */}
+                {}
                 <View className="flex-row items-center p-4 pt-12 border-b border-slate-800 bg-slate-900/50">
                     <TouchableOpacity onPress={() => router.back()} className="mr-4">
                         <Ionicons name="arrow-back" size={24} color="white" />
@@ -172,7 +172,7 @@ export default function CreateUnitScreen() {
 
                 <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
                     <View className="gap-6 pb-10">
-                        {/* Basic Info */}
+                        {}
                         <View className="gap-4">
                             <Text className="text-neon-secondary font-bold text-lg">Unit Information</Text>
                             <GradientInput value={name} onChangeText={setName} placeholder="Unit Name (e.g. Deluxe Room)" />
@@ -200,7 +200,7 @@ export default function CreateUnitScreen() {
                             </View>
                         </View>
 
-                        {/* Pricing & Capacity */}
+                        {}
                         <View className="gap-4">
                             <Text className="text-neon-secondary font-bold text-lg">Pricing & Capacity</Text>
                             <GradientInput value={price} onChangeText={setPrice} placeholder="Price per Night (USD)" keyboardType="numeric" />
@@ -219,7 +219,7 @@ export default function CreateUnitScreen() {
                             <GradientInput value={quantity} onChangeText={setQuantity} placeholder="Quantity (Inventory)" keyboardType="numeric" />
                         </View>
 
-                        {/* Images */}
+                        {}
                         <View className="gap-4">
                             <Text className="text-neon-secondary font-bold text-lg">Images</Text>
                             <View className="flex-row flex-wrap gap-2">
@@ -243,7 +243,7 @@ export default function CreateUnitScreen() {
                             </View>
                         </View>
 
-                        {/* Details */}
+                        {}
                         <View className="gap-4">
                             <Text className="text-neon-secondary font-bold text-lg">Details</Text>
                             <GradientInput value={bedConfig} onChangeText={setBedConfig} placeholder="Bed Configuration (e.g. 1 King)" />
@@ -252,7 +252,7 @@ export default function CreateUnitScreen() {
                         </View>
 
 
-                        {/* Submit */}
+                        {}
                         {loading || uploading ? (
                             <View className="items-center">
                                 <ActivityIndicator size="large" color="#00D4FF" />

@@ -24,7 +24,7 @@ export default function ChatScreen() {
     useEffect(() => {
         if (!id || !currentUser) return;
 
-        // Fetch Chat Metadata
+        
         const chatUnsubscribe = firestore()
             .collection('chats')
             .doc(id as string)
@@ -33,8 +33,8 @@ export default function ChatScreen() {
                     const data = doc.data();
                     setChatMetadata(data);
 
-                    // Fetch other user for avatar
-                    // If I am client, provider is other. If I am provider, client is other.
+                    
+                    
                     if (data && currentUser) {
                         const otherId = currentUser.uid === data.clientId ? data.providerId : data.clientId;
                         if (otherId) {
@@ -49,7 +49,7 @@ export default function ChatScreen() {
                 }
             });
 
-        // Fetch Messages
+        
         const messagesUnsubscribe = firestore()
             .collection('chats')
             .doc(id as string)
@@ -87,8 +87,8 @@ export default function ChatScreen() {
             await sendMessage(id as string, text);
         } catch (error) {
             console.error("Error sending message:", error);
-            // Optionally show an error toast
-            // Restore text if failed? For now, keep simple.
+            
+            
         }
     };
 
@@ -97,12 +97,10 @@ export default function ChatScreen() {
 
         return (
             <View className={`my-1 w-full flex-row items-end ${isMyMessage ? 'justify-end' : 'justify-start'}`}>
-                {/* Provider/Other Avatar */}
+                {}
                 {!isMyMessage && (
                     <View className="w-8 h-8 rounded-full bg-slate-700 items-center justify-center mr-2 mb-1 border border-slate-600">
-                        {/* We could try to show the other user's avatar if we fetched it, but for now generic icon based on role logic is hard without user data. 
-                             Simple fallback: First letter? Or generic icons.
-                         */}
+                        {}
                         <Ionicons name="chatbubble-ellipses" size={16} color="#94A3B8" />
                     </View>
                 )}
@@ -112,10 +110,10 @@ export default function ChatScreen() {
                     : 'bg-slate-700 rounded-bl-none border border-slate-600'
                     }`}>
                     <Text className={`text-base leading-5 ${isMyMessage ? 'text-white' : 'text-slate-200'}`}>{item.text}</Text>
-                    {/* Time? */}
+                    {}
                 </View>
 
-                {/* My Avatar */}
+                {}
                 {isMyMessage && (
                     <View className="w-8 h-8 rounded-full bg-neon-primary/20 items-center justify-center ml-2 mb-1 border border-neon-primary/50 overflow-hidden">
                         <Ionicons name="person" size={16} color="#00D4FF" />
@@ -135,7 +133,7 @@ export default function ChatScreen() {
         );
     }
 
-    // Determine "Other Person" Name
+    
     let otherPersonName = "Chat";
     if (chatMetadata && currentUser) {
         if (currentUser.uid === chatMetadata.clientId) {
@@ -148,7 +146,7 @@ export default function ChatScreen() {
     return (
         <GradientBackground variant="full">
             <View className="flex-1">
-                {/* Header */}
+                {}
                 <View className="pt-12 pb-2 px-4">
                     <View className="bg-slate-800/90 border border-slate-700 rounded-2xl p-3 flex-row items-center shadow-lg">
                         <TouchableOpacity onPress={() => router.back()} className="mr-3 bg-slate-700/50 p-2 rounded-full">
@@ -177,17 +175,17 @@ export default function ChatScreen() {
                     </View>
                 </View>
 
-                {/* Messages */}
+                {}
                 <FlatList
                     ref={flatListRef}
                     data={messages}
                     renderItem={renderMessageItem}
-                    keyExtractor={item => item.id || Math.random().toString()} // Firestore usually gives ID, but optimistically...
+                    keyExtractor={item => item.id || Math.random().toString()} 
                     contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 20, flexGrow: 1 }}
                     onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
                 />
 
-                {/* Input */}
+                {}
                 <KeyboardAvoidingView
                     behavior={Platform.OS === "ios" ? "padding" : undefined}
                     keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}

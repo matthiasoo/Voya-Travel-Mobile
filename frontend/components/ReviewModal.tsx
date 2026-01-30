@@ -24,7 +24,7 @@ export function ReviewModal({ visible, onClose, offerId, reservationId, onSucces
         setSubmitting(true);
 
         try {
-            // AI Safety Check
+            
             const safetyResult = await AIService.checkContentSafety(content);
             if (!safetyResult.safe) {
                 Alert.alert(
@@ -38,7 +38,7 @@ export function ReviewModal({ visible, onClose, offerId, reservationId, onSucces
             const user = auth().currentUser;
             if (!user) return;
 
-            // Fetch user profile to get the real name
+            
             let userName = user.displayName || "Anonymous";
             let userAvatar = user.photoURL || null;
 
@@ -50,7 +50,7 @@ export function ReviewModal({ visible, onClose, offerId, reservationId, onSucces
                     const userData = userDoc.data();
                     console.log('User data:', userData);
 
-                    // Check for fullName first, then try firstName + lastName
+                    
                     if (userData?.fullName) {
                         userName = userData.fullName;
                         console.log('Set userName from fullName:', userName);
@@ -69,7 +69,7 @@ export function ReviewModal({ visible, onClose, offerId, reservationId, onSucces
                 console.error("Could not fetch user profile for review:", err);
             }
 
-            // 1. Create Review Document
+            
             const reviewRef = firestore().collection('reviews').doc();
             await reviewRef.set({
                 id: reviewRef.id,
@@ -82,12 +82,12 @@ export function ReviewModal({ visible, onClose, offerId, reservationId, onSucces
                 createdAt: Date.now()
             });
 
-            // 2. Mark Reservation as Reviewed
+            
             await firestore().collection('bookings').doc(reservationId).update({
                 hasReviewed: true
             });
 
-            // 3. Update Offer Average Rating (Simplified Transaction)
+            
             const offerRef = firestore().collection('offers').doc(offerId);
 
             await firestore().runTransaction(async (transaction) => {
@@ -99,7 +99,7 @@ export function ReviewModal({ visible, onClose, offerId, reservationId, onSucces
                 const currentCount = data?.reviewsCount || 0;
 
                 const newCount = currentCount + 1;
-                // Calculate new running average
+                
                 const newRating = ((currentRating * currentCount) + rating) / newCount;
 
                 transaction.update(offerRef, {

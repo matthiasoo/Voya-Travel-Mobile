@@ -2,9 +2,9 @@ export type ReportReason = 'SPAM' | 'HARASSMENT' | 'INAPPROPRIATE' | 'VIOLENCE' 
 
 export interface Report {
     id: string;
-    targetId: string; // ID of the reported offer, user, or review
+    targetId: string; 
     targetType: 'OFFER' | 'USER' | 'REVIEW';
-    targetName?: string; // Optional context (e.g., offer title)
+    targetName?: string; 
     reporterId: string;
     reason: ReportReason;
     description: string;

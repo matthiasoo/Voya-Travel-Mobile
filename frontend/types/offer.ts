@@ -21,7 +21,7 @@ export interface BaseOffer {
     title: string;
     description: string;
 
-    price: number; // Cache for "lowest price", initialize as 0
+    price: number; 
     currency: string;
 
     images: string[];
@@ -31,7 +31,7 @@ export interface BaseOffer {
     reviewsCount: number;
 }
 
-// Unit (Child)
+
 export interface AccommodationUnit {
     id: string;
     name: string;
@@ -46,7 +46,7 @@ export interface AccommodationUnit {
     quantity: number;
 }
 
-// Property (Parent)
+
 export interface AccommodationOffer extends BaseOffer {
     type: 'ACCOMMODATION';
     details: {
@@ -58,26 +58,26 @@ export interface AccommodationOffer extends BaseOffer {
     };
 }
 
-// Tour Offer
+
 export type TourDifficulty = 'EASY' | 'MODERATE' | 'CHALLENGING';
 
 export interface TourOffer extends BaseOffer {
     type: 'TOURS';
     details: {
-        // Basic
-        duration: number; // hours
+        
+        duration: number; 
         maxParticipants: number;
-        startDates: string[]; // Array of ISO date strings or available days
+        startDates: string[]; 
 
-        // Organizational
+        
         meetingPoint?: string;
         pickupIncluded?: boolean;
 
-        // Difficulty & Requirements
+        
         difficulty?: TourDifficulty;
         minimumAge?: number;
 
-        // Additional Info
+        
         languages: string[];
         whatsIncluded?: string[];
         whatToBring?: string[];

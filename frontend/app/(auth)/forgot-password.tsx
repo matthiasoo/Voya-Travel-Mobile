@@ -29,7 +29,7 @@ export default function ForgotPassword() {
                     <GradientButton
                         title="Back to Login"
                         onPress={() => router.back()}
-                    // variant="outline" // Assuming we might want an outline variant later, but standard is fine for now or I can implement "Cancel" style
+                    
                     />
                 </View>
             </View>

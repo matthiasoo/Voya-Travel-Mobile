@@ -70,16 +70,13 @@ export default function AdminReportsScreen() {
                 Alert.alert("Success", "Offer has been hidden/rejected.");
             }
 
-            // Mark all reports as resolved/dismissed
+            
             const status = action === 'DISMISS' ? 'DISMISS' : 'RESOLVED';
-            /* 
-               Note: ReportService.updateReportStatus expects 'RESOLVED' | 'DISMISSED'.
-               But 'DISMISS' logic implies 'DISMISSED'.
-            */
+            
             const finalStatus = action === 'DISMISS' ? 'DISMISS' : 'RESOLVED';
-            // Wait, type is 'DISMISSED' not 'DISMISS' in service
+            
 
-            // Batch update reports (or one by one)
+            
             const promises = selectedCase.reports.map(r =>
                 ReportService.updateReportStatus(r.id, action === 'DISMISS' ? 'DISMISSED' : 'RESOLVED', action)
             );
@@ -132,7 +129,7 @@ export default function AdminReportsScreen() {
         return (
             <GradientBackground variant="full">
                 <View className="flex-1">
-                    {/* Header */}
+                    {}
                     <View className="flex-row items-center p-4 border-b border-slate-800">
                         <TouchableOpacity onPress={() => setSelectedCase(null)} className="mr-4">
                             <Ionicons name="arrow-back" size={24} color="white" />

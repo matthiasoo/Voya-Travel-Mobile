@@ -23,22 +23,22 @@ export default function CreatePropertyScreen() {
     const [generating, setGenerating] = useState(false);
     const [userCategory, setUserCategory] = useState<'ACCOMMODATION' | 'TOURS' | null>(null);
 
-    // Form Fields - offerType will be set based on user category
+    
     const [offerType, setOfferType] = useState<'ACCOMMODATION' | 'TOURS'>('ACCOMMODATION');
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
 
-    // Accommodation Specific
+    
     const [propertyType, setPropertyType] = useState<'HOTEL' | 'APARTMENT' | 'HOSTEL'>('HOTEL');
     const [checkInTime, setCheckInTime] = useState("14:00");
     const [checkOutTime, setCheckOutTime] = useState("11:00");
     const [amenitiesInput, setAmenitiesInput] = useState("");
 
-    // Tour Specific
+    
     const [duration, setDuration] = useState("");
     const [maxParticipants, setMaxParticipants] = useState("");
     const [meetingPoint, setMeetingPoint] = useState("");
-    const [datesInput, setDatesInput] = useState(""); // Simplified: comma separated dates
+    const [datesInput, setDatesInput] = useState(""); 
     const [whatsIncludedInput, setWhatsIncludedInput] = useState("");
     const [pickupIncluded, setPickupIncluded] = useState(false);
     const [difficulty, setDifficulty] = useState<'EASY' | 'MODERATE' | 'CHALLENGING'>('EASY');
@@ -49,7 +49,7 @@ export default function CreatePropertyScreen() {
     const [transportation, setTransportation] = useState("");
     const [pricePerPerson, setPricePerPerson] = useState("");
 
-    // Map & Location
+    
     const [region, setRegion] = useState<Region>({
         latitude: 51.7592,
         longitude: 19.4560,
@@ -61,10 +61,10 @@ export default function CreatePropertyScreen() {
     const [city, setCity] = useState("");
     const [country, setCountry] = useState("");
 
-    // Images
+    
     const [images, setImages] = useState<string[]>([]);
 
-    // Map Permissions & Initial Reverse Geocode + Fetch User Category
+    
     useEffect(() => {
         (async () => {
             const { status } = await Location.requestForegroundPermissionsAsync();
@@ -72,10 +72,10 @@ export default function CreatePropertyScreen() {
                 Alert.alert('Permission to access location was denied');
                 return;
             }
-            // Initial reverse geocode for default location
+            
             reverseGeocode(markerCoords.latitude, markerCoords.longitude);
 
-            // Fetch user category to lock offer type
+            
             const currentUser = auth().currentUser;
             if (currentUser) {
                 const userDoc = await firestore().collection('users').doc(currentUser.uid).get();
@@ -168,7 +168,7 @@ export default function CreatePropertyScreen() {
             return;
         }
 
-        // AI Safety Check
+        
         setLoading(true);
         try {
             const safetyCheck = await AIService.checkContentSafety(`${title}\n${description}`);
@@ -179,19 +179,19 @@ export default function CreatePropertyScreen() {
             }
         } catch (err) {
             console.error("Safety check failed:", err);
-            // Fail open or closed? System prompt says fail open in service, so we might just proceed or log.
-            // But here we are inside a try block. If checkContentSafety catches its own errors and returns {safe:true}, we are good.
-            // If it throws, we land here.
+            
+            
+            
         }
         try {
             const currentUser = auth().currentUser;
             if (!currentUser) throw new Error("User not logged in");
 
-            // Generate ID first to use in storage path
+            
             const docRef = firestore().collection('offers').doc();
             const offerId = docRef.id;
 
-            // Upload images
+            
             const imageUrls: string[] = [];
             if (images.length > 0) {
                 setUploading(true);
@@ -216,7 +216,7 @@ export default function CreatePropertyScreen() {
                 isActive: true,
                 title,
                 description,
-                price: offerType === 'TOURS' ? (parseFloat(pricePerPerson) || 0) : 0, // Simplified price logic
+                price: offerType === 'TOURS' ? (parseFloat(pricePerPerson) || 0) : 0, 
                 currency: 'USD',
                 images: imageUrls,
                 location: {
@@ -291,7 +291,7 @@ export default function CreatePropertyScreen() {
     return (
         <GradientBackground variant="full">
             <View className="flex-1">
-                {/* Header */}
+                {}
                 <View className="flex-row items-center p-4 pt-12 border-b border-slate-800 bg-slate-900/50">
                     <TouchableOpacity onPress={() => router.back()} className="mr-4">
                         <Ionicons name="arrow-back" size={24} color="white" />
@@ -302,7 +302,7 @@ export default function CreatePropertyScreen() {
                 <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
                     <View className="gap-6 pb-10">
 
-                        {/* Offer Type Indicator */}
+                        {}
                         <View className={`flex-row items-center gap-3 p-4 rounded-xl border ${offerType === 'TOURS' ? 'bg-neon-primary/10 border-neon-primary/50' : 'bg-neon-secondary/10 border-neon-secondary/50'}`}>
                             <View className={`w-12 h-12 rounded-full items-center justify-center ${offerType === 'TOURS' ? 'bg-neon-primary/20' : 'bg-neon-secondary/20'}`}>
                                 <Ionicons
@@ -319,7 +319,7 @@ export default function CreatePropertyScreen() {
                             </View>
                         </View>
 
-                        {/* Basic Info */}
+                        {}
                         <View className="gap-4">
                             <Text className="text-neon-secondary font-bold text-lg">Basic Information</Text>
                             <GradientInput value={title} onChangeText={setTitle} placeholder="Title (e.g. City Tour or Cozy Apt)" />
@@ -346,7 +346,7 @@ export default function CreatePropertyScreen() {
                             </View>
                         </View>
 
-                        {/* Images */}
+                        {}
                         <View className="gap-4">
                             <Text className="text-neon-secondary font-bold text-lg">Images</Text>
                             <View className="flex-row flex-wrap gap-2">
@@ -370,7 +370,7 @@ export default function CreatePropertyScreen() {
                             </View>
                         </View>
 
-                        {/* ACCOMMODATION SPECIFIC */}
+                        {}
                         {offerType === 'ACCOMMODATION' && (
                             <View className="gap-4">
                                 <Text className="text-neon-secondary font-bold text-lg">Accommodation Details</Text>
@@ -393,7 +393,7 @@ export default function CreatePropertyScreen() {
                             </View>
                         )}
 
-                        {/* TOURS SPECIFIC */}
+                        {}
                         {offerType === 'TOURS' && (
                             <View className="gap-4">
                                 <Text className="text-neon-primary font-bold text-lg">Tour Details</Text>
@@ -420,7 +420,7 @@ export default function CreatePropertyScreen() {
                                     </View>
                                 </View>
 
-                                {/* Difficulty Selector */}
+                                {}
                                 <View>
                                     <Text className="text-slate-400 mb-2">Difficulty</Text>
                                     <View className="flex-row gap-2">
@@ -443,7 +443,7 @@ export default function CreatePropertyScreen() {
                                     <GradientInput value={languagesInput} onChangeText={setLanguagesInput} placeholder="English, Spanish, Polish..." />
                                 </View>
 
-                                {/* Pickup Toggle */}
+                                {}
                                 <TouchableOpacity
                                     onPress={() => setPickupIncluded(!pickupIncluded)}
                                     className={`flex-row items-center justify-between p-4 rounded-xl border ${pickupIncluded ? 'bg-neon-primary/10 border-neon-primary' : 'bg-slate-800 border-slate-700'}`}
@@ -485,7 +485,7 @@ export default function CreatePropertyScreen() {
                             </View>
                         )}
 
-                        {/* Location */}
+                        {}
                         <View className="gap-4">
                             <Text className="text-white font-bold text-lg">Location</Text>
 
@@ -515,7 +515,7 @@ export default function CreatePropertyScreen() {
                             </View>
                         </View>
 
-                        {/* Submit Button */}
+                        {}
                         <View className="mt-4">
                             {loading || uploading ? (
                                 <View className="items-center">

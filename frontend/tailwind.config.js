@@ -1,4 +1,4 @@
-/** @type {import('tailwindcss').Config} */
+
 module.exports = {
   content: ["./app/**/*.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],
   presets: [require("nativewind/preset")],
@@ -8,16 +8,16 @@ module.exports = {
         sans: ['Inter_400Regular'],
       },
       colors: {
-        background: "#020617", // Deep Space Navy
-        surface: "#1e293b",    // Dark Slate
-        foreground: "#f8fafc", // Slate 50
-        primary: "#06b6d4",    // Neon Cyan
-        secondary: "#8b5cf6",  // Neon Violet
-        accent: "#db2777",     // Hot Pink
+        background: "#020617", 
+        surface: "#1e293b",    
+        foreground: "#f8fafc", 
+        primary: "#06b6d4",    
+        secondary: "#8b5cf6",  
+        accent: "#db2777",     
         success: "#22c55e",
         error: "#ef4444",
 
-        // Void Theme additions
+        
         void: {
           DEFAULT: '#05050A',
           surface: '#060514ff',

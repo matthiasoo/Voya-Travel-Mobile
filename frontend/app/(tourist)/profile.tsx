@@ -44,7 +44,7 @@ export default function ProfileScreen() {
         return () => unsubscribe();
     }, []);
 
-    // Load initial values into edit state when editing starts or user loads
+    
     useEffect(() => {
         if (user) {
             setEditFirstName(user.firstName);
@@ -113,7 +113,7 @@ export default function ProfileScreen() {
     return (
         <GradientBackground>
             <View className="items-center gap-6 w-full">
-                {/* Avatar Section */}
+                {}
                 <View className="items-center relative">
                     <View className={`w-32 h-32 rounded-full overflow-hidden border-4 ${isHighContrast ? 'border-white bg-black' : 'border-neon-secondary bg-slate-800'} items-center justify-center shadow-neon-primary`}>
                         {newImageUri ? (
@@ -145,7 +145,7 @@ export default function ProfileScreen() {
                     )}
                 </View>
 
-                {/* Info Section */}
+                {}
                 {isEditing ? (
                     <View className="w-full gap-4">
                         <GradientInput
@@ -173,7 +173,7 @@ export default function ProfileScreen() {
                     </View>
                 )}
 
-                {/* Accessibility Settings */}
+                {}
                 <View className={`w-full p-4 rounded-xl ${isHighContrast ? 'bg-neutral-900 border-2 border-white' : 'bg-void-surface'}`}>
                     <Text className={`text-lg font-bold mb-3 ${isHighContrast ? 'text-white' : 'text-white'}`}>
                         Accessibility
@@ -201,7 +201,7 @@ export default function ProfileScreen() {
                     </View>
                 </View>
 
-                {/* Actions */}
+                {}
                 <View className="w-full mt-4 gap-4">
                     {isEditing ? (
                         <View className="gap-3">

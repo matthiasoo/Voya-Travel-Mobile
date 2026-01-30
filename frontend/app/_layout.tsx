@@ -29,7 +29,7 @@ export default function RootLayout() {
         return subscriber;
     }, []);
 
-    // Notiifcation Listener
+    
     useEffect(() => {
         let unsubscribe = () => { };
 
@@ -39,15 +39,15 @@ export default function RootLayout() {
             const hasPermission = await NotificationService.requestPermissions();
             if (!hasPermission) return;
 
-            // Get user role to listen for correct events
+            
             const userDoc = await firestore().collection('users').doc(user.uid).get();
             const userData = userDoc.data();
             const role = userData?.role;
 
             if (role) {
-                // Listen for bookings
+                
                 const bookingUnsub = NotificationService.listenForBookingUpdates(user.uid, role);
-                // Listen for chats
+                
                 const chatUnsub = NotificationService.listenForChatUpdates(user.uid);
 
                 unsubscribe = () => {
@@ -69,7 +69,7 @@ export default function RootLayout() {
     useEffect(() => {
         if (!user) return;
 
-        // Listen for user status (Ban System)
+        
         const unsubscribe = firestore()
             .collection('users')
             .doc(user.uid)
@@ -96,7 +96,7 @@ export default function RootLayout() {
         const inAuthGroup = segments[0] === '(auth)';
         const inPublicGroup = segments[0] === '(auth)' || !segments[0] || segments[0] === 'banned';
 
-        // If user is not logged in and tries to access restricted areas
+        
         if (!user && !inPublicGroup) {
             router.replace('/(auth)/login');
         }

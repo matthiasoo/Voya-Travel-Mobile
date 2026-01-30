@@ -29,7 +29,7 @@ export default function MyOffersScreen() {
             .onSnapshot((snapshot) => {
                 const fetchedOffers: Offer[] = [];
                 snapshot.forEach(doc => {
-                    // We can cast data to Offer since we control the schema
+                    
                     fetchedOffers.push({ id: doc.id, ...doc.data() } as Offer);
                 });
                 setOffers(fetchedOffers);
@@ -66,7 +66,7 @@ export default function MyOffersScreen() {
                 <View className="px-4 mb-4">
                     <Text className="text-3xl font-bold text-white mb-4">My Offers</Text>
 
-                    {/* Filter Tabs */}
+                    {}
                     <View className="flex-row gap-2">
                         {(['ALL', 'VERIFIED', 'UNVERIFIED', 'REJECTED'] as const).map((status) => (
                             <TouchableOpacity

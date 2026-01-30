@@ -9,7 +9,7 @@ import { useAccessibility } from "../contexts/AccessibilityContext";
 export interface FilterState {
     minPrice: string;
     maxPrice: string;
-    types: string[]; // 'HOTEL', 'APARTMENT', 'TOURS'
+    types: string[]; 
     amenities: string[];
     sortBy: 'price_asc' | 'price_desc' | 'rating' | null;
 }
@@ -75,7 +75,7 @@ export function FilterModal({ visible, onClose, onApply, initialFilters }: Filte
                         ? 'bg-black border-white border-2'
                         : 'bg-slate-900 border-slate-700'
                     }`}>
-                    {/* Header */}
+                    {}
                     <View className="relative">
                         <View className="flex-row items-center justify-between p-5 z-10">
                             <TouchableOpacity onPress={handleReset}>
@@ -100,7 +100,7 @@ export function FilterModal({ visible, onClose, onApply, initialFilters }: Filte
                     </View>
 
                     <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
-                        {/* Price Range */}
+                        {}
                         <View className="mb-6">
                             <Text className="text-white font-bold mb-3 text-lg">Price Range</Text>
                             <View className="flex-row gap-4">
@@ -123,7 +123,7 @@ export function FilterModal({ visible, onClose, onApply, initialFilters }: Filte
                             </View>
                         </View>
 
-                        {/* Property Type */}
+                        {}
                         <View className="mb-6">
                             <Text className="text-white font-bold mb-3 text-lg">Type</Text>
                             <View className="flex-row flex-wrap gap-2">
@@ -162,7 +162,7 @@ export function FilterModal({ visible, onClose, onApply, initialFilters }: Filte
                             </View>
                         </View>
 
-                        {/* Amenities */}
+                        {}
                         <View className="mb-6">
                             <Text className="text-white font-bold mb-3 text-lg">Amenities</Text>
                             <View className="flex-row flex-wrap gap-2">
@@ -201,7 +201,7 @@ export function FilterModal({ visible, onClose, onApply, initialFilters }: Filte
                             </View>
                         </View>
 
-                        {/* Sorting */}
+                        {}
                         <View className="mb-6">
                             <Text className="text-white font-bold mb-3 text-lg">Sort By</Text>
                             <View className="gap-3">
@@ -269,11 +269,11 @@ export function FilterModal({ visible, onClose, onApply, initialFilters }: Filte
                             </View>
                         </View>
 
-                        {/* Bottom Space */}
+                        {}
                         <View className="h-20" />
                     </ScrollView>
 
-                    {/* Footer - Apply Button */}
+                    {}
                     <View className={`absolute bottom-0 left-0 right-0 p-4 border-t pb-8 ${isHighContrast
                             ? 'bg-black border-white'
                             : 'bg-slate-900 border-slate-800'

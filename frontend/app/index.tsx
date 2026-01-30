@@ -12,10 +12,10 @@ export default function Index() {
         const checkUser = async () => {
             const user = auth().currentUser;
             if (!user) {
-                // Not logged in -> Go to Auth/Login
+                
                 router.replace('/(auth)/login');
             } else {
-                // Logged in logic -> Check Role
+                
                 try {
                     const userDoc = await firestore().collection('users').doc(user.uid).get();
                     if (userDoc.exists) {
@@ -28,18 +28,18 @@ export default function Index() {
                             router.replace('/(tourist)');
                         }
                     } else {
-                        // User exists in Auth but not in Firestore? Setup needed.
+                        
                         router.replace('/(auth)/baseuser-setup');
                     }
                 } catch (error) {
                     console.error("Error checking user role:", error);
-                    // Fallback or stay on splash?
-                    // router.replace('/(auth)/login');
+                    
+                    
                 }
             }
         };
 
-        // Small delay or check ensuring nav is ready
+        
         setTimeout(checkUser, 100);
     }, []);
 

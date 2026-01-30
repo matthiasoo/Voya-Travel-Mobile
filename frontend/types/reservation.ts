@@ -11,29 +11,29 @@ export interface UserAddress {
 
 export interface Reservation {
     id: string;
-    // Relationships
+    
     offerId: string;
     offerTitle: string;
     offerImage: string;
     providerId: string;
     clientId: string;
-    unitId: string;       // Which specific unit type was booked
-    unitName: string;     // e.g. "Double Room with View"
+    unitId: string;       
+    unitName: string;     
 
-    // Timestamps
+    
     createdAt: number;
     updatedAt: number;
 
-    // Booking Details
-    startDate: number;    // Timestamp
-    endDate: number;      // Timestamp
+    
+    startDate: number;    
+    endDate: number;      
     totalPrice: number;
-    guestCount: number;   // Added guest count for context
+    guestCount: number;   
     status: ReservationStatus;
 
-    // Contact Info
+    
     contactDetails: UserAddress;
 
-    // Status
+    
     hasReviewed?: boolean;
 }

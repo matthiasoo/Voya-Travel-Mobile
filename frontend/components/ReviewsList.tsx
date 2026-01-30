@@ -14,7 +14,7 @@ interface ReviewsListProps {
 }
 
 export function ReviewsList({ offerId }: ReviewsListProps) {
-    // ... (state remains)
+    
     const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
     const [reportReviewObj, setReportReviewObj] = useState<Review | null>(null);
@@ -22,7 +22,7 @@ export function ReviewsList({ offerId }: ReviewsListProps) {
 
     useEffect(() => {
         const unsubscribe = firestore()
-            // ... (query remains)
+            
             .collection('reviews')
             .where('offerId', '==', offerId)
             .orderBy('createdAt', 'desc')
@@ -87,7 +87,7 @@ export function ReviewsList({ offerId }: ReviewsListProps) {
         </View>
     );
 
-    if (loading) return null; // Or a skeleton
+    if (loading) return null; 
 
     if (reviews.length === 0) {
         return (

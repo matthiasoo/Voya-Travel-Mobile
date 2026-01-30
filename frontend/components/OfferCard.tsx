@@ -7,8 +7,8 @@ import { useAccessibility } from "../contexts/AccessibilityContext";
 
 interface OfferCardProps {
     offer: Offer;
-    showStatus?: boolean; // For provider view
-    showType?: boolean; // Show TOUR/ACCOMMODATION badge
+    showStatus?: boolean; 
+    showType?: boolean; 
 }
 
 export function OfferCard({ offer, showStatus = false, showType = true }: OfferCardProps) {
@@ -32,7 +32,7 @@ export function OfferCard({ offer, showStatus = false, showType = true }: OfferC
                 : 'bg-slate-800/80 border-slate-700'
                 }`}
         >
-            {/* Edit Button - Only visible if showStatus is true (Provider View) */}
+            {}
             {showStatus && (
                 <TouchableOpacity
                     onPress={(e) => {
@@ -48,7 +48,7 @@ export function OfferCard({ offer, showStatus = false, showType = true }: OfferC
                 </TouchableOpacity>
             )}
 
-            {/* Image Section */}
+            {}
             <View className={`h-44 w-full relative ${isHighContrast ? 'bg-neutral-900' : 'bg-slate-900'}`}>
                 {offer.images && offer.images.length > 0 ? (
                     <Image
@@ -63,7 +63,7 @@ export function OfferCard({ offer, showStatus = false, showType = true }: OfferC
                     </View>
                 )}
 
-                {/* Price Badge */}
+                {}
                 <View className={`absolute bottom-2 right-2 px-3 py-1.5 rounded-lg ${isHighContrast ? 'bg-black border border-white' : 'bg-slate-900/90'
                     }`}>
                     <Text className={`font-bold ${isHighContrast ? 'text-white' : 'text-neon-primary'}`}>
@@ -73,7 +73,7 @@ export function OfferCard({ offer, showStatus = false, showType = true }: OfferC
                     </Text>
                 </View>
 
-                {/* Type Badge */}
+                {}
                 {showType && offer.type === 'TOURS' && (
                     <View className={`absolute top-2 left-2 px-2.5 py-1 rounded-lg flex-row items-center gap-1 ${isHighContrast ? 'bg-yellow-400' : 'bg-neon-primary/90'
                         }`}>
@@ -90,7 +90,7 @@ export function OfferCard({ offer, showStatus = false, showType = true }: OfferC
                 )}
             </View>
 
-            {/* Content Section */}
+            {}
             <View className="p-4">
                 <Text className="text-lg font-bold text-white mb-1" numberOfLines={1}>
                     {offer.title}
@@ -103,7 +103,7 @@ export function OfferCard({ offer, showStatus = false, showType = true }: OfferC
                     </Text>
                 </View>
 
-                {/* Bottom Row: Rating + Status/Date */}
+                {}
                 <View className="flex-row justify-between items-center">
                     <View className="flex-row items-center gap-1">
                         <Ionicons name="star" size={14} color={isHighContrast ? "white" : "#FBBF24"} />

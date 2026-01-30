@@ -20,7 +20,7 @@ export default function Index() {
     const router = useRouter();
     const { isHighContrast } = useAccessibility();
 
-    // Filter State
+    
     const [filterVisible, setFilterVisible] = useState(false);
     const [activeFilters, setActiveFilters] = useState<FilterState>({
         minPrice: '',
@@ -52,7 +52,7 @@ export default function Index() {
     const filteredOffers = useMemo(() => {
         let result = offers;
 
-        // 1. Text Search
+        
         if (searchQuery) {
             const query = searchQuery.toLowerCase();
             result = result.filter(offer =>
@@ -62,7 +62,7 @@ export default function Index() {
             );
         }
 
-        // 2. Price Range
+        
         if (activeFilters.minPrice) {
             result = result.filter(o => o.price >= parseFloat(activeFilters.minPrice));
         }
@@ -70,7 +70,7 @@ export default function Index() {
             result = result.filter(o => o.price <= parseFloat(activeFilters.maxPrice));
         }
 
-        // 3. Type Filter
+        
         if (activeFilters.types.length > 0) {
             result = result.filter(o => {
                 if (activeFilters.types.includes('TOURS') && o.type === 'TOURS') return true;
@@ -82,13 +82,13 @@ export default function Index() {
             });
         }
 
-        // 4. Amenities
+        
         if (activeFilters.amenities.length > 0) {
             result = result.filter(o => {
-                // If it's a tour, specific amenities might not apply, or we check description?
-                // For now, only check accommodation amenities or general description
+                
+                
                 if (o.type === 'ACCOMMODATION' && o.details?.generalAmenities) {
-                    // Check if offer has ALL selected amenities
+                    
                     return activeFilters.amenities.every(amenity =>
                         o.details.generalAmenities.some(a => a.toLowerCase().includes(amenity.toLowerCase()))
                     );
@@ -97,7 +97,7 @@ export default function Index() {
             });
         }
 
-        // 5. Sorting
+        
         if (activeFilters.sortBy) {
             result = [...result].sort((a, b) => {
                 switch (activeFilters.sortBy) {

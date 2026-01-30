@@ -24,7 +24,7 @@ export function BookingSection({ offer }: BookingSectionProps) {
     const [selectedUnit, setSelectedUnit] = useState<AccommodationUnit | null>(null);
     const { isHighContrast } = useAccessibility();
 
-    // Tour specific state
+    
     const [guestCount, setGuestCount] = useState(1);
 
     const currentUser = auth().currentUser;
@@ -43,7 +43,7 @@ export function BookingSection({ offer }: BookingSectionProps) {
         }
     }, [currentUser]);
 
-    // Fetch Bookings when component mounts or offer changes
+    
     const fetchBookings = useCallback(async () => {
         setCalculating(true);
         try {
@@ -53,7 +53,7 @@ export function BookingSection({ offer }: BookingSectionProps) {
                 .get();
 
             const fetched = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Reservation))
-                .filter(res => res.status !== 'CANCELLED' && res.status !== 'REJECTED'); // Exclude cancelled
+                .filter(res => res.status !== 'CANCELLED' && res.status !== 'REJECTED'); 
             setBookings(fetched);
         } catch (error) {
             console.error("Error fetching bookings:", error);
@@ -70,20 +70,20 @@ export function BookingSection({ offer }: BookingSectionProps) {
         const dateString = day.dateString;
 
         if (offer.type === 'TOURS') {
-            // Single date selection for tours
+            
             setSelectedStartDate(dateString);
-            setSelectedEndDate(dateString); // Same day for simplicity in logic
+            setSelectedEndDate(dateString); 
             return;
         }
 
-        // Accommodation range selection
+        
         if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
-            // New selection
+            
             setSelectedStartDate(dateString);
             setSelectedEndDate(null);
         } else if (selectedStartDate && !selectedEndDate) {
-            // End selection
-            // Simple check: is end before start?
+            
+            
             if (new Date(dateString) < new Date(selectedStartDate)) {
                 setSelectedStartDate(dateString);
                 setSelectedEndDate(null);
@@ -119,7 +119,7 @@ export function BookingSection({ offer }: BookingSectionProps) {
         return marks;
     }, [selectedStartDate, selectedEndDate, offer, isHighContrast]);
 
-    // Availability Logic
+    
     const availableUnits = useMemo(() => {
         if (offer.type !== 'ACCOMMODATION') return [];
         if (!selectedStartDate || !selectedEndDate || calculating) return [];
@@ -128,10 +128,10 @@ export function BookingSection({ offer }: BookingSectionProps) {
         const end = new Date(selectedEndDate).getTime();
 
         return offer.details.units.map(unit => {
-            // Count overlaps
+            
             const overlaps = bookings.filter(b => {
                 if (b.unitId !== unit.id) return false;
-                // Check date overlap: (StartA <= EndB) and (EndA >= StartB)
+                
                 return (b.startDate < end) && (b.endDate > start);
             }).length;
 
@@ -140,7 +140,7 @@ export function BookingSection({ offer }: BookingSectionProps) {
         }).filter(u => u.remaining > 0);
     }, [selectedStartDate, selectedEndDate, bookings, calculating, offer]);
 
-    // Helper to check same day (simple version if date-fns input is timestamp/date)
+    
     const isSameDay = (ts1: number, ts2: number) => {
         const d1 = new Date(ts1);
         const d2 = new Date(ts2);
@@ -149,18 +149,18 @@ export function BookingSection({ offer }: BookingSectionProps) {
             d1.getDate() === d2.getDate();
     };
 
-    // Tour Availability Logic
+    
     const tourAvailability = useMemo(() => {
         if (offer.type !== 'TOURS') return null;
         if (!selectedStartDate) return null;
 
         const start = new Date(selectedStartDate).getTime();
 
-        // Sum guests for this date
+        
         const bookedGuests = bookings.filter(b => {
-            // Check if same day. 
-            // Note: b.startDate is timestamp. We should compare dates roughly.
-            // Assuming startDate is stored as midnight timestamp for tours.
+            
+            
+            
             return isSameDay(b.startDate, start);
         }).reduce((acc, b) => acc + (b.guestCount || 1), 0);
 
@@ -177,7 +177,7 @@ export function BookingSection({ offer }: BookingSectionProps) {
         if (offer.type === 'ACCOMMODATION') {
             setSelectedUnit(unit);
         } else {
-            // For tours, unit is null
+            
             setSelectedUnit(null);
         }
         setModalVisible(true);
@@ -189,7 +189,7 @@ export function BookingSection({ offer }: BookingSectionProps) {
 
         const startTimestamp = new Date(selectedStartDate).getTime();
         const endTimestamp = offer.type === 'TOURS'
-            ? startTimestamp // Same day for tours? Or + duration? Let's use startTimestamp for end too or logic dependent
+            ? startTimestamp 
             : new Date(selectedEndDate!).getTime();
 
         const nights = offer.type === 'TOURS' ? 1 : Math.max(1, Math.ceil((endTimestamp - startTimestamp) / (1000 * 60 * 60 * 24)));
@@ -211,7 +211,7 @@ export function BookingSection({ offer }: BookingSectionProps) {
             startDate: startTimestamp,
             endDate: endTimestamp,
             totalPrice,
-            guestCount: offer.type === 'TOURS' ? guestCount : (selectedUnit!.capacity.adults + selectedUnit!.capacity.children), // Approximation for accommodation
+            guestCount: offer.type === 'TOURS' ? guestCount : (selectedUnit!.capacity.adults + selectedUnit!.capacity.children), 
             status: 'PENDING',
             contactDetails: contact
         };
@@ -223,7 +223,7 @@ export function BookingSection({ offer }: BookingSectionProps) {
         }
 
         Alert.alert("Success", "Booking request sent!", [{ text: "OK" }]);
-        // Refresh bookings to update availability
+        
         fetchBookings();
     };
 
@@ -311,7 +311,7 @@ export function BookingSection({ offer }: BookingSectionProps) {
                             )}
                         </>
                     ) : (
-                        // TOUR UI
+                        
                         <View className={`p-4 rounded-xl border mb-4 ${isHighContrast
                             ? 'bg-black border-2 border-white'
                             : 'bg-slate-800 border-slate-700'

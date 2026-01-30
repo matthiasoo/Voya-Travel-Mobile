@@ -3,15 +3,15 @@ import Constants from 'expo-constants';
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const MODEL = 'llama-3.3-70b-versatile';
 
-// Get key from env
+
 const API_KEY = process.env.EXPO_PUBLIC_GROQ_API_KEY;
 
 interface GenerateDescriptionParams {
     title: string;
-    location: string; // city, country
+    location: string; 
     type: 'ACCOMMODATION' | 'TOURS';
-    amenities?: string[]; // for accommodation
-    highlights?: string[]; // for tours
+    amenities?: string[]; 
+    highlights?: string[]; 
     style?: 'luxury' | 'adventurous' | 'calm' | 'romantic';
 }
 
@@ -71,7 +71,7 @@ export const AIService = {
     checkContentSafety: async (text: string): Promise<{ safe: boolean; reason?: string }> => {
         if (!API_KEY || API_KEY.includes('PLACEHOLDER')) {
             console.warn("Missing Groq API Key. Skipping safety check.");
-            return { safe: true }; // Fail open if no key, or handle stricter
+            return { safe: true }; 
         }
 
         const systemPrompt = `You are a content safety moderator. Analyze the user text for hate speech, harassment, explicit violence, self-harm, or adult content. 
@@ -100,7 +100,7 @@ export const AIService = {
 
             if (!response.ok) {
                 console.error("Groq API Error (Safety Check):", data);
-                return { safe: true }; // Fail open on API error to not block user
+                return { safe: true }; 
             }
 
             const content = data.choices[0].message.content;
@@ -109,7 +109,7 @@ export const AIService = {
 
         } catch (error) {
             console.error("AI Safety Check failed:", error);
-            return { safe: true }; // Fail open
+            return { safe: true }; 
         }
     }
 };

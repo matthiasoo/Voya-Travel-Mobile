@@ -3,20 +3,20 @@ import auth from "@react-native-firebase/auth";
 import { Offer, AccommodationOffer, TourOffer, LocationData } from "../types/offer";
 import { Review } from "../types/review";
 
-// --- MOCK DATA ---
+
 
 const MOCK_IMAGES = {
-    // Hotels & Apartments
-    hotel_paris: "https://images.unsplash.com/photo-1549144511-300ad1223fb7?q=80&w=1000&auto=format&fit=crop", // Paris Hotel
-    hotel_room: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?q=80&w=1000&auto=format&fit=crop", // Modern Hotel Room
-    apartment_ny: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1000&auto=format&fit=crop", // NY Apartment
-    resort_bali: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=1000&auto=format&fit=crop", // Bali Resort
+    
+    hotel_paris: "https://images.unsplash.com/photo-1549144511-300ad1223fb7?q=80&w=1000&auto=format&fit=crop", 
+    hotel_room: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?q=80&w=1000&auto=format&fit=crop", 
+    apartment_ny: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1000&auto=format&fit=crop", 
+    resort_bali: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=1000&auto=format&fit=crop", 
 
-    // Tours
-    safari: "https://images.unsplash.com/photo-1547471080-7541fbb55b6d?q=80&w=1000&auto=format&fit=crop", // Elephant Safari
-    scuba: "https://images.unsplash.com/photo-1544551763-46a8723ba3f9?q=80&w=1000&auto=format&fit=crop", // Underwater
-    hiking: "https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=1000&auto=format&fit=crop", // Hiking
-    city_tour: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1000&auto=format&fit=crop", // Paris Street
+    
+    safari: "https://images.unsplash.com/photo-1547471080-7541fbb55b6d?q=80&w=1000&auto=format&fit=crop", 
+    scuba: "https://images.unsplash.com/photo-1544551763-46a8723ba3f9?q=80&w=1000&auto=format&fit=crop", 
+    hiking: "https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=1000&auto=format&fit=crop", 
+    city_tour: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1000&auto=format&fit=crop", 
 };
 
 const MOCK_LOCATIONS: Record<string, LocationData> = {
@@ -26,7 +26,7 @@ const MOCK_LOCATIONS: Record<string, LocationData> = {
         country: "France",
         latitude: 48.8584,
         longitude: 2.2945,
-        geohash: "u09j" // simplified
+        geohash: "u09j" 
     },
     bali: {
         address: "Ubud, Gianyar",
@@ -70,10 +70,10 @@ export const SeederService = {
         console.log("Starting DB Seeder...");
         const batch = firestore().batch();
 
-        // 1. Create Offers
+        
         const offers: Offer[] = [
 
-            // --- ACCOMMODATION: Bali Resort ---
+            
             {
                 id: firestore().collection('offers').doc().id,
                 type: 'ACCOMMODATION',
@@ -112,7 +112,7 @@ export const SeederService = {
                 }
             } as AccommodationOffer,
 
-            // --- TOUR: Safari ---
+            
             {
                 id: firestore().collection('offers').doc().id,
                 type: 'TOURS',
@@ -122,7 +122,7 @@ export const SeederService = {
                 price: 300,
                 currency: "USD",
                 images: [MOCK_IMAGES.safari],
-                location: { ...MOCK_LOCATIONS.cairo, city: "Nairobi", country: "Kenya" }, // Overriding location for variety
+                location: { ...MOCK_LOCATIONS.cairo, city: "Nairobi", country: "Kenya" }, 
                 verificationStatus: 'VERIFIED',
                 isActive: true,
                 rating: 5.0,
@@ -141,7 +141,7 @@ export const SeederService = {
                 }
             } as TourOffer,
 
-            // --- ACCOMMODATION: NY Apartment ---
+            
             {
                 id: firestore().collection('offers').doc().id,
                 type: 'ACCOMMODATION',
@@ -180,7 +180,7 @@ export const SeederService = {
                 }
             } as AccommodationOffer,
 
-            // --- TOUR: Paris City Walk ---
+            
             {
                 id: firestore().collection('offers').doc().id,
                 type: 'TOURS',
@@ -209,21 +209,21 @@ export const SeederService = {
             } as TourOffer,
         ];
 
-        // Add offers to batch
+        
         offers.forEach(offer => {
             const offerRef = firestore().collection('offers').doc(offer.id);
             batch.set(offerRef, offer);
 
-            // 2. Add Mock Reviews for each offer
-            const numReviews = Math.floor(Math.random() * 5) + 2; // 2-6 reviews
+            
+            const numReviews = Math.floor(Math.random() * 5) + 2; 
             for (let i = 0; i < numReviews; i++) {
                 const reviewId = firestore().collection('reviews').doc().id;
                 const review: Review = {
                     id: reviewId,
                     offerId: offer.id,
-                    userId: 'mock_user_' + i, // Fake user ID
+                    userId: 'mock_user_' + i, 
                     userName: ['Alice', 'Bob', 'Charlie', 'Diana', 'Erik'][i % 5],
-                    rating: Math.floor(Math.random() * 2) + 4, // 4 or 5 stars
+                    rating: Math.floor(Math.random() * 2) + 4, 
                     content: MOCK_REVIEWS_CONTENT[i % MOCK_REVIEWS_CONTENT.length],
                     createdAt: Date.now() - (Math.random() * 1000000000)
                 };

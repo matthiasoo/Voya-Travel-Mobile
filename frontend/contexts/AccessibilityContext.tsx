@@ -23,7 +23,7 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
     const [isHighContrast, setIsHighContrast] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
 
-    // Load preference from storage on mount
+    
     useEffect(() => {
         const loadPreference = async () => {
             try {
@@ -40,7 +40,7 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
         loadPreference();
     }, []);
 
-    // Save preference when it changes
+    
     const toggleHighContrast = async () => {
         try {
             const newValue = !isHighContrast;
@@ -51,7 +51,7 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
         }
     };
 
-    // Don't render children until preference is loaded to prevent flash
+    
     if (!isLoaded) {
         return null;
     }
@@ -63,14 +63,14 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
     );
 }
 
-// High contrast color palette
+
 export const highContrastColors = {
     background: '#000000',
     surface: '#1a1a1a',
     foreground: '#FFFFFF',
-    primary: '#00FFFF',      // Pure cyan for maximum visibility
-    secondary: '#FFFF00',    // Yellow for high contrast
-    accent: '#FF00FF',       // Magenta
+    primary: '#00FFFF',      
+    secondary: '#FFFF00',    
+    accent: '#FF00FF',       
     text: {
         main: '#FFFFFF',
         muted: '#CCCCCC',
@@ -80,7 +80,7 @@ export const highContrastColors = {
     error: '#FF0000',
 };
 
-// Helper hook to get dynamic colors based on high contrast mode
+
 export const useColors = () => {
     const { isHighContrast } = useAccessibility();
 

@@ -14,7 +14,7 @@ export default function AdminApprovals() {
     const [offers, setOffers] = useState<Offer[]>([]);
     const [loading, setLoading] = useState(true);
 
-    // Fetch Providers
+    
     useEffect(() => {
         const unsubscribe = firestore()
             .collection('users')
@@ -35,7 +35,7 @@ export default function AdminApprovals() {
         return () => unsubscribe();
     }, [activeTab]);
 
-    // Fetch Offers
+    
     useEffect(() => {
         const unsubscribe = firestore()
             .collection('offers')
@@ -183,7 +183,7 @@ export default function AdminApprovals() {
             <View className="flex-1 p-4 pt-12">
                 <Text className="text-2xl font-bold text-white mb-6">Pending Approvals</Text>
 
-                {/* Tabs */}
+                {}
                 <View className="flex-row mb-6 bg-slate-800/50 p-1 rounded-xl border border-slate-700">
                     <TouchableOpacity
                         onPress={() => setActiveTab('providers')}

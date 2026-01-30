@@ -31,7 +31,7 @@ export default function DashboardScreen() {
         const currentUser = auth().currentUser;
         if (!currentUser) return;
 
-        // Fetch user data
+        
         const unsubUser = firestore()
             .collection('users')
             .doc(currentUser.uid)
@@ -41,14 +41,14 @@ export default function DashboardScreen() {
                 }
             });
 
-        // Fetch bookings for this provider
+        
         const unsubBookings = firestore()
             .collection('bookings')
             .where('providerId', '==', currentUser.uid)
             .onSnapshot(async (snapshot) => {
                 const bookings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Reservation));
 
-                // Calculate stats
+                
                 const pending = bookings.filter(b => b.status === 'PENDING').length;
                 const active = bookings.filter(b => b.status === 'ACCEPTED').length;
                 const completed = bookings.filter(b => b.status === 'COMPLETED').length;
@@ -56,13 +56,13 @@ export default function DashboardScreen() {
                     .filter(b => b.status === 'COMPLETED' || b.status === 'ACCEPTED')
                     .reduce((sum, b) => sum + (b.totalPrice || 0), 0);
 
-                // Get recent bookings (last 5)
+                
                 const recent = bookings
                     .sort((a, b) => b.createdAt - a.createdAt)
                     .slice(0, 5);
                 setRecentBookings(recent);
 
-                // Fetch offers for ratings
+                
                 const offersSnapshot = await firestore()
                     .collection('offers')
                     .where('providerId', '==', currentUser.uid)
@@ -71,7 +71,7 @@ export default function DashboardScreen() {
                 const offers = offersSnapshot.docs.map(doc => doc.data() as Offer);
                 const totalOffers = offers.length;
 
-                // Calculate average rating
+                
                 const offersWithRating = offers.filter(o => o.rating > 0);
                 const avgRating = offersWithRating.length > 0
                     ? offersWithRating.reduce((sum, o) => sum + o.rating, 0) / offersWithRating.length
@@ -129,9 +129,9 @@ export default function DashboardScreen() {
                 <View className="pt-12 px-4 pb-24 gap-6">
                     <Text className="text-3xl font-bold text-white">Dashboard</Text>
 
-                    {/* Stats Grid */}
+                    {}
                     <View className="flex-row flex-wrap gap-3">
-                        {/* Total Bookings */}
+                        {}
                         <View className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 flex-1 min-w-[45%]">
                             <View className="flex-row items-center gap-2 mb-2">
                                 <View className="w-8 h-8 rounded-full bg-neon-primary/20 items-center justify-center">
@@ -146,7 +146,7 @@ export default function DashboardScreen() {
                             </View>
                         </View>
 
-                        {/* Revenue */}
+                        {}
                         <View className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 flex-1 min-w-[45%]">
                             <View className="flex-row items-center gap-2 mb-2">
                                 <View className="w-8 h-8 rounded-full bg-green-500/20 items-center justify-center">
@@ -158,7 +158,7 @@ export default function DashboardScreen() {
                             <Text className="text-slate-500 text-xs mt-1">from {stats?.completedBookings} completed</Text>
                         </View>
 
-                        {/* Offers */}
+                        {}
                         <View className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 flex-1 min-w-[45%]">
                             <View className="flex-row items-center gap-2 mb-2">
                                 <View className="w-8 h-8 rounded-full bg-purple-500/20 items-center justify-center">
@@ -170,7 +170,7 @@ export default function DashboardScreen() {
                             <Text className="text-slate-500 text-xs mt-1">active listings</Text>
                         </View>
 
-                        {/* Rating */}
+                        {}
                         <View className="bg-slate-800/50 p-4 rounded-xl border border-slate-700 flex-1 min-w-[45%]">
                             <View className="flex-row items-center gap-2 mb-2">
                                 <View className="w-8 h-8 rounded-full bg-yellow-500/20 items-center justify-center">
@@ -185,7 +185,7 @@ export default function DashboardScreen() {
                         </View>
                     </View>
 
-                    {/* Quick Actions */}
+                    {}
                     <View>
                         <Text className="text-white font-bold text-lg mb-3">Quick Actions</Text>
                         <View className="flex-row gap-3">
@@ -215,7 +215,7 @@ export default function DashboardScreen() {
                         </View>
                     </View>
 
-                    {/* Recent Bookings */}
+                    {}
                     {recentBookings.length > 0 && (
                         <View>
                             <View className="flex-row justify-between items-center mb-3">

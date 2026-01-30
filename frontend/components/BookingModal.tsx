@@ -12,14 +12,14 @@ interface BookingModalProps {
     unitName: string;
     totalPrice: number;
     currency: string;
-    dates: string; // Display string
+    dates: string; 
 }
 
 export function BookingModal({ visible, onClose, onSubmit, unitName, totalPrice, currency, dates }: BookingModalProps) {
     const currentUser = auth().currentUser;
     const [submitting, setSubmitting] = useState(false);
 
-    // Address Fields
+    
     const [fullName, setFullName] = useState("");
     const [phone, setPhone] = useState("");
     const [street, setStreet] = useState("");
@@ -34,7 +34,7 @@ export function BookingModal({ visible, onClose, onSubmit, unitName, totalPrice,
         const fetchUserAddress = async () => {
             try {
                 const userDoc = await firestore().collection('users').doc(currentUser.uid).get();
-                // Check exists property safely? Types vary, but standard check:
+                
                 const exists = typeof userDoc.exists === 'function' ? userDoc.exists() : userDoc.exists;
                 if (exists) {
                     const userData = userDoc.data();
@@ -67,7 +67,7 @@ export function BookingModal({ visible, onClose, onSubmit, unitName, totalPrice,
         try {
             const contact: UserAddress = { fullName, phone, street, city, zipCode, country };
             await onSubmit(contact, saveAddress);
-            onClose(); // Close on success handled by parent mostly, but we close here too.
+            onClose(); 
         } catch (error) {
             Alert.alert("Error", "Booking failed. Please try again.");
             console.error(error);
@@ -81,7 +81,7 @@ export function BookingModal({ visible, onClose, onSubmit, unitName, totalPrice,
             <View className="flex-1 bg-black/50 justify-end">
                 <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
                     <View className="bg-slate-900 rounded-t-3xl border-t border-slate-700 h-[85%]">
-                        {/* Header */}
+                        {}
                         <View className="flex-row items-center justify-between p-4 border-b border-slate-700">
                             <Text className="text-xl font-bold text-white">Confirm Booking</Text>
                             <TouchableOpacity onPress={onClose} className="p-2 bg-slate-800 rounded-full">
@@ -90,7 +90,7 @@ export function BookingModal({ visible, onClose, onSubmit, unitName, totalPrice,
                         </View>
 
                         <ScrollView className="flex-1 p-4" contentContainerStyle={{ paddingBottom: 40 }}>
-                            {/* Summary */}
+                            {}
                             <View className="bg-slate-800 p-4 rounded-xl mb-6 border border-slate-700">
                                 <Text className="text-slate-400 text-xs uppercase mb-1">Booking Summary</Text>
                                 <Text className="text-white font-bold text-lg mb-1">{unitName}</Text>
@@ -101,7 +101,7 @@ export function BookingModal({ visible, onClose, onSubmit, unitName, totalPrice,
                                 </View>
                             </View>
 
-                            {/* Form */}
+                            {}
                             <Text className="text-white font-bold mb-4 text-lg">Contact Information</Text>
                             <View className="gap-3 mb-4">
                                 <View>
@@ -142,7 +142,7 @@ export function BookingModal({ visible, onClose, onSubmit, unitName, totalPrice,
                                 <Text className="text-white ml-3 text-sm">Save this address for future bookings</Text>
                             </View>
 
-                            {/* Submit */}
+                            {}
                             <TouchableOpacity
                                 onPress={handleSubmit}
                                 disabled={submitting}

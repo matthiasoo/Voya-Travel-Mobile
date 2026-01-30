@@ -21,7 +21,7 @@ export function VoiceSearchButton({ onResult, disabled = false }: VoiceSearchBut
     const opacityAnim = useRef(new Animated.Value(0.6)).current;
     const { isHighContrast } = useAccessibility();
 
-    // Speech recognition event listeners
+    
     useSpeechRecognitionEvent('start', () => {
         setVoiceState('listening');
     });
@@ -42,7 +42,7 @@ export function VoiceSearchButton({ onResult, disabled = false }: VoiceSearchBut
         setVoiceState('idle');
     });
 
-    // Pulse animation when listening
+    
     useEffect(() => {
         if (voiceState === 'listening') {
             const pulseAnimation = Animated.loop(
@@ -90,14 +90,14 @@ export function VoiceSearchButton({ onResult, disabled = false }: VoiceSearchBut
         }
 
         try {
-            // Request permissions
+            
             const result = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
             if (!result.granted) {
                 console.warn('Voice search permissions not granted');
                 return;
             }
 
-            // Start speech recognition with Polish language
+            
             ExpoSpeechRecognitionModule.start({
                 lang: 'pl-PL',
                 interimResults: false,
@@ -111,7 +111,7 @@ export function VoiceSearchButton({ onResult, disabled = false }: VoiceSearchBut
 
     const isListening = voiceState === 'listening';
 
-    // High contrast mode colors
+    
     const getIconColor = () => {
         if (isHighContrast) {
             return isListening ? '#FF0000' : '#FACC15';

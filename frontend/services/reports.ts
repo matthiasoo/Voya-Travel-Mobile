@@ -26,7 +26,7 @@ export const ReportService = {
 
             await reportRef.set(report);
 
-            // Auto-Block Logic (Client-side simulation)
+            
             if (targetType === 'USER') {
                 const reportsSnapshot = await firestore()
                     .collection('reports')
