@@ -1,7 +1,7 @@
 # 🌍 Voya
 
 Aplikacja mobilna do wyszukiwania, rezerwacji i oceniania noclegów oraz atrakcji turystycznych.  
-Projekt realizowany w technologii **React Native (Expo)** z integracją **Firebase**.
+Projekt realizowany w technologii **React Native (Expo)** z architekturą **Serverless** opartą na **Firebase**.
 
 ---
 
@@ -10,12 +10,14 @@ Projekt realizowany w technologii **React Native (Expo)** z integracją **Fireba
 ### 📱 Frontend
 - **React Native (Expo)**
 - **TypeScript**
-- **Expo Router** – nawigacja
-- **NativeWind** – stylizacja UI
+- **Expo Router** – nawigacja oparta na plikach
+- **NativeWind** (TailwindCSS) – stylizacja UI
 
-### ☁️ Backend
-- **Node.js + Express** – REST API i logika aplikacji
-- **Firebase** – uwierzytelnianie i przechowywanie danych (Auth, Firestore, Storage)
+### ☁️ Backend (Serverless)
+- **Firebase Authentication** – logowanie i rejestracja
+- **Cloud Firestore** – baza danych NoSQL
+- **Firebase Storage** – przechowywanie zdjęć
+- **Brak własnego serwera backendowego** – logika biznesowa po stronie klienta i usług Firebase.
 
 ---
 
@@ -25,64 +27,62 @@ Projekt realizowany w technologii **React Native (Expo)** z integracją **Fireba
 - 3 typy użytkowników:
     - **Użytkownik** - turysta
     - **Dostawca usług** – właściciel hotelu, organizator wycieczek
-    - **Administrator** – głównie moderator
+    - **Administrator** – podgląd i moderacja
 
 ### 🏕️ Oferty i rezerwacje
 - Dodawanie ofert przez dostawców:
-    - tytuł, opis, cena, zdjęcia, lokalizacja, dostępne terminy, udogodnienia
-- Kategorie: **noclegi**, **wycieczki**, **atrakcje**, **przewodnicy**
+    - tytuł, opis, cena, zdjęcia, lokalizacja, szczegóły (udogodnienia, plan wycieczki)
+- Kategorie: **noclegi**, **wycieczki** (przewodnicy i atrakcje mogą być dodawane jako wycieczki/oferty)
 - Wyszukiwanie i filtrowanie:
-    - po lokalizacji, dacie, cenie, typie, ocenach, dostępności
-- System rezerwacji z **dwustronnym potwierdzeniem** (użytkownik + dostawca)
-- Historia rezerwacji i statusy (oczekująca, potwierdzona, anulowana)
-- System ocen i opinii po zakończonej usłudze
+    - po lokalizacji i typie
+- System rezerwacji:
+    - tworzenie zapytań rezerwacyjnych
+    - czat w kontekście oferty
 
 ### 💬 Komunikacja
-- Czat pomiędzy użytkownikiem a dostawcą
-- Powiadomienia o:
-    - zmianach statusu rezerwacji
-    - nowych wiadomościach
-    - potwierdzeniach i anulowaniach
+- Czat czasie rzeczywistym (Firestore) pomiędzy użytkownikiem a dostawcą
+- Powiadomienia wewnątrz aplikacji (lista czatów)
 
 ---
 
 ## ♿ Dostępność i bezpieczeństwo
 
-- Duże czcionki i wysoki kontrast
-- Kompatybilność z technologiami asystującymi
-- Wyszukiwanie głosem (voice input)
-- Maskowanie danych kontaktowych do momentu rezerwacji
-- System zgłaszania nieuczciwych ofert i użytkowników - przez bazę danych
-- Weryfikacja dostawców - przez bazę danych
+- **Dostępność**: Przystosowanie pod czytniki ekranowe, wysoki kontrast, duże elementy interaktywne.
+- **Bezpieczeństwo treści**:
+    - **AI Safety Check**: Automatyczna weryfikacja treści wprowadzanych przez użytkowników przy użyciu modelu Llama-3 (przez Groq API). Wykrywa mowę nienawiści, przemoc itp.
 
 ---
 
-## 🤖 Integracje LLM
+## 🤖 Integracje AI (LLM)
 
-- Generowanie opisów ofert na podstawie słów kluczowych
-- Automatyczne tłumaczenia ofert i komunikatów
+Projekt wykorzystuje API **Groq** z modelem **Llama-3-70b-versatile**:
+
+- **Generowanie opisów**: Automatyczne tworzenie atrakcyjnych opisów ofert na podstawie tytułu, lokalizacji i udogodnień.
+- **Moderacja treści**: Sprawdzanie wpisów użytkownika pod kątem bezpieczeństwa (Safety Check).
 
 ---
 
 ## 🗺️ Inne funkcje
 
-- Mapa ofert (biblioteka mapowa)
-- Powiadomienia push i e-mail
-- System moderacji treści (view w sql)
-- Panel administracyjny (moderacja i statystyki)
+- Mapy (React Native Maps / Expo Location)
+- Seeder danych (wypełnianie bazy przykładowymi ofertami i opiniami)
 
 ---
 
-## ⚙️ Funkcjonalności techniczne
+## ⚙️ Konfiguracja projektu
 
-1. **Logowanie i uwierzytelnianie** – Firebase Auth (email / Google)
-2. **System transakcyjny** – tworzenie i zarządzanie ofertami, rezerwacje z dwustronnym potwierdzeniem
-3. **Funkcje dostępności** – wprowadzanie głosowe, wysoki kontrast, wsparcie asystentów
-4. **Prywatność** – maskowanie danych kontaktowych do momentu rezerwacji
-5. **Dwustronne potwierdzenie** – zarówno użytkownik, jak i dostawca potwierdzają rezerwację
-6. **System weryfikacji** – weryfikacja dostawców
-7. **Przechowywanie plików BLOB** – zdjęcia ofert, profili i wiadomości
-8. **Integracja z LLM** – generowanie opisów, tłumaczenia, sugestie
-9. **Pozostałe** – mapa, powiadomienia, panel admina, moderacja treści
+### Wymagane zmienne środowiskowe (.env)
+Aby uruchomić projekt, utwórz plik `.env` i dodaj:
+```
+EXPO_PUBLIC_GROQ_API_KEY=twoj_klucz
+GOOGLE_MAPS_API_KEY=twoj_klucz
+```
+Oraz skonfiguruj plik `google-services.json` dla Firebase.
 
----
+### Uruchamianie
+```bash
+npm install
+# Uruchomienie na emulatorze/urządzeniu Android
+# (To polecenie automatycznie zbuduje aplikację w trybie deweloperskim)
+npx expo run:android
+```
