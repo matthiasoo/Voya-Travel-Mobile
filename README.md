@@ -83,7 +83,7 @@ GOOGLE_MAPS_API_KEY=twoj_klucz_google_maps_sdk_android
 ### 4. Uruchomienie emulatora Androida
 Uruchom emulator z poziomu Android Studio lub za pomocą wiersza poleceń:
 ```powershell
-& "C:\Users\makky\AppData\Local\Android\Sdk\emulator\emulator.exe" -avd Pixel_9_Pro
+& "C:\Users\makky\AppData\Local\Android\Sdk\emulator\emulator.exe" -avd (nazwa urządzenia)
 ```
 
 ### 5. Zbudowanie i start aplikacji
